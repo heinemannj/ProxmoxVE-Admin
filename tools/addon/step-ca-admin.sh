@@ -5,6 +5,7 @@
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 
 source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/admin-core.func)
+source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/smallstep-core.func)
 
 APP="step-cli"
 APP_TITLE="step-ca Admin"
@@ -133,7 +134,7 @@ function x509_revoke() {
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
 }
 
-function request_menu() {
+function x509_request_menu() {
   local CHOICE
   OPTIONS=("FQDN" "$FQDN"
     "Hostname" "$HOST"
@@ -151,30 +152,30 @@ function request_menu() {
       FQDN=$(whiptail_inputbox "$TITLE" "FQDN (e.g. MyLXC.example.com)" "$FQDN")
       HOST=$(echo "$FQDN" | awk -F'.' '{print $1}')
       IP=$(resolve_ip "${FQDN}") || die "Resolution failed for ${FQDN}!"
-      request_menu
+      x509_request_menu
       ;;
     "Hostname")
       HOST=$(whiptail_inputbox "$TITLE" "Hostname (e.g. MyHostName)" "$HOST")
-      request_menu
+      x509_request_menu
       ;;
     "IP Address")
       IP=$(whiptail_inputbox "$TITLE" "IP Address (e.g. x.x.x.x)" "$IP")
-      request_menu
+      x509_request_menu
       ;;
     "Subject Alternative Name(s) (SANs)")
       SAN=$(whiptail_inputbox "$TITLE" "Subject Alternative Name(s) (SAN) (e.g. e.g. myapp-1.example.com, myapp-2.example.com)" "$SAN")
-      request_menu
+      x509_request_menu
       ;;
     "Validity")
       VALID_TO=$(whiptail_inputbox "$TITLE" "Validity (e.g. 168h)" "$VALID_TO")
-      request_menu
+      x509_request_menu
       ;;
     "Provisioner")
       PROVISIONER=$(whiptail_inputbox "$TITLE" "Provisioner (e.g. $PROVISIONER)" "$PROVISIONER")
-      request_menu
+      x509_request_menu
       ;;
     " ")
-      request_menu
+      x509_request_menu
       ;;
     "<Continue>") ;;
     *) maintenance_menu ;;
@@ -189,7 +190,7 @@ function x509_request() {
   IP=""
   SAN=""
 
-  request_menu
+  x509_request_menu
 
   msg_info "Requesting x509 Certificate"
   local SAN_ITEMS=("$FQDN" "$HOST" "$IP" "$SAN")
@@ -209,56 +210,6 @@ function x509_request() {
 
   msg_ok "Requested x509 Certificate"
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
-}
-
-function detect_os() {
-  if grep -qi "alpine" /etc/os-release; then
-    #OS="Alpine"
-    PKG_UPDATE=""
-    PKG_INSTALL="apk add --no-cache"
-    PKG_UPGRADE="apk update"
-    PKG_UNINSTALL="apk del"
-    PKG_AUTOREMOVE=""
-  elif grep -qi "arch" /etc/os-release; then
-    #OS="Arch"
-    PKG_UPDATE=""
-    PKG_INSTALL="pacman -S"
-    PKG_UPGRADE="pacman -Syu"
-    PKG_UNINSTALL="pacman -Rs"
-    PKG_AUTOREMOVE=""
-  elif grep -qi "debian" /etc/os-release; then
-    #OS="Debian"
-    PKG_UPDATE="apt update"
-    PKG_INSTALL="apt -y install"
-    PKG_UPGRADE="apt -y upgrade"
-    PKG_UNINSTALL="apt -y --purge remove"
-    PKG_AUTOREMOVE="apt -y --purge autoremove"
-    if ! [[ -f /etc/apt/sources.list.d/smallstep.sources ]]; then
-      setup_deb822_repo \
-        "smallstep" \
-        "https://packages.smallstep.com/keys/apt/repo-signing-key.gpg" \
-        "https://packages.smallstep.com/stable/debian" \
-        "debs" \
-        "main"
-    fi
-  elif grep -qi "ubuntu" /etc/os-release; then
-    #OS="Ubuntu"
-    PKG_UPDATE="apt update"
-    PKG_INSTALL="apt -y install"
-    PKG_UPGRADE="apt -y upgrade"
-    PKG_UNINSTALL="apt -y --purge remove"
-    PKG_AUTOREMOVE="apt -y --purge autoremove"
-    if ! [[ -f /etc/apt/sources.list.d/smallstep.sources ]]; then
-      setup_deb822_repo \
-        "smallstep" \
-        "https://packages.smallstep.com/keys/apt/repo-signing-key.gpg" \
-        "https://packages.smallstep.com/stable/debian" \
-        "debs" \
-        "main"
-    fi
-  else
-    die "Unsupported OS. Exiting."
-  fi
 }
 
 function uninstall() {

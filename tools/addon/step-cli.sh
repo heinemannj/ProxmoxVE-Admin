@@ -12,6 +12,7 @@ source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE/main/
 source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE/main/misc/tools.func)
 
 source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/admin-core.func)
+source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/smallstep-core.func)
 
 APP="step-cli"
 APP_TITLE="step-cli ACME Client"
@@ -132,7 +133,7 @@ function request() {
   PROVISIONER="acme@$DOMAINNAME"
   SAN=""
 
-  request_menu
+  x509_request_menu
 
   msg_info "Requesting System Certificate by $PROVISIONER"
   local SAN_ITEMS=("$FQDN" "$HOST" "$IP" "$SAN")
@@ -157,56 +158,6 @@ function request() {
   systemctl list-units cert-renewer@\*.timer
   msg_ok "Started Certificate Renewal as a Daemon"
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
-}
-
-function detect_os() {
-  if grep -qi "alpine" /etc/os-release; then
-    #OS="Alpine"
-    PKG_UPDATE=""
-    PKG_INSTALL="apk add --no-cache"
-    PKG_UPGRADE="apk update"
-    PKG_UNINSTALL="apk del"
-    PKG_AUTOREMOVE=""
-  elif grep -qi "arch" /etc/os-release; then
-    #OS="Arch"
-    PKG_UPDATE=""
-    PKG_INSTALL="pacman -S"
-    PKG_UPGRADE="pacman -Syu"
-    PKG_UNINSTALL="pacman -Rs"
-    PKG_AUTOREMOVE=""
-  elif grep -qi "debian" /etc/os-release; then
-    #OS="Debian"
-    PKG_UPDATE="apt update"
-    PKG_INSTALL="apt -y install"
-    PKG_UPGRADE="apt -y upgrade"
-    PKG_UNINSTALL="apt -y --purge remove"
-    PKG_AUTOREMOVE="apt -y --purge autoremove"
-    if ! [[ -f /etc/apt/sources.list.d/smallstep.sources ]]; then
-      setup_deb822_repo \
-        "smallstep" \
-        "https://packages.smallstep.com/keys/apt/repo-signing-key.gpg" \
-        "https://packages.smallstep.com/stable/debian" \
-        "debs" \
-        "main"
-    fi
-  elif grep -qi "ubuntu" /etc/os-release; then
-    #OS="Ubuntu"
-    PKG_UPDATE="apt update"
-    PKG_INSTALL="apt -y install"
-    PKG_UPGRADE="apt -y upgrade"
-    PKG_UNINSTALL="apt -y --purge remove"
-    PKG_AUTOREMOVE="apt -y --purge autoremove"
-    if ! [[ -f /etc/apt/sources.list.d/smallstep.sources ]]; then
-      setup_deb822_repo \
-        "smallstep" \
-        "https://packages.smallstep.com/keys/apt/repo-signing-key.gpg" \
-        "https://packages.smallstep.com/stable/debian" \
-        "debs" \
-        "main"
-    fi
-  else
-    die "Unsupported OS. Exiting."
-  fi
 }
 
 function uninstall() {
@@ -328,7 +279,7 @@ function certs_menu() {
   fi
 }
 
-function request_menu() {
+function x509_request_menu() {
   local CHOICE
   OPTIONS=("FQDN" "$FQDN"
     "Hostname" "$HOST"
@@ -344,30 +295,30 @@ function request_menu() {
   case "$CHOICE" in
     "FQDN")
       FQDN=$(whiptail_inputbox "$TITLE" "FQDN (e.g. $FQDN)" "$FQDN")
-      request_menu
+      x509_request_menu
       ;;
     "Hostname")
       HOST=$(whiptail_inputbox "$TITLE" "Hostname (e.g. $HOST)" "$HOST")
-      request_menu
+      x509_request_menu
       ;;
     "IP Address")
       IP=$(whiptail_inputbox "$TITLE" "IP Address (e.g. $IP)" "$IP")
-      request_menu
+      x509_request_menu
       ;;
     "Subject Alternative Name(s) (SANs)")
       SAN=$(whiptail_inputbox "$TITLE" "Subject Alternative Name(s) (SAN) (e.g. MyApp.$DOMAINNAME)" "$SAN")
-      request_menu
+      x509_request_menu
       ;;
     "Validity")
       VALID_TO=$(whiptail_inputbox "$TITLE" "Validity (e.g. 168h)" "$VALID_TO")
-      request_menu
+      x509_request_menu
       ;;
     "Provisioner")
       PROVISIONER=$(whiptail_inputbox "$TITLE" "Provisioner (e.g. $PROVISIONER)" "$PROVISIONER")
-      request_menu
+      x509_request_menu
       ;;
     " ")
-      request_menu
+      x509_request_menu
       ;;
     "<Continue>") ;;
     *) maintenance_menu ;;
