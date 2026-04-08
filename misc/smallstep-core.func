@@ -204,6 +204,55 @@ function bootstrap_menu() {
     esac
 }
 
+function bootstrap() {
+  local BACK_TO_MENU="$1"
+  CA_FQDN="step-ca.$(hostname -d)"
+  bootstrap_menu
+  msg_info "Installing step-ca Root Certificate"
+  $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
+  $STD step certificate install --all "${CERT_PATH}"/root_ca.crt || die "Installation of step-ca Root Certificate failed!"
+  $STD update-ca-certificates  || die "Update of System CA Certificates failed!"
+  $STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
+  msg_ok "Installed step-ca Root Certificate"
+  [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
+}
+
+function main_menu() {
+  local CHOICE
+  OPTIONS=(Install "Install $APP"
+    Update "Update $APP"
+    Uninstall "Uninstall $APP"
+    Maintenance "Maintain Certificates")
+
+  CHOICE=$(whiptail_menu "$APP_TITLE")
+  case "$CHOICE" in
+    Install) install ;;
+    Update) update ;;
+    Uninstall) uninstall ;;
+    Maintenance) maintenance_menu ;;
+    *) exit 0 ;;
+  esac
+}
+
+function maintenance_menu() {
+  [[ ! -e $BINARY_PATH ]] && die "$APP is not installed"
+
+  local CHOICE
+  OPTIONS=(x509 "Maintain x509 Certificate"
+    ssh "Maintain ssh Certificate")
+
+  CHOICE=$(whiptail_menu "$APP_TITLE")
+  case "$CHOICE" in
+    x509) x509_maintenance_menu ;;
+    ssh) ssh_maintenance_menu ;;
+    *) exit 0 ;;
+  esac
+}
+
+function ssh_maintenance_menu() {
+  die "Maintain ssh Certificate - To be implemented in future"
+}
+
 function app_init() {
   if [ -d "$CA_PATH" ]; then
 	export STEPPATH="${CA_PATH}"
@@ -233,17 +282,4 @@ function app_init() {
   mkdir -p "$CONFIG_PATH/certs/ssh/_archive/"
   mkdir -p "$CONFIG_PATH/certs/x509/_archive/"
   mkdir -p "$KEY_PATH/_archive/"
-}
-
-function bootstrap() {
-  local BACK_TO_MENU="$1"
-  CA_FQDN="step-ca.$(hostname -d)"
-  bootstrap_menu
-  msg_info "Installing step-ca Root Certificate"
-  $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
-  $STD step certificate install --all "${CERT_PATH}"/root_ca.crt || die "Installation of step-ca Root Certificate failed!"
-  $STD update-ca-certificates  || die "Update of System CA Certificates failed!"
-  $STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
-  msg_ok "Installed step-ca Root Certificate"
-  [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
 }
