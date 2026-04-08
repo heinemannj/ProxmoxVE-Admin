@@ -217,6 +217,54 @@ function bootstrap() {
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
 }
 
+function x509_request_menu() {
+  local CHOICE
+  OPTIONS=("FQDN" "$FQDN"
+    "Hostname" "$HOST"
+    "IP Address" "$IP"
+    "Subject Alternative Name(s) (SANs)" "$SAN"
+    "Validity" "$VALID_TO"
+    "Provisioner" "$PROVISIONER"
+	  " " " "
+    "<Continue>" "Request Certificate by $PROVISIONER")
+  local TITLE="Certificate Signing Request (CSR) by $PROVISIONER_TYPE"
+
+  CHOICE=$(whiptail_menu "$TITLE")
+  case "$CHOICE" in
+    "FQDN")
+      FQDN=$(whiptail_inputbox "$TITLE" "FQDN (e.g. mylxc.example.com)" "$FQDN")
+      HOST=$(echo "$FQDN" | awk -F'.' '{print $1}')
+      IP=$(resolve_ip "${FQDN}") || die "Resolution failed for ${FQDN}!"
+      x509_request_menu
+      ;;
+    "Hostname")
+      HOST=$(whiptail_inputbox "$TITLE" "Hostname (e.g. mylxc)" "$HOST")
+      x509_request_menu
+      ;;
+    "IP Address")
+      IP=$(whiptail_inputbox "$TITLE" "IP Address (e.g. x.x.x.x)" "$IP")
+      x509_request_menu
+      ;;
+    "Subject Alternative Name(s) (SANs)")
+      SAN=$(whiptail_inputbox "$TITLE" "Subject Alternative Name(s) (SAN) (e.g. e.g. myapp-1.example.com, myapp-2.example.com)" "$SAN")
+      x509_request_menu
+      ;;
+    "Validity")
+      VALID_TO=$(whiptail_inputbox "$TITLE" "Validity (e.g. 168h, 30m or 2034-12-31)" "$VALID_TO")
+      x509_request_menu
+      ;;
+    "Provisioner")
+      PROVISIONER=$(whiptail_inputbox "$TITLE" "Provisioner (e.g. $PROVISIONER)" "$PROVISIONER")
+      x509_request_menu
+      ;;
+    " ")
+      x509_request_menu
+      ;;
+    "<Continue>") ;;
+    *) x509_maintenance_menu ;;
+    esac
+}
+
 function main_menu() {
   local CHOICE
   OPTIONS=(Install "Install $APP"
