@@ -250,7 +250,7 @@ function x509_request_menu() {
       x509_request_menu
       ;;
     "Validity")
-      VALID_TO=$(whiptail_inputbox "$TITLE" "Validity (e.g. 168h, 30m or 2034-12-31)" "$VALID_TO")
+      VALID_TO=$(whiptail_inputbox "$TITLE" "Validity (e.g. 168h, 30m0s or 2034-12-31T23:59:59Z)" "$VALID_TO")
       x509_request_menu
       ;;
     "Provisioner")
