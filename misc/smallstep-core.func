@@ -54,6 +54,105 @@ function detect_os() {
   fi
 }
 
+function install() {
+  msg_info "Installing dependencies"
+  $PKG_UPDATE
+  $PKG_INSTALL curl whiptail dnsutils jq
+  msg_ok "Installed dependencies"
+
+  msg_info "Installing $APP"
+  $PKG_INSTALL $APP
+  if [[ ! -e $BINARY_PATH ]]; then
+    ln -s /usr/bin/step-cli $BINARY_PATH
+  fi
+  mkdir -p "$CONFIG_PATH"/certs
+  mkdir -p "$CONFIG_PATH"/private
+  
+  cat <<'EOF' >/etc/systemd/system/cert-renewer@.service
+[Unit]
+Description=Certificate renewer for %i
+After=network-online.target
+Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
+StartLimitIntervalSec=0
+; PartOf=cert-renewer.target
+
+[Service]
+Type=oneshot
+User=root
+
+Environment=STEPPATH="/etc/step" CERT_LOCATION="/etc/step/certs/%i.crt" KEY_LOCATION="/etc/step/private/%i.key"
+
+; ExecCondition checks if the certificate is ready for renewal,
+; based on the exit status of the command.
+; (In systemd <242, you can use ExecStartPre= here.)
+ExecCondition=/usr/bin/step certificate needs-renewal "${CERT_LOCATION}"
+
+; ExecStart renews the certificate, if ExecStartPre was successful.
+ExecStart=/usr/bin/step ca renew --force "${CERT_LOCATION}" "${KEY_LOCATION}"
+
+; Try to reload or restart the systemd service that relies on this cert-renewer
+; If the relying service doesn't exist, forge ahead.
+; (In systemd <229, use 'reload-or-try-restart' instead of 'try-reload-or-restart')
+ExecStartPost=/usr/bin/env sh -c "! systemctl --quiet is-active %i.service || systemctl try-reload-or-restart %i"
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+  cat <<'EOF' >/etc/systemd/system/cert-renewer@.timer
+[Unit]
+Description=Timer for certificate renewal of %i
+Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
+; PartOf=cert-renewer.target
+
+[Timer]
+Persistent=true
+
+; Run the timer unit every 2 minutes.
+OnCalendar=*:1/2
+
+; Always run the timer on time.
+AccuracySec=1us
+
+; Add jitter to prevent a "thundering hurd" of simultaneous certificate renewals.
+RandomizedDelaySec=12s
+
+[Install]
+WantedBy=timers.target
+EOF
+  $STD systemctl daemon-reload
+  msg_ok "Installed $APP"
+
+  $STD bootstrap "" || die "Installation of step-ca Root Certificate failed!"
+  $STD request "" || die "Main - Request System Certificate failed!"
+}
+
+function update() {
+  if [[ ! -e $BINARY_PATH ]]; then
+    die "$APP is not installed"
+  fi
+  msg_info "Updating $APP"
+  $PKG_UPDATE
+  $PKG_UPGRADE $APP
+  msg_ok "Updated $APP successfully"
+}
+
+function uninstall() {
+  msg_info "Uninstalling $APP"
+  systemctl disable cert-renewer@.timer
+  systemctl disable cert-renewer@.service
+  systemctl stop cert-renewer@*.timer
+  systemctl stop cert-renewer@*.service
+  $PKG_UNINSTALL $APP
+  $PKG_AUTOREMOVE
+  rm -rf "${CONFIG_PATH}"
+  rm -f "/usr/local/bin/update_${APP,,}"
+  rm -f "/etc/systemd/system/cert-renewer@.service"
+  rm -f "/etc/systemd/system/cert-renewer@.timer"
+  $STD systemctl daemon-reload
+  msg_ok "Uninstalled $APP"
+}
+
 function bootstrap_fqdn_check() {
   if [[ -z $CA_FQDN ]]; then
     CA_FQDN="Please change!"
