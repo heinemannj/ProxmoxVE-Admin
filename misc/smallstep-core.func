@@ -313,7 +313,7 @@ function x509_maintenance_menu() {
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
     Bootstrap) bootstrap "x509_maintenance_menu" ;;
-    Request) request "x509_maintenance_menu" ;;
+    Request) x509_request "x509_maintenance_menu" ;;
     Renew) x509_renew "x509_maintenance_menu" ;;
     Revoke) revoke "x509_maintenance_menu" ;;
     Inspect) x509_inspect "" "x509_maintenance_menu" ;;
