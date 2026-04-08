@@ -265,6 +265,50 @@ function x509_request_menu() {
     esac
 }
 
+function x509_request() {
+  local BACK_TO_MENU="$1"
+  FQDN=""
+  HOST=""
+  IP=""
+  SAN=""
+  VALID_TO="168h"
+  if [ -d "$CA_PATH" ]; then
+    FQDN=$(hostname -f)
+    HOST=$(hostname)
+    IP=$(resolve_ip "${FQDN}") || die "Resolution failed for ${FQDN}!"
+  fi
+
+  x509_request_menu
+
+  msg_info "Requesting x509 Certificate by $PROVISIONER"
+  local FLAGS=(-f
+    --not-after="$VALID_TO"
+    --provisioner="$PROVISIONER")
+
+  [ -f "$PROVISIONER_PWD_FILE" ] && FLAGS+=(--provisioner-password-file="$PROVISIONER_PWD_FILE")
+ 
+  local SAN_ITEMS=("$FQDN" "$HOST" "$IP" "$SAN")
+  for item in "${SAN_ITEMS[@]}"; do
+    FLAGS+=(--san "$item")
+  done
+
+  step ca certificate "$FQDN" \
+    "${CERT_PATH}"/x509/"$FQDN".crt \
+    "${KEY_PATH}"/"$FQDN".key \
+    "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $PROVISIONER failed!"
+
+  x509_inspect "$FQDN"
+  msg_ok "Requested x509 Certificate by $PROVISIONER"
+
+  if [ -d "$CA_PATH" ]; then
+	msg_info "Starting Certificate Renewal as a Daemon"
+	$STD systemctl enable --now cert-renewer@"${FQDN}".timer
+	systemctl list-units cert-renewer@\*.timer
+	msg_ok "Started Certificate Renewal as a Daemon"
+  fi
+  [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
+}
+
 function main_menu() {
   local CHOICE
   OPTIONS=(Install "Install $APP"
@@ -335,7 +379,7 @@ function app_init() {
     PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_PATH/config/ca.json")
     PROVISIONER="${PROVISIONER#\"}"
     PROVISIONER="${PROVISIONER%\"}"
-    PROVISIONER_PASSWORD="$CA_PATH/encryption/provisioner.pwd"
+    PROVISIONER_PWD_FILE="$CA_PATH/encryption/provisioner.pwd"
 
     mkdir -p "$CONFIG_PATH/db-copy/"
     mkdir -p "$CONFIG_PATH/certs/ca/_archive/"
