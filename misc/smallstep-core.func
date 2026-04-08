@@ -204,6 +204,28 @@ function bootstrap_menu() {
     esac
 }
 
+function app_init() {
+  if [ -d "$CA_PATH" ]; then
+	export STEPPATH="${CA_PATH}"
+    grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CA_PATH}" >> /etc/profile
+	sed -i "/export STEPPATH=/c\export STEPPATH=${CA_PATH}" /etc/profile
+
+	export STEPHOME="${CONFIG_PATH}"^
+    grep -q "export STEPHOME=" /etc/profile || echo "export STEPHOME=${CONFIG_PATH}" >> /etc/profile
+	sed -i "/export STEPHOME=/c\export STEPHOME=${CONFIG_PATH}" /etc/profile
+
+    mkdir -p "$CONFIG_PATH/db-copy/"
+    mkdir -p "$CONFIG_PATH/certs/ca/_archive/"
+  else
+    export STEPPATH="${CONFIG_PATH}"
+    grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CONFIG_PATH}" >> /etc/profile
+    sed -i "/export STEPPATH=/c\export STEPPATH=${CONFIG_PATH}" /etc/profile
+  fi
+  mkdir -p "$CONFIG_PATH/certs/ssh/_archive/"
+  mkdir -p "$CONFIG_PATH/certs/x509/_archive/"
+  mkdir -p "$KEY_PATH/_archive/"
+}
+
 function bootstrap() {
   local BACK_TO_MENU="$1"
   CA_FQDN="step-ca.$(hostname -d)"
