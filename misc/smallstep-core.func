@@ -73,3 +73,47 @@ function bootstrap_fingerprint_check() {
     return 1
   fi
 }
+
+function bootstrap_menu() {
+  local CHOICE
+  bootstrap_fqdn_check
+  bootstrap_fingerprint_check
+
+  OPTIONS=("step-ca FQDN" "$CA_FQDN"
+    "step-ca Fingerprint" "$CA_FINGERPRINT"
+	  " " " "
+    "<Continue>" "Install step-ca Root Certificate")
+  local TITLE="step-ca Bootstrap Options"
+
+  CHOICE=$(whiptail_menu "$TITLE")
+  case "$CHOICE" in
+    "step-ca FQDN")
+      CA_FQDN=$(whiptail_inputbox "$TITLE" "step-ca FQDN (e.g. $CA_FQDN)" "$CA_FQDN")
+      bootstrap_menu
+      ;;
+    "step-ca Fingerprint")
+      CA_FINGERPRINT=$(whiptail_inputbox "$TITLE" "step-ca Fingerprint" "$CA_FINGERPRINT")
+      bootstrap_menu
+      ;;
+    " ")
+      bootstrap_menu
+      ;;
+    "<Continue>")
+      bootstrap_fqdn_check || bootstrap_menu
+      ;;
+    *) maintenance_menu ;;
+    esac
+}
+
+function bootstrap() {
+  local BACK_TO_MENU="$1"
+  CA_FQDN="step-ca.$(hostname -d)"
+  bootstrap_menu
+  msg_info "Installing step-ca Root Certificate"
+  $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
+  $STD step certificate install --all "${CERT_PATH}"/root_ca.crt || die "Installation of step-ca Root Certificate failed!"
+  $STD update-ca-certificates  || die "Update of System CA Certificates failed!"
+  $STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
+  msg_ok "Installed step-ca Root Certificate"
+  [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
+}
