@@ -90,39 +90,6 @@ function inspect() {
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
 }
 
-function bootstrap_fqdn_check() {
-  if [[ -z $CA_FQDN ]]; then
-    CA_FQDN="Please change!"
-    return 1
-  else
-    CA_IP=$(resolve_ip "${CA_FQDN}")
-    if [[ -z $CA_IP ]]; then
-      CA_FQDN="DNS Resolution failed - Please change!"
-      return 1
-    fi
-  fi
-}
-
-function bootstrap_fingerprint_check() {
-  if [[ -z $CA_FINGERPRINT ]]; then
-    CA_FINGERPRINT="Please change!"
-    return 1
-  fi
-}
-
-function bootstrap() {
-  local BACK_TO_MENU="$1"
-  CA_FQDN="step-ca.$(hostname -d)"
-  bootstrap_menu
-  msg_info "Installing step-ca Root Certificate"
-  $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
-  $STD step certificate install --all "${CERT_PATH}"/root_ca.crt || die "Installation of step-ca Root Certificate failed!"
-  $STD update-ca-certificates  || die "Update of System CA Certificates failed!"
-  $STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
-  msg_ok "Installed step-ca Root Certificate"
-  [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
-}
-
 function request() {
   local BACK_TO_MENU="$1"
   VALID_TO="168h"
@@ -158,105 +125,6 @@ function request() {
   systemctl list-units cert-renewer@\*.timer
   msg_ok "Started Certificate Renewal as a Daemon"
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
-}
-
-function uninstall() {
-  msg_info "Uninstalling $APP"
-  systemctl disable cert-renewer@.timer
-  systemctl disable cert-renewer@.service
-  systemctl stop cert-renewer@*.timer
-  systemctl stop cert-renewer@*.service
-  $PKG_UNINSTALL $APP
-  $PKG_AUTOREMOVE
-  rm -rf "${CONFIG_PATH}"
-  rm -f "/usr/local/bin/update_${APP,,}"
-  rm -f "/etc/systemd/system/cert-renewer@.service"
-  rm -f "/etc/systemd/system/cert-renewer@.timer"
-  $STD systemctl daemon-reload
-  msg_ok "Uninstalled $APP"
-}
-
-function update() {
-  if [[ ! -e $BINARY_PATH ]]; then
-    die "$APP is not installed"
-  fi
-  msg_info "Updating $APP"
-  $PKG_UPDATE
-  $PKG_UPGRADE $APP
-  msg_ok "Updated $APP successfully"
-}
-
-function install() {
-  msg_info "Installing dependencies"
-  $PKG_UPDATE
-  $PKG_INSTALL curl whiptail dnsutils jq
-  msg_ok "Installed dependencies"
-
-  msg_info "Installing $APP"
-  $PKG_INSTALL $APP
-  if [[ ! -e $BINARY_PATH ]]; then
-    ln -s /usr/bin/step-cli $BINARY_PATH
-  fi
-  mkdir -p "$CONFIG_PATH"/certs
-  mkdir -p "$CONFIG_PATH"/private
-  
-  cat <<'EOF' >/etc/systemd/system/cert-renewer@.service
-[Unit]
-Description=Certificate renewer for %i
-After=network-online.target
-Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
-StartLimitIntervalSec=0
-; PartOf=cert-renewer.target
-
-[Service]
-Type=oneshot
-User=root
-
-Environment=STEPPATH="/etc/step" CERT_LOCATION="/etc/step/certs/%i.crt" KEY_LOCATION="/etc/step/private/%i.key"
-
-; ExecCondition checks if the certificate is ready for renewal,
-; based on the exit status of the command.
-; (In systemd <242, you can use ExecStartPre= here.)
-ExecCondition=/usr/bin/step certificate needs-renewal "${CERT_LOCATION}"
-
-; ExecStart renews the certificate, if ExecStartPre was successful.
-ExecStart=/usr/bin/step ca renew --force "${CERT_LOCATION}" "${KEY_LOCATION}"
-
-; Try to reload or restart the systemd service that relies on this cert-renewer
-; If the relying service doesn't exist, forge ahead.
-; (In systemd <229, use 'reload-or-try-restart' instead of 'try-reload-or-restart')
-ExecStartPost=/usr/bin/env sh -c "! systemctl --quiet is-active %i.service || systemctl try-reload-or-restart %i"
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-  cat <<'EOF' >/etc/systemd/system/cert-renewer@.timer
-[Unit]
-Description=Timer for certificate renewal of %i
-Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
-; PartOf=cert-renewer.target
-
-[Timer]
-Persistent=true
-
-; Run the timer unit every 2 minutes.
-OnCalendar=*:1/2
-
-; Always run the timer on time.
-AccuracySec=1us
-
-; Add jitter to prevent a "thundering hurd" of simultaneous certificate renewals.
-RandomizedDelaySec=12s
-
-[Install]
-WantedBy=timers.target
-EOF
-  $STD systemctl daemon-reload
-  msg_ok "Installed $APP"
-
-  $STD bootstrap "" || die "Installation of step-ca Root Certificate failed!"
-  $STD request "" || die "Main - Request System Certificate failed!"
 }
 
 function certs_menu() {
@@ -321,37 +189,6 @@ function x509_request_menu() {
       x509_request_menu
       ;;
     "<Continue>") ;;
-    *) maintenance_menu ;;
-    esac
-}
-
-function bootstrap_menu() {
-  local CHOICE
-  bootstrap_fqdn_check
-  bootstrap_fingerprint_check
-
-  OPTIONS=("step-ca FQDN" "$CA_FQDN"
-    "step-ca Fingerprint" "$CA_FINGERPRINT"
-	  " " " "
-    "<Continue>" "Install step-ca Root Certificate")
-  local TITLE="step-ca Bootstrap Options"
-
-  CHOICE=$(whiptail_menu "$TITLE")
-  case "$CHOICE" in
-    "step-ca FQDN")
-      CA_FQDN=$(whiptail_inputbox "$TITLE" "step-ca FQDN (e.g. $CA_FQDN)" "$CA_FQDN")
-      bootstrap_menu
-      ;;
-    "step-ca Fingerprint")
-      CA_FINGERPRINT=$(whiptail_inputbox "$TITLE" "step-ca Fingerprint" "$CA_FINGERPRINT")
-      bootstrap_menu
-      ;;
-    " ")
-      bootstrap_menu
-      ;;
-    "<Continue>")
-      bootstrap_fqdn_check || bootstrap_menu
-      ;;
     *) maintenance_menu ;;
     esac
 }
