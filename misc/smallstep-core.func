@@ -253,6 +253,26 @@ function ssh_maintenance_menu() {
   die "Maintain ssh Certificate - To be implemented in future"
 }
 
+function x509_maintenance_menu() {
+  local CHOICE
+  OPTIONS=()
+  [ -d "$CA_PATH" ] || OPTIONS+=(Bootstrap "Install step-ca Root Certificate")
+  OPTIONS+=(Request "Certificate Signing Request (CSR) by $PROVISIONER_TYPE"
+    Renew "Renew Certificate by $PROVISIONER_TYPE"
+    Revoke "Revoke Certificate by $PROVISIONER_TYPE"
+    Inspect "Inspect Certificate by $PROVISIONER_TYPE")
+
+  CHOICE=$(whiptail_menu "$APP_TITLE")
+  case "$CHOICE" in
+    Bootstrap) bootstrap "x509_maintenance_menu" ;;
+    Request) request "x509_maintenance_menu" ;;
+    Renew) x509_renew "x509_maintenance_menu" ;;
+    Revoke) revoke "x509_maintenance_menu" ;;
+    Inspect) inspect "" "x509_maintenance_menu" ;;
+    *) exit 0 ;;
+  esac
+}
+
 function app_init() {
   if [ -d "$CA_PATH" ]; then
 	export STEPPATH="${CA_PATH}"
