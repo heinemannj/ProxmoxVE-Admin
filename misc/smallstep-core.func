@@ -280,7 +280,7 @@ function x509_request() {
     --not-after="$VALID_TO"
     --provisioner="$PROVISIONER")
 
-  [ -f "$PROVISIONER_PWD_FILE" ] && FLAGS+=(--provisioner-password-file="$PROVISIONER_PWD_FILE")
+  [ "$PROVISIONER_TYPE" = "JWK" ] && [ -f "$PROVISIONER_PWD_FILE" ] && FLAGS+=(--provisioner-password-file="$PROVISIONER_PWD_FILE")
  
   local SAN_ITEMS=("$FQDN" "$HOST" "$IP" "$SAN")
   for item in "${SAN_ITEMS[@]}"; do
