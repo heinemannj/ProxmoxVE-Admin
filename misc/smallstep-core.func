@@ -214,12 +214,21 @@ function app_init() {
     grep -q "export STEPHOME=" /etc/profile || echo "export STEPHOME=${CONFIG_PATH}" >> /etc/profile
 	sed -i "/export STEPHOME=/c\export STEPHOME=${CONFIG_PATH}" /etc/profile
 
+    PROVISIONER_TYPE="JWK"
+    PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_PATH/config/ca.json")
+    PROVISIONER="${PROVISIONER#\"}"
+    PROVISIONER="${PROVISIONER%\"}"
+    PROVISIONER_PASSWORD="$CA_PATH/encryption/provisioner.pwd"
+
     mkdir -p "$CONFIG_PATH/db-copy/"
     mkdir -p "$CONFIG_PATH/certs/ca/_archive/"
   else
     export STEPPATH="${CONFIG_PATH}"
     grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CONFIG_PATH}" >> /etc/profile
     sed -i "/export STEPPATH=/c\export STEPPATH=${CONFIG_PATH}" /etc/profile
+
+	PROVISIONER_TYPE="ACME"
+	PROVISIONER="acme@$(hostname -d)"
   fi
   mkdir -p "$CONFIG_PATH/certs/ssh/_archive/"
   mkdir -p "$CONFIG_PATH/certs/x509/_archive/"

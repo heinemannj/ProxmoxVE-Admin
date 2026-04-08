@@ -12,24 +12,9 @@ APP_TITLE="step-ca Admin"
 APP_BACKTITLE="Proxmox VE Helper Scripts"
 BINARY_PATH="/usr/bin/step"
 CONFIG_PATH="/etc/step"
-CERT_PATH="${CONFIG_PATH}/certs/x509"
+CA_PATH="/etc/step-ca"
+CERT_PATH="${CONFIG_PATH}/certs"
 KEY_PATH="${CONFIG_PATH}/private"
-PROVISIONER_TYPE="JWK"
-export STEPHOME=${CONFIG_PATH}
-export STEPPATH="/etc/step-ca"
-sed  -i '1i export STEPHOME=/etc/step' /etc/profile
-sed  -i '1i export STEPPATH=/etc/step-ca' /etc/profile
-
-mkdir --parents "$CONFIG_PATH/db-copy/"
-mkdir --parents "$CONFIG_PATH/certs/ca/_archive/"
-mkdir --parents "$CONFIG_PATH/certs/ssh/_archive/"
-mkdir --parents "$CONFIG_PATH/certs/x509/_archive/"
-mkdir --parents "$KEY_PATH/_archive/"
-
-PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$(step path)"/config/ca.json)
-PROVISIONER="${PROVISIONER#\"}"
-PROVISIONER="${PROVISIONER%\"}"
-PROVISIONER_PASSWORD=$(step path)/encryption/provisioner.pwd
 
 function header_info() {
   clear
@@ -44,17 +29,12 @@ function header_info() {
 EOF
 }
 
-# Telemetry
-# shellcheck disable=SC1090
-source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/api.func) 2>/dev/null || true
-#declare -f init_tool_telemetry &>/dev/null && init_tool_telemetry "step-ca-admin" "step-ca"
-
 function x509_list() {
   DB_EXPORT=""
   CERT_LIST=()
   local LIST=""
-  cp --recursive --force "$(step path)/db/"* "$CONFIG_PATH/db-copy/"
-  cp --recursive --force "$(step path)/certs/"* "$CONFIG_PATH/certs/ca/"
+  cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
+  cp --recursive --force "$CA_PATH/certs/"* "$CONFIG_PATH/certs/ca/"
   if [[ $(step-badger x509Certs "${CONFIG_PATH}/db-copy" 2>/dev/null) ]]; then
     DB_EXPORT=$(step-badger x509Certs "${CONFIG_PATH}/db-copy" 2>/dev/null)
     LIST=$(echo "$DB_EXPORT" | awk 'NR>1 {print $1 " " $2 "|" $3 "|" $4 "|" $5}')
@@ -66,8 +46,8 @@ function x509_list() {
 
 #function ssh_list() {
 #  CERT_LIST=""
-#  cp --recursive --force "$(step path)/db/"* "$CONFIG_PATH/db-copy/"
-#  cp --recursive --force "$(step path)/certs/"* "$CONFIG_PATH/certs/ca/"
+#  cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
+#  cp --recursive --force "$CA_PATH/certs/"* "$CONFIG_PATH/certs/ca/"
 #  if [[ $(step-badger sshCerts "${CONFIG_PATH}/db-copy" 2>/dev/null) ]]; then
 #    CERT_LIST=$(step-badgersshCerts ${CONFIG_PATH}/db-copy 2>/dev/null)
 #  fi
@@ -75,7 +55,7 @@ function x509_list() {
 
 function x509_serial_to_cn() {
   CN="$(echo "${DB_EXPORT}" | grep "${SERIAL_NUMBER}" | awk '{print $2}' | sed 's/CN=//g')"
-  CRT="$CERT_PATH/$CN.crt"
+  CRT="$CERT_PATH/x509/$CN.crt"
   KEY="$KEY_PATH/$CN.key"
   if ! [[ -f ${CRT} ]]; then
     die "Certificate ${CRT} not found on localhost!"
@@ -200,7 +180,7 @@ function x509_request() {
   done
 
   step ca certificate "$FQDN" \
-    "${CERT_PATH}"/"$FQDN".crt \
+    "${CERT_PATH}"/x509/"$FQDN".crt \
     "${KEY_PATH}"/"$FQDN".key \
     --provisioner="$PROVISIONER" \
     --provisioner-password-file="$PROVISIONER_PASSWORD" \
@@ -214,7 +194,7 @@ function x509_request() {
 
 function x509_certs_menu() {
   local CERT_ACTION=$1
-  #local CERT_FILE_ARRAY=("${CERT_PATH}"/*.crt)
+  #local CERT_FILE_ARRAY=("${CERT_PATH}"/x509/*.crt)
   #local CERT_FILE
   #local CERT_FQDN
   #local CERT_LIST=()
@@ -290,5 +270,5 @@ function main_menu() {
 
 header_info
 detect_os
-#whiptail --backtitle "$APP_BACKTITLE" --title "$APP_TITLE" --yesno "This will maintain step-ca issued x509 and ssh Certificates. Proceed?" 9 58 || exit 0
+app_init
 main_menu

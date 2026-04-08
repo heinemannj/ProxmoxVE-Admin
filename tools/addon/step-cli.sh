@@ -5,12 +5,6 @@
 # License: MIT | https://github.com/community-scripts/ProxmoxVED/raw/main/LICENSE
 # Source: https://github.com/smallstep/cli
 
-#source <(curl -fsSL https://git.community-scripts.org/community-scripts/ProxmoxVED/raw/branch/main/misc/core.func)
-# shellcheck disable=SC1090
-source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE/main/misc/core.func)
-#source <(curl -fsSL https://git.community-scripts.org/community-scripts/ProxmoxVED/raw/branch/main/misc/tools.func)
-source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE/main/misc/tools.func)
-
 source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/admin-core.func)
 source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/smallstep-core.func)
 
@@ -19,11 +13,9 @@ APP_TITLE="step-cli ACME Client"
 APP_BACKTITLE="Proxmox VE Helper Scripts"
 BINARY_PATH="/usr/bin/step"
 CONFIG_PATH="/etc/step"
+CA_PATH="/etc/step-ca"
 CERT_PATH="${CONFIG_PATH}/certs"
 KEY_PATH="${CONFIG_PATH}/private"
-PROVISIONER_TYPE="ACME"
-export STEPPATH=${CONFIG_PATH}
-sed  -i '1i export STEPPATH=/etc/step' /etc/profile
 
 function header_info {
   clear
@@ -97,7 +89,6 @@ function request() {
   HOST=$(hostname)
   DOMAINNAME=$(hostname -d)
   IP=$(resolve_ip "${FQDN}") || die "Resolution failed for ${FQDN}!"
-  PROVISIONER="acme@$DOMAINNAME"
   SAN=""
 
   x509_request_menu
@@ -234,4 +225,5 @@ function main_menu() {
 
 header_info
 detect_os
+app_init
 main_menu
