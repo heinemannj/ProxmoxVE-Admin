@@ -383,6 +383,8 @@ function x509_certs_menu() {
 	    | sed 's/CN=//g' \
 		> "${CONFIG_PATH}/db-copy/x509Certs.txt"
 
+      test="test"
+
       while IFS='|' read -r SERIAL CN TYPE FILE VALIDITY NotBefore NotAfter; do
         CRT="$CERT_PATH/x509/$CN.crt"
         if [ -f "${CRT}" ] && [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
