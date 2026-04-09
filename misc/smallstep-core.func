@@ -378,11 +378,20 @@ function x509_certs_menu() {
       DB_EXPORT=$(step-badger x509Certs "${CONFIG_PATH}/db-copy" "${FLAGS[@]}" 2>/dev/null)
       DB_LIST=$(echo "$DB_EXPORT" | awk 'NR>1 {print $1 " " $2 "|" $3 "|" $6 "|" $7}')
 
-      echo "$DB_EXPORT" | awk 'NR>1 {print $1 "|" $2 "|" $3 "| xxx |" $5 "|" $6 "|" $7}' \
-	    | sed '1i Serial Number|CN|Type|File|Not Before|Not After|Validity\n' \
+      echo "$DB_EXPORT" | awk 'NR>1 {print $1 "|" $2 "|" $3 "| remote |" $7 |" $5 "|" $6}' \
+	    | sed '1i Serial Number|CN|Type|File|Validity|Not Before|Not After\n' \
 	    | sed 's/CN=//g' \
 		| column -t -s '|' \
 		> "${CONFIG_PATH}/db-copy/x509Certs.txt"
+
+      while read -r Serial CN Type File Validity NotBefore NotAfter; do
+        CRT="$CERT_PATH/x509/$CN.crt"
+		if [[ -f ${CRT} ]]; then
+		  if [ grep -q "$Serial" "${CRT}" ]; then
+		    sed '/$Serial/s/remote/localhost/g' "${CONFIG_PATH}/db-copy/x509Certs.txt"
+		  fi
+		fi
+      done < <(cat "${CONFIG_PATH}/db-copy/x509Certs.txt")
 
       while read -r TAG ITEM; do
         CERT_LIST+=("$TAG" "$ITEM")
