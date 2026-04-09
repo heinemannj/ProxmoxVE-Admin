@@ -383,10 +383,10 @@ function x509_certs_menu() {
 	    | sed 's/CN=//g' \
 		> "${CONFIG_PATH}/db-copy/x509Certs.txt"
 
-      while IFS='|' read -r Serial CN Type File Validity NotBefore NotAfter; do
+      while IFS='|' read -r SERIAL CN; do
         CRT="$CERT_PATH/x509/$CN.crt"
-        if [ -f "${CRT}" ] && [[ $(step certificate inspect "${CRT}" | grep "${Serial}") ]]; then
-          sed -i "/${Serial}/s/none/local/g" "${CONFIG_PATH}/db-copy/x509Certs.txt"
+        if [ -f "${CRT}" ] && [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
+          sed -i "/${SERIAL}/s/none/local/g" "${CONFIG_PATH}/db-copy/x509Certs.txt"
         fi
       done < <(cat "${CONFIG_PATH}/db-copy/x509Certs.txt")
       cat "${CONFIG_PATH}/db-copy/x509Certs.txt" | column -t -s '|' > "${CONFIG_PATH}/db-copy/x509Certs.txt"
