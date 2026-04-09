@@ -305,6 +305,7 @@ function x509_request() {
 
 function x509_list() {
   local BACK_TO_MENU="$1"
+  test="test1"
   whiptail --textbox "${CONFIG_PATH}/db-copy/x509Certs.txt" --scrolltext 20 150
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
