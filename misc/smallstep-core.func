@@ -377,7 +377,7 @@ function x509_certs_menu() {
     cp --recursive --force "$CA_PATH/certs/"* "$CONFIG_PATH/certs/ca/"
     if [[ $(step-badger x509Certs "${CONFIG_PATH}/db-copy" 2>/dev/null) ]]; then
       DB_EXPORT=$(step-badger x509Certs "${CONFIG_PATH}/db-copy" "${FLAGS[@]}" 2>/dev/null)
-      DB_LIST=$(echo "$DB_EXPORT" | awk 'NR>1 {print $1 " " $2 "|" $3 "|" $4 "|" $5}')
+      DB_LIST=$(echo "$DB_EXPORT" | awk 'NR>1 {print $1 " " $2 "|" $3 "|" $6 "|" $7}')
     fi
     while read -r TAG ITEM; do
       CERT_LIST+=("$TAG" "$ITEM")
