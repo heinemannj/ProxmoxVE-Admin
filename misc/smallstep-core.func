@@ -370,7 +370,6 @@ function x509_certs_menu() {
   DB_EXPORT=""
   local DB_LIST=""
   local FLAGS=(--provisioner)
-  local test="test"
 
   if [ -d "$CA_PATH/db" ]; then
     cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
@@ -378,10 +377,13 @@ function x509_certs_menu() {
     if [[ $(step-badger x509Certs "${CONFIG_PATH}/db-copy" 2>/dev/null) ]]; then
       DB_EXPORT=$(step-badger x509Certs "${CONFIG_PATH}/db-copy" "${FLAGS[@]}" 2>/dev/null)
       DB_LIST=$(echo "$DB_EXPORT" | awk 'NR>1 {print $1 " " $2 "|" $3 "|" $6 "|" $7}')
+
+      echo "$DB_LIST" > "${CONFIG_PATH}/db-copy/x509Certs.txt"
+
+      while read -r TAG ITEM; do
+        CERT_LIST+=("$TAG" "$ITEM")
+      done < <(echo "$DB_LIST")
     fi
-    while read -r TAG ITEM; do
-      CERT_LIST+=("$TAG" "$ITEM")
-    done < <(echo "$DB_LIST")
   else
     for CERT_FILE in "${CERT_FILE_ARRAY[@]}"; do
       CERT_FQDN=$(echo "$CERT_FILE" | awk -F '/' '{print $6}' | sed 's/.crt//g')
