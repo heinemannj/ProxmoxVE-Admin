@@ -361,7 +361,7 @@ function x509_maintenance_menu() {
     Renew) x509_renew "x509_maintenance_menu" ;;
     Revoke) revoke "x509_maintenance_menu" ;;
     Inspect) x509_inspect "" "x509_maintenance_menu" ;;
-	List) x509_list "x509_maintenance_menu" ;;
+    List) x509_list "x509_maintenance_menu" ;;
     *) exit 0 ;;
   esac
 }
