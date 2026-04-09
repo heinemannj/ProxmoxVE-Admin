@@ -370,6 +370,7 @@ function x509_certs_menu() {
   DB_EXPORT=""
   local DB_LIST=""
   local FLAGS=("--provisioner")
+  local test="test"
 
   if [ -d "$CA_PATH/db" ]; then
     cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
