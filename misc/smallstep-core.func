@@ -379,6 +379,7 @@ function x509_certs_menu() {
       DB_LIST=$(echo "$DB_EXPORT" | awk 'NR>1 {print $1 " " $2 "|" $3 "|" $6 "|" $7}')
 
       echo "$DB_EXPORT" | awk 'NR>1 {print $1 "|" $2 "|" $3 "| xxx |" $5 "|" $6 "|" $7}' \
+	    | sed '1i Serial Number:CN:File:Start:End:Status\n' \
 	    | sed 's/CN=//g' \
 		| column -t -s '|' \
 		> "${CONFIG_PATH}/db-copy/x509Certs.txt"
