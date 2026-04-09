@@ -364,7 +364,7 @@ function x509_certs_menu() {
   local CERT_FILE_ARRAY=("${CERT_PATH}"/x509/*.crt)
   local CERT_FILE
   local CERT_FQDN
-  local CERT_LIST=()
+  CERT_LIST=()
   local CHOICE
 
   DB_EXPORT=""
