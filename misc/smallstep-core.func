@@ -359,6 +359,53 @@ function x509_maintenance_menu() {
   esac
 }
 
+function x509_certs_menu() {
+  local CERT_ACTION=$1
+  local CERT_FILE_ARRAY=("${CERT_PATH}"/x509/*.crt)
+  local CERT_FILE
+  local CERT_FQDN
+  local CERT_LIST=()
+  local CHOICE
+
+  DB_EXPORT=""
+  local DB_LIST=""
+  local FLAGS=("--provisioner=${PROVISIONER}")
+
+  if [ -d "$CA_PATH/db" ]; then
+    cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
+    cp --recursive --force "$CA_PATH/certs/"* "$CONFIG_PATH/certs/ca/"
+    if [[ $(step-badger x509Certs "${CONFIG_PATH}/db-copy" 2>/dev/null) ]]; then
+      DB_EXPORT=$(step-badger x509Certs "${CONFIG_PATH}/db-copy" "${FLAGS[@]}" 2>/dev/null)
+      DB_LIST=$(echo "$DB_EXPORT" | awk 'NR>1 {print $1 " " $2 "|" $3 "|" $4 "|" $5}')
+    fi
+    while read -r TAG ITEM; do
+      CERT_LIST+=("$TAG" "$ITEM")
+    done < <(echo "$DB_LIST")
+  else
+    for CERT_FILE in "${CERT_FILE_ARRAY[@]}"; do
+      CERT_FQDN=$(echo "$CERT_FILE" | awk -F '/' '{print $5}' | sed 's/.crt//g')
+      CERT_LIST+=("${CERT_FQDN}" "${CERT_FILE}")
+    done
+  fi
+
+  CHOICE=$(whiptail_checklist "Certificates by step" "\nSelect Certificate(s) to ${CERT_ACTION}:" "CERT_LIST")
+  if [[ -z $CHOICE ]]; then
+    x509_maintenance_menu
+  else
+    # shellcheck disable=SC2206
+    CERT_ARRAY=(${CHOICE})
+  fi
+}
+
+#function ssh_badger_list() {
+#  CERT_LIST=""
+#  cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
+#  cp --recursive --force "$CA_PATH/certs/"* "$CONFIG_PATH/certs/ca/"
+#  if [[ $(step-badger sshCerts "${CONFIG_PATH}/db-copy" 2>/dev/null) ]]; then
+#    CERT_LIST=$(step-badgersshCerts ${CONFIG_PATH}/db-copy 2>/dev/null)
+#  fi
+#}
+
 function app_init() {
   if [ -d "$CA_PATH" ]; then
 	export STEPPATH="${CA_PATH}"
