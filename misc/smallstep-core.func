@@ -378,9 +378,9 @@ function x509_certs_menu() {
       DB_EXPORT=$(step-badger x509Certs "${CONFIG_PATH}/db-copy" "${FLAGS[@]}" 2>/dev/null)
       DB_LIST=$(echo "$DB_EXPORT" | awk 'NR>1 {print $1 " " $2 "|" $3 "|" $6 "|" $7}')
 
-      DB_TABLE=$(echo "$DB_EXPORT" | awk 'NR>1 {print $1 "|" $2 "|" $3 "|" $5 "|" $6 "|" $7}')
-      echo "$DB_TABLE" > "${CONFIG_PATH}/db-copy/x509Certs.txt"
-	  cat "${CONFIG_PATH}/db-copy/x509Certs.txt" | column -t -s '|' > "${CONFIG_PATH}/db-copy/x509Certs.txt"
+      echo "$DB_EXPORT" | awk 'NR>1 {print $1 "|" $2 "|" $3 "|" $5 "|" $6 "|" $7}' | sed 's/CN=//g' | column -t -s '|' > "${CONFIG_PATH}/db-copy/x509Certs.txt"
+      #echo "$DB_TABLE" > "${CONFIG_PATH}/db-copy/x509Certs.txt"
+	  #cat "${CONFIG_PATH}/db-copy/x509Certs.txt" | column -t -s '|' > "${CONFIG_PATH}/db-copy/x509Certs.txt"
 
       while read -r TAG ITEM; do
         CERT_LIST+=("$TAG" "$ITEM")
