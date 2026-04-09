@@ -369,7 +369,7 @@ function x509_maintenance_menu() {
 
 function x509_certs_menu() {
   local CERT_ACTION=$1
-  local CERT_FILE_ARRAY=("${CERT_PATH}"/x509/*.crt)
+  local CERT_FILE_ARRAY=("$CERT_PATH/x509/"*.crt)
   local CERT_FILE
   local CERT_FQDN
   CERT_LIST=()
@@ -382,31 +382,38 @@ function x509_certs_menu() {
   if [ -d "$CA_PATH/db" ]; then
     cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
     cp --recursive --force "$CA_PATH/certs/"* "$CONFIG_PATH/certs/ca/"
-    if [[ $(step-badger x509Certs "${CONFIG_PATH}/db-copy" 2>/dev/null) ]]; then
-      DB_EXPORT=$(step-badger x509Certs "${CONFIG_PATH}/db-copy" "${FLAGS[@]}" 2>/dev/null)
+    if [[ $(step-badger x509Certs "$CONFIG_PATH/db-copy" 2>/dev/null) ]]; then
+      DB_EXPORT=$(step-badger x509Certs "$CONFIG_PATH/db-copy" "${FLAGS[@]}" 2>/dev/null)
 
       echo "$DB_EXPORT" | awk 'NR>1 {print $1 "|" $2 "|" $3 "|none|" $7 "|" $5 "|" $6}' \
 	    | sed '1i Serial Number|CN|Type|File|Validity|Not Before|Not After\n' \
 	    | sed 's/CN=//g' \
-		> "${CONFIG_PATH}/db-copy/x509Certs.txt"
+		> "$CERT_PATH/x509/x509Certs.txt"
 
       while IFS='|' read -r SERIAL CN TYPE FILE VALIDITY NotBefore NotAfter; do
         CRT="$CERT_PATH/x509/$CN.crt"
         if [ -f "${CRT}" ] && [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
-          sed -i "/${SERIAL}/s/none/local/g" "${CONFIG_PATH}/db-copy/x509Certs.txt"
+          sed -i "/${SERIAL}/s/none/local/g" "$CERT_PATH/x509/x509Certs.txt"
         fi
-      done < <(cat "${CONFIG_PATH}/db-copy/x509Certs.txt")
-      cat "${CONFIG_PATH}/db-copy/x509Certs.txt" | column -t -s '|' > "${CONFIG_PATH}/db-copy/x509Certs.txt"
+      done < <(cat "$CERT_PATH/x509/x509Certs.txt")
+      cat "$CERT_PATH/x509/x509Certs.txt" | column -t -s '|' > "$CERT_PATH/x509/x509Certs.txt"
 
-      DB_LIST=$(cat "${CONFIG_PATH}/db-copy/x509Certs.txt" | awk 'NR>1 {print $1 " " $2 "|" $3 "|" $4 "|" $5 "|" $7}')
+      DB_LIST=$(cat "$CERT_PATH/x509/x509Certs.txt" | awk 'NR>1 {print $1 " " $2 "|" $3 "|" $4 "|" $5 "|" $7}')
       while read -r TAG ITEM; do
         CERT_LIST+=("$TAG" "$ITEM")
       done < <(echo "$DB_LIST")
     fi
   else
+    echo "Serial Number|CN|Type|File|Validity|Not Before|Not After" > "$CERT_PATH/x509/x509Certs.txt"
     for CERT_FILE in "${CERT_FILE_ARRAY[@]}"; do
-      CERT_FQDN=$(echo "$CERT_FILE" | awk -F '/' '{print $6}' | sed 's/.crt//g')
-      CERT_LIST+=("${CERT_FQDN}" "${CERT_FILE}")
+	  SERIAL=$(step certificate inspect "${CERT_FILE}" | grep "Serial Number:" | awk '{print $3}')
+      CN=$(echo "$CERT_FILE" | awk -F '/' '{print $6}' | sed 's/.crt//g')
+	  TYPE=$(step certificate inspect "${CERT_FILE}" | grep "Type:" | awk '{print $3}')
+	  FILE="local"
+	  VALIDITY="???"
+	  NotBefore=$(step certificate inspect "${CERT_FILE}" | grep "Not Before:" | awk -F 'Not Before: ' '{print $2}')
+      NotAfter=$(step certificate inspect "${CERT_FILE}" | grep "Not After :" | awk -F 'Not After: ' '{print $2}')
+      CERT_LIST+=("${CN}" "${CERT_FILE}")
     done
   fi
 
