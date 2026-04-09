@@ -384,6 +384,7 @@ function x509_certs_menu() {
 		> "${CONFIG_PATH}/db-copy/x509Certs.txt"
 
       test="test"
+      test1="test"
 
       while IFS='|' read -r SERIAL CN TYPE FILE VALIDITY NotBefore NotAfter; do
         CRT="$CERT_PATH/x509/$CN.crt"
