@@ -383,7 +383,7 @@ function x509_certs_menu() {
     done < <(echo "$DB_LIST")
   else
     for CERT_FILE in "${CERT_FILE_ARRAY[@]}"; do
-      CERT_FQDN=$(echo "$CERT_FILE" | awk -F '/' '{print $5}' | sed 's/.crt//g')
+      CERT_FQDN=$(echo "$CERT_FILE" | awk -F '/' '{print $6}' | sed 's/.crt//g')
       CERT_LIST+=("${CERT_FQDN}" "${CERT_FILE}")
     done
   fi
