@@ -305,6 +305,7 @@ function x509_request() {
 
 function x509_list() {
   local BACK_TO_MENU="$1"
+  x509_view
   whiptail --textbox "$CERT_PATH/x509/x509Certs.txt" --scrolltext 20 150 3>&1 1>&2 2>&3
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
@@ -367,17 +368,12 @@ function x509_maintenance_menu() {
   esac
 }
 
-function x509_certs_menu() {
-  local CERT_ACTION=$1
-  local CERT_FILE_ARRAY=("$CERT_PATH/x509/"*.crt)
-  local CERT_FILE
-  local CERT_FQDN
-  CERT_LIST=()
-  local CHOICE
-
+function x509_view(){
   DB_EXPORT=""
   local DB_LIST=""
-  local FLAGS=(--provisioner)
+  CERT_LIST=()
+  local CERT_FILE
+  local CERT_FILE_ARRAY=("$CERT_PATH/x509/"*.crt) 
 
   if [ -d "$CA_PATH/db" ]; then
     cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
@@ -418,7 +414,12 @@ function x509_certs_menu() {
     done
 	cat "$CERT_PATH/x509/x509Certs.txt" | column -t -s '|' > "$CERT_PATH/x509/x509Certs.txt"
   fi
+}
 
+function x509_certs_menu() {
+  local CERT_ACTION=$1
+  local CHOICE
+  x509_view
   CHOICE=$(whiptail_checklist "Certificates by step" "\nSelect Certificate(s) to ${CERT_ACTION}:" "CERT_LIST")
   if [[ -z $CHOICE ]]; then
     x509_maintenance_menu
