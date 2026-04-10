@@ -80,7 +80,7 @@ StartLimitIntervalSec=0
 Type=oneshot
 User=root
 
-Environment=STEPPATH="/etc/step" CERT_LOCATION="/etc/step/certs/%i.crt" KEY_LOCATION="/etc/step/private/%i.key"
+Environment=STEPPATH="/etc/step" CERT_LOCATION="/etc/step/certs/x509/%i.crt" KEY_LOCATION="/etc/step/private/%i.key"
 
 ; ExecCondition checks if the certificate is ready for renewal,
 ; based on the exit status of the command.
