@@ -303,6 +303,26 @@ function x509_request() {
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
 }
 
+function x509_inspect() {
+  local BACK_TO_MENU="$1"
+  x509_certs_menu "Inspect"
+  msg_info "Inspecting Certificate(s)"
+  for SERIAL_NUMBER in "${CERT_ARRAY[@]}"; do
+    echo -e "${BL}[Info]${GN} Inspect x509 Certificate with Serial Number ${BL}${SERIAL_NUMBER}${GN}:${CL}\n"
+    x509_query
+    step certificate inspect "${CRT}" || die "Failed to inspect certificate!"
+    if ! [[ $(step certificate inspect "${CRT}" | grep "${SERIAL_NUMBER}") ]]; then
+      die "Serial Number ${SERIAL_NUMBER} mismatch!"
+    fi
+    echo -e "\n${BL}[Info]${GN} Public Key:${CL}\n"
+    cat "${CRT}"
+    echo -e "\n${BL}[Info]${GN} Private Key:${CL}\n"
+    cat "${KEY}"
+  done
+  msg_ok "Inspected Certificate(s)"
+  [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
+}
+
 function x509_revoke() {
   local BACK_TO_MENU="$1"
 
@@ -392,7 +412,7 @@ function x509_maintenance_menu() {
     Request) x509_request "x509_maintenance_menu" ;;
     Renew) x509_renew "x509_maintenance_menu" ;;
     Revoke) x509_revoke "x509_maintenance_menu" ;;
-    Inspect) x509_inspect "" "x509_maintenance_menu" ;;
+    Inspect) x509_inspect "x509_maintenance_menu" ;;
     List) x509_list "x509_maintenance_menu" ;;
     *) exit 0 ;;
   esac
