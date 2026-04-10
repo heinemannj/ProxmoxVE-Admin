@@ -393,12 +393,6 @@ function x509_view(){
           sed -i "/${SERIAL}/s/none/local/g" "$CERT_PATH/x509/x509Certs.txt"
         fi
       done < <(cat "$CERT_PATH/x509/x509Certs.txt")
-      cat "$CERT_PATH/x509/x509Certs.txt" | column -t -s '|' > "$CERT_PATH/x509/x509Certs.txt"
-
-      DB_LIST=$(cat "$CERT_PATH/x509/x509Certs.txt" | awk 'NR>1 {print $1 " " $2 "|" $3 "|" $4 "|" $5 "|" $7}')
-      while read -r TAG ITEM; do
-        CERT_LIST+=("$TAG" "$ITEM")
-      done < <(echo "$DB_LIST")
     fi
   else
     echo "Serial Number|CN|Type|File|Validity|Not Before|Not After" > "$CERT_PATH/x509/x509Certs.txt"
@@ -411,10 +405,13 @@ function x509_view(){
       NotAfter=$(step certificate inspect "${CERT_FILE}" | grep "Not After :" | awk -F 'Not After : ' '{print $2}')
 	  [ $(date -d "${NotAfter}" +%s) > $(date +%s) ] && [ $(date -d "${NotBefore}" +%s) < $(date +%s) ] && VALIDITY="valid" || VALIDITY="expired"
       echo "$SERIAL|$CN|$TYPE|$FILE|$VALIDITY|$NotBefore|$NotAfter" >> "$CERT_PATH/x509/x509Certs.txt"
-      CERT_LIST+=("${CN}" "${CERT_FILE}")
     done
-	cat "$CERT_PATH/x509/x509Certs.txt" | column -t -s '|' > "$CERT_PATH/x509/x509Certs.txt"
   fi
+  cat "$CERT_PATH/x509/x509Certs.txt" | column -t -s '|' > "$CERT_PATH/x509/x509Certs.txt"
+  DB_LIST=$(cat "$CERT_PATH/x509/x509Certs.txt" | awk 'NR>1 {print $1 " " $2 "|" $3 "|" $4 "|" $5 "|" $7}')
+  while read -r TAG ITEM; do
+    CERT_LIST+=("$TAG" "$ITEM")
+  done < <(echo "$DB_LIST")
 }
 
 function x509_certs_menu() {
