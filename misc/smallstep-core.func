@@ -404,7 +404,7 @@ function x509_view(){
     for CERT_FILE in "${CERT_FILE_ARRAY[@]}"; do
 	  SERIAL=$(step certificate inspect "${CERT_FILE}" | grep "Serial Number:" | awk '{print $3}')
       CN=$(echo "$CERT_FILE" | awk -F '/' '{print $6}' | sed 's/.crt//g')
-	  TYPE=$(step certificate inspect "${CERT_FILE}" | grep "Type:" | awk '{print $3}')
+	  TYPE=$(step certificate inspect "${CERT_FILE}" | grep "Type:" | awk '{print $2}')
 	  FILE="local"
 	  VALIDITY="???"
 	  NotBefore=$(step certificate inspect "${CERT_FILE}" | grep "Not Before:" | awk -F 'Not Before: ' '{print $2}')
