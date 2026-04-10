@@ -447,7 +447,7 @@ function x509_view(){
 		  FILE="local"
         fi
 		CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
-      done < <(cat "$CERT_PATH/x509/x509Certs.txt")
+      done < <(sed '1d "$CERT_PATH/x509/x509Certs.txt")
     fi
   else
     for ITEM in "${CERT_FILE_ARRAY[@]}"; do
