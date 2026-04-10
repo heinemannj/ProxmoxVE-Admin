@@ -114,7 +114,6 @@ function whiptail_inputbox() {
 function whiptail_textbox() {
   local TITLE=$1
   local FILE=$2
-  local HIGHT=10
   local LEN=$(wc -l < "$FILE")
   local HIGHT=$(( LEN + 9 ))
   local WIDTH=$(( ${#TITLE} + 16 ))
