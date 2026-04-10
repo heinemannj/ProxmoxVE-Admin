@@ -310,10 +310,8 @@ function x509_inspect() {
   for SERIAL in "${CERT_ARRAY[@]}"; do
     echo -e "${BL}[Info]${GN} Inspect x509 Certificate with CN ${BL}${CN}${GN} and Serial Number ${BL}${SERIAL}${GN}:${CL}\n"
     x509_query
+    [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]] || die "Serial Number ${SERIAL} mismatch!"
     step certificate inspect "${CRT}" || die "Failed to inspect certificate!"
-    if ! [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
-      die "Serial Number ${SERIAL} mismatch!"
-    fi
     echo -e "\n${BL}[Info]${GN} Public Key:${CL}\n"
     cat "${CRT}"
     echo -e "\n${BL}[Info]${GN} Private Key:${CL}\n"
