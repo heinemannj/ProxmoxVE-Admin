@@ -368,6 +368,17 @@ function x509_maintenance_menu() {
   esac
 }
 
+function x509_serial_to_cn() {
+  CN="$(cat "$CERT_PATH/x509/x509Certs.txt" | grep "${SERIAL_NUMBER}" | awk '{print $2}')"
+  CRT="$CERT_PATH/x509/$CN.crt"
+  KEY="$KEY_PATH/$CN.key"
+  if ! [[ -f ${CRT} ]]; then
+    die "Certificate ${CRT} not found on localhost!"
+  elif ! [[ -f ${KEY} ]]; then
+    die "Private Key ${KEY} not found on localhost!"
+  fi
+}
+
 function x509_view(){
   DB_EXPORT=""
   CERT_LIST=()
