@@ -322,7 +322,7 @@ function x509_revoke() {
 	  rm -f "${CRT}" || die "Failed to delete ${CRT}!"
 	  rm -f "${KEY}" || die "Failed to delete ${KEY}!"
 	else
-      TOKEN=$(step ca token --provisioner="$PROVISIONER" --provisioner-password-file="$PROVISIONER_PASSWORD" --revoke "${SERIAL}")
+      TOKEN=$(step ca token --provisioner="$PROVISIONER" --provisioner-password-file="$PROVISIONER_PWD_FILE" --revoke "${SERIAL}")
       step ca revoke --token "$TOKEN" "${SERIAL}" || die "Failed to revoke certificate!"
 	fi
     echo
