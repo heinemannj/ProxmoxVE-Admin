@@ -4,6 +4,19 @@
 # Author: Joerg Heinemann (heinemannj)
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 
+function header_info() {
+  clear
+  cat <<"EOF"
+         __                             __          _     
+   _____/ /____  ____        ____ _____/ /___ ___  (_)___ 
+  / ___/ __/ _ \/ __ \______/ __ `/ __  / __ `__ \/ / __ \
+ (__  ) /_/  __/ /_/ /_____/ /_/ / /_/ / / / / / / / / / /
+/____/\__/\___/ .___/      \__,_/\__,_/_/ /_/ /_/_/_/ /_/ 
+             /_/                                          
+
+EOF
+}
+
 function detect_os() {
   if grep -qi "alpine" /etc/os-release; then
     #OS="Alpine"
