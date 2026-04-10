@@ -528,6 +528,8 @@ function x509_certs_menu() {
 
 function app_init() {
   if [ -d "$CA_PATH" ]; then
+    APP_TITLE="step-ca Admin"
+    APP_BACKTITLE="Proxmox VE Helper Scripts"
 	export STEPPATH="${CA_PATH}"
     grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CA_PATH}" >> /etc/profile
 	sed -i "/export STEPPATH=/c\export STEPPATH=${CA_PATH}" /etc/profile
@@ -545,6 +547,8 @@ function app_init() {
     mkdir -p "$CONFIG_PATH/db-copy/"
     mkdir -p "$CONFIG_PATH/certs/ca/_archive/"
   else
+    APP_TITLE="step ACME Client"
+	APP_BACKTITLE="Proxmox VE Helper Scripts"
     export STEPPATH="${CONFIG_PATH}"
     grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CONFIG_PATH}" >> /etc/profile
     sed -i "/export STEPPATH=/c\export STEPPATH=${CONFIG_PATH}" /etc/profile
@@ -552,7 +556,7 @@ function app_init() {
 	PROVISIONER_TYPE="ACME"
 	PROVISIONER="acme@$(hostname -d)"
   fi
-  mkdir -p "$CONFIG_PATH/certs/ssh/_archive/"
-  mkdir -p "$CONFIG_PATH/certs/x509/_archive/"
+  mkdir -p "$CERT_PATH/ssh/_archive/"
+  mkdir -p "$CERT_PATH/x509/_archive/"
   mkdir -p "$KEY_PATH/_archive/"
 }
