@@ -137,7 +137,7 @@ EOF
   msg_ok "Installed $APP"
 
   $STD bootstrap "" || die "Installation of step-ca Root Certificate failed!"
-  $STD request "" || die "Main - Request System Certificate failed!"
+  $STD x509_request "" || die "Main - Request System Certificate failed!"
 }
 
 function update() {
