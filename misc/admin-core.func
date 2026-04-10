@@ -115,7 +115,7 @@ function whiptail_textbox() {
   local TITLE=$1
   local FILE=$2
   local LEN=$(wc -l < "$FILE")
-  local HIGHT=$(( LEN + 6 ))
+  local HIGHT=$(( LEN + 7 ))
   local WIDTH=$(( ${#TITLE} + 16 ))
   local WIDTH_ARRAY=( "$WIDTH" $(( ${#TEXT} + 4 )) $(( ${#VALUE_INIT} + 8 )) )
   for i in "${WIDTH_ARRAY[@]}"; do
