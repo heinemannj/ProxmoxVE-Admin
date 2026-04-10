@@ -432,6 +432,7 @@ function x509_view(){
   CERT_LIST=()
   local CERT_FILE_ARRAY=("$CERT_PATH/x509/"*.crt)
   local FLAGS=("--provisioner")
+  local Test="test"
 
   echo "Serial Number|CN|Type|File|Validity|Not Before|Not After" > "$CERT_PATH/x509/x509Certs.txt"
   if [ -d "$CA_PATH/db" ]; then
