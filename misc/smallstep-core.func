@@ -376,6 +376,8 @@ function x509_view(){
   local CERT_FILE_ARRAY=("$CERT_PATH/x509/"*.crt)
   local FLAGS=("--provisioner")
 
+  echo "Serial Number|CN|Type|File|Validity|Not Before|Not After" > "$CERT_PATH/x509/x509Certs.txt"
+
   if [ -d "$CA_PATH/db" ]; then
     cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
     cp --recursive --force "$CA_PATH/certs/"* "$CONFIG_PATH/certs/ca/"
@@ -383,7 +385,6 @@ function x509_view(){
       DB_EXPORT=$(step-badger x509Certs "$CONFIG_PATH/db-copy" "${FLAGS[@]}" 2>/dev/null)
 
       echo "$DB_EXPORT" | awk 'NR>1 {print $1 "|" $2 "|" $3 "|none|" $7 "|" $5 "|" $6}' \
-	    | sed '1i Serial Number|CN|Type|File|Validity|Not Before|Not After\n' \
 	    | sed 's/CN=//g' \
 		> "$CERT_PATH/x509/x509Certs.txt"
 
@@ -395,7 +396,6 @@ function x509_view(){
       done < <(cat "$CERT_PATH/x509/x509Certs.txt")
     fi
   else
-    echo "Serial Number|CN|Type|File|Validity|Not Before|Not After" > "$CERT_PATH/x509/x509Certs.txt"
     for CERT_FILE in "${CERT_FILE_ARRAY[@]}"; do
 	  SERIAL=$(step certificate inspect "${CERT_FILE}" | grep "Serial Number:" | awk '{print $3}')
 	  CN=$(step certificate inspect "${CERT_FILE}" | grep "Subject:" | awk '{print $2}')
