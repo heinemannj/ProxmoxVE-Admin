@@ -413,6 +413,7 @@ function x509_certs_menu() {
 	  VALIDITY="???"
 	  NotBefore=$(step certificate inspect "${CERT_FILE}" | grep "Not Before:" | awk -F 'Not Before: ' '{print $2}')
       NotAfter=$(step certificate inspect "${CERT_FILE}" | grep "Not After :" | awk -F 'Not After: ' '{print $2}')
+	  echo "$SERIAL|$CN|$TYPE|$FILE|$VALIDITY|$NotBefore|$NotAfter" >> "$CERT_PATH/x509/x509Certs.txt"
       CERT_LIST+=("${CN}" "${CERT_FILE}")
     done
   fi
