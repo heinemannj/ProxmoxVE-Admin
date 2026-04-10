@@ -318,7 +318,7 @@ function x509_revoke() {
     echo -e "${BL}[Info]${GN} Revoke x509 Certificate with CN ${BL}${CN}${GN} and Serial Number ${BL}${SERIAL}${GN}:${CL}"
     echo
     if [[ "$FILE" == "local" ]]; then
-	  step ca revoke --cert "${CRT}" --key "${KEY}" || die "Failed to revoke certificate!"
+	  step ca revoke --cert "${CRT}" --key "${KEY}"
 	  rm -f "${CRT}" || die "Failed to delete ${CRT}!"
 	  rm -f "${KEY}" || die "Failed to delete ${KEY}!"
 	else
