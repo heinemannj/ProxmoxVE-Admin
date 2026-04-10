@@ -446,6 +446,7 @@ function x509_view(){
         local CRT="$CERT_PATH/x509/$CN.crt"
         if [ -f "${CRT}" ] && [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
           sed -i "/${SERIAL}/s/none/local/g" "$CERT_PATH/x509/x509Certs.txt"
+		  FILE="local"
         fi
 		CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
       done < <(cat "$CERT_PATH/x509/x509Certs.txt")
