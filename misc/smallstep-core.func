@@ -472,7 +472,7 @@ function x509_certs_menu() {
   local CERT_ACTION=$1
   local CHOICE
   x509_view
-  CHOICE=$(whiptail_checklist "Certificates by step" "\nSelect Certificate(s) to ${CERT_ACTION}:" "CERT_LIST")
+  [[ ${#CERT_LIST[@]} -gt 0 ]] && CHOICE=$(whiptail_checklist "Certificates by step" "\nSelect Certificate(s) to ${CERT_ACTION}:" "CERT_LIST")
   if [[ -z $CHOICE ]]; then
     x509_maintenance_menu
   else
