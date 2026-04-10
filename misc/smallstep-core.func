@@ -452,6 +452,7 @@ function x509_view(){
     fi
   else
     for ITEM in "${CERT_FILE_ARRAY[@]}"; do
+      [ -f "${ITEM}" ] || break
 	  SERIAL=$(step certificate inspect "${ITEM}" | grep "Serial Number:" | awk '{print $3}')
 	  CN=$(step certificate inspect "${ITEM}" | grep "Subject:" | awk '{print $2}')
 	  CN="${CN/CN=/}"
