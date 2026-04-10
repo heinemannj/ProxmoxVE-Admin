@@ -111,6 +111,19 @@ function whiptail_inputbox() {
   [ $? = 0 ] && echo "$VALUE_INPUT" || echo "$VALUE_INIT"
 }
 
+function whiptail_textbox() {
+  local TITLE=$1
+  local FILE=$2
+  local HIGHT=10
+  local WIDTH=$(( ${#TITLE} + 16 ))
+  local WIDTH_ARRAY=( "$WIDTH" $(( ${#TEXT} + 4 )) $(( ${#VALUE_INIT} + 8 )) )
+  for i in "${WIDTH_ARRAY[@]}"; do
+    (( i > WIDTH )) && WIDTH=$i
+  done
+
+  whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --scrolltext --textbox "$FILE" 20 150 3>&1 1>&2 2>&3
+}
+
 function resolve_ip() {
   local FQDN=$1
   local IP
