@@ -303,6 +303,34 @@ function x509_request() {
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
 }
 
+function x509_revoke() {
+  local BACK_TO_MENU="$1"
+
+  #local FLAGS=(-f
+  #  --provisioner="$PROVISIONER")
+  #
+  #[ "$PROVISIONER_TYPE" = "JWK" ] && [ -f "$PROVISIONER_PWD_FILE" ] && FLAGS+=(--provisioner-password-file="$PROVISIONER_PWD_FILE")
+
+  x509_certs_menu "Revoke"
+  msg_info "Revoking Certificate(s)"
+  for SERIAL in "${CERT_ARRAY[@]}"; do
+    x509_query
+    echo -e "${BL}[Info]${GN} Revoke x509 Certificate with CN ${BL}${CN}${GN} and Serial Number ${BL}${SERIAL}${GN}:${CL}"
+    echo
+    if [[ "$FILE" == "local" ]]; then
+	  step ca revoke --cert "${CRT}" --key "${KEY}" || die "Failed to revoke certificate!"
+	  rm -f "${CRT}" || die "Failed to delete ${CRT}!"
+	  rm -f "${KEY}" || die "Failed to delete ${KEY}!"
+	else
+      TOKEN=$(step ca token --provisioner="$PROVISIONER" --provisioner-password-file="$PROVISIONER_PASSWORD" --revoke "${SERIAL}")
+      step ca revoke --token "$TOKEN" "${SERIAL}" || die "Failed to revoke certificate!"
+	fi
+    echo
+  done
+  msg_ok "Revoked Certificate(s)"
+  [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
+}
+
 function x509_list() {
   local BACK_TO_MENU="$1"
   x509_view
@@ -361,22 +389,29 @@ function x509_maintenance_menu() {
     Bootstrap) bootstrap "x509_maintenance_menu" ;;
     Request) x509_request "x509_maintenance_menu" ;;
     Renew) x509_renew "x509_maintenance_menu" ;;
-    Revoke) revoke "x509_maintenance_menu" ;;
+    Revoke) x509_revoke "x509_maintenance_menu" ;;
     Inspect) x509_inspect "" "x509_maintenance_menu" ;;
     List) x509_list "x509_maintenance_menu" ;;
     *) exit 0 ;;
   esac
 }
 
-function x509_serial_to_cn() {
-  CN="$(cat "$CERT_PATH/x509/x509Certs.txt" | grep "${SERIAL_NUMBER}" | awk '{print $2}')"
-  CRT="$CERT_PATH/x509/$CN.crt"
-  KEY="$KEY_PATH/$CN.key"
-  if ! [[ -f ${CRT} ]]; then
-    die "Certificate ${CRT} not found on localhost!"
-  elif ! [[ -f ${KEY} ]]; then
-    die "Private Key ${KEY} not found on localhost!"
+function x509_query() {
+  CRT=""
+  KEY=""
+  #SERIAL CN TYPE FILE VALIDITY NotBefore NotAfter
+  CN="$(cat "$CERT_PATH/x509/x509Certs.txt" | grep "${SERIAL}" | awk '{print $2}')"
+  TYPE="$(cat "$CERT_PATH/x509/x509Certs.txt" | grep "${SERIAL}" | awk '{print $3}')"
+  FILE="$(cat "$CERT_PATH/x509/x509Certs.txt" | grep "${SERIAL}" | awk '{print $4}')"
+  if [[ "$FILE" == "local" ]]; then
+    CRT="$CERT_PATH/x509/$CN.crt"
+    KEY="$KEY_PATH/$CN.key"
   fi
+  #if ! [[ -f ${CRT} ]]; then
+  #  die "Certificate ${CRT} not found on localhost!"
+  #elif ! [[ -f ${KEY} ]]; then
+  #  die "Private Key ${KEY} not found on localhost!"
+  #fi
 }
 
 function x509_view(){
