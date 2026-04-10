@@ -370,9 +370,7 @@ function x509_maintenance_menu() {
 
 function x509_view(){
   DB_EXPORT=""
-  local DB_LIST=""
   CERT_LIST=()
-  local CERT_FILE
   local CERT_FILE_ARRAY=("$CERT_PATH/x509/"*.crt)
   local FLAGS=("--provisioner")
 
@@ -395,24 +393,20 @@ function x509_view(){
       done < <(cat "$CERT_PATH/x509/x509Certs.txt")
     fi
   else
-    for CERT_FILE in "${CERT_FILE_ARRAY[@]}"; do
-	  SERIAL=$(step certificate inspect "${CERT_FILE}" | grep "Serial Number:" | awk '{print $3}')
-	  CN=$(step certificate inspect "${CERT_FILE}" | grep "Subject:" | awk '{print $2}')
+    for ITEM in "${CERT_FILE_ARRAY[@]}"; do
+	  SERIAL=$(step certificate inspect "${ITEM}" | grep "Serial Number:" | awk '{print $3}')
+	  CN=$(step certificate inspect "${ITEM}" | grep "Subject:" | awk '{print $2}')
 	  CN="${CN/CN=/}"
-	  TYPE=$(step certificate inspect "${CERT_FILE}" | grep "Type:" | awk '{print $2}')
+	  TYPE=$(step certificate inspect "${ITEM}" | grep "Type:" | awk '{print $2}')
 	  FILE="local"
-	  NotBefore=$(step certificate inspect "${CERT_FILE}" | grep "Not Before:" | awk -F 'Not Before: ' '{print $2}')
-      NotAfter=$(step certificate inspect "${CERT_FILE}" | grep "Not After :" | awk -F 'Not After : ' '{print $2}')
+	  NotBefore=$(step certificate inspect "${ITEM}" | grep "Not Before:" | awk -F 'Not Before: ' '{print $2}')
+      NotAfter=$(step certificate inspect "${ITEM}" | grep "Not After :" | awk -F 'Not After : ' '{print $2}')
 	  [ $(date -d "${NotAfter}" +%s) > $(date +%s) ] && [ $(date -d "${NotBefore}" +%s) < $(date +%s) ] && VALIDITY="valid" || VALIDITY="expired"
       echo "$SERIAL|$CN|$TYPE|$FILE|$VALIDITY|$NotBefore|$NotAfter" >> "$CERT_PATH/x509/x509Certs.txt"
       CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
     done
   fi
-  cat "$CERT_PATH/x509/x509Certs.txt" | sed 's/CN=//g' | column -t -s '|' > "$CERT_PATH/x509/x509Certs.txt"
-#  DB_LIST=$(cat "$CERT_PATH/x509/x509Certs.txt" | awk 'NR>1 {print $1 " " $2 "|" $3 "|" $4 "|" $5 "|" $7}')
-#  while read -r TAG ITEM; do
-#    CERT_LIST+=("$TAG" "$ITEM")
-#  done < <(echo "$DB_LIST")
+  cat "$CERT_PATH/x509/x509Certs.txt" | column -t -s '|' > "$CERT_PATH/x509/x509Certs.txt"
 }
 
 function x509_certs_menu() {
