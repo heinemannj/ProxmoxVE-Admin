@@ -223,7 +223,7 @@ function bootstrap() {
   bootstrap_menu
   msg_info "Installing step-ca Root Certificate"
   $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
-  $STD step certificate install --all "${CERT_PATH}/x509/root_ca.crt" || die "Installation of step-ca Root Certificate failed!"
+  $STD step certificate install --all "${CERT_PATH}/root_ca.crt" || die "Installation of step-ca Root Certificate failed!"
   $STD update-ca-certificates  || die "Update of System CA Certificates failed!"
   $STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
   msg_ok "Installed step-ca Root Certificate"
