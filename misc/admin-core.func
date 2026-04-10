@@ -123,7 +123,7 @@ function whiptail_textbox() {
     (( i > WIDTH )) && WIDTH=$i
   done
 
-  whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --scrolltext --textbox "$FILE" "$HIGHT" 150 3>&1 1>&2 2>&3
+  whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --textbox "$FILE" --scrolltext "$HIGHT" 150 3>&1 1>&2 2>&3
 }
 
 function resolve_ip() {
