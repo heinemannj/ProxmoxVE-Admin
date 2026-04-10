@@ -375,15 +375,12 @@ function x509_view(){
   local FLAGS=("--provisioner")
 
   echo "Serial Number|CN|Type|File|Validity|Not Before|Not After" > "$CERT_PATH/x509/x509Certs.txt"
-
   if [ -d "$CA_PATH/db" ]; then
     cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
     cp --recursive --force "$CA_PATH/certs/"* "$CONFIG_PATH/certs/ca/"
     if [[ $(step-badger x509Certs "$CONFIG_PATH/db-copy" 2>/dev/null) ]]; then
       DB_EXPORT=$(step-badger x509Certs "$CONFIG_PATH/db-copy" "${FLAGS[@]}" 2>/dev/null)
-
       echo "$DB_EXPORT" | awk 'NR>1 {print $1 "|" $2 "|" $3 "|none|" $7 "|" $5 "|" $6}' | sed 's/CN=//g' > "$CERT_PATH/x509/x509Certs.txt"
-
       while IFS='|' read -r SERIAL CN TYPE FILE VALIDITY NotBefore NotAfter; do
         local CRT="$CERT_PATH/x509/$CN.crt"
         if [ -f "${CRT}" ] && [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
