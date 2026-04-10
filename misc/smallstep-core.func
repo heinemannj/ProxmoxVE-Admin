@@ -342,7 +342,12 @@ function x509_renew() {
     echo -e "${BL}[Info]${GN} Renew x509 Certificate with CN ${BL}${CN}${GN} and Serial Number ${BL}${SERIAL}${GN}:${CL}\n"
     x509_query
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
+	  CRT_OLD="${CERT_PATH}/x509/_archive/${CN}_$(date +%Y%m%d%H%M%S).crt"
+	  KEY_OLD="${KEY_PATH}/_archive/${CN}_$(date +%Y%m%d%H%M%S).key"
+      cp "${CRT}" "${CRT_OLD}" || die "Failed to backup ${CRT}!"
+	  cp "${KEY}" "${KEY_OLD}" || die "Failed to backup ${KEY}!"
       step ca renew --force "${CRT}" "${KEY}" || die "Failed to renew certificate!"
+      step ca revoke --cert "${CRT_OLD}" --key "${KEY_OLD}"
 	else
 	  die "Failed to renew certificate!"
 	fi
