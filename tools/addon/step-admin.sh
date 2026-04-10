@@ -394,7 +394,7 @@ function x509_revoke() {
 function x509_list() {
   local BACK_TO_MENU="$1"
   x509_view
-  whiptail --backtitle "$APP_BACKTITLE" --title "test" --scrolltext --textbox "$CERT_PATH/x509/x509Certs.txt" 20 150 3>&1 1>&2 2>&3
+  whiptail --backtitle "$APP_BACKTITLE" --title "Certificates by step" --scrolltext --textbox "$CERT_PATH/x509/x509Certs.txt" 20 150 3>&1 1>&2 2>&3
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
