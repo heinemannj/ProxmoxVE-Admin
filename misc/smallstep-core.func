@@ -388,7 +388,7 @@ function x509_view(){
 		> "$CERT_PATH/x509/x509Certs.txt"
 
       while IFS='|' read -r SERIAL CN TYPE FILE VALIDITY NotBefore NotAfter; do
-        CRT="$CERT_PATH/x509/$CN.crt"
+        local CRT="$CERT_PATH/x509/$CN.crt"
         if [ -f "${CRT}" ] && [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
           sed -i "/${SERIAL}/s/none/local/g" "$CERT_PATH/x509/x509Certs.txt"
         fi
@@ -404,7 +404,7 @@ function x509_view(){
     echo "Serial Number|CN|Type|File|Validity|Not Before|Not After" > "$CERT_PATH/x509/x509Certs.txt"
     for CERT_FILE in "${CERT_FILE_ARRAY[@]}"; do
 	  SERIAL=$(step certificate inspect "${CERT_FILE}" | grep "Serial Number:" | awk '{print $3}')
-      CN=$(echo "$CERT_FILE" | awk -F '/' '{print $6}' | sed 's/.crt//g')
+	  CN=$(step certificate inspect "${CERT_FILE}" | grep "Subject:" | awk '{print $2}')
 	  TYPE=$(step certificate inspect "${CERT_FILE}" | grep "Type:" | awk '{print $2}')
 	  FILE="local"
 	  NotBefore=$(step certificate inspect "${CERT_FILE}" | grep "Not Before:" | awk -F 'Not Before: ' '{print $2}')
