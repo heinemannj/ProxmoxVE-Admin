@@ -5,7 +5,7 @@
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 # Source: https://github.com/smallstep/cli
 
-source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/admin-core.func)
+#source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/admin-core.func)
 #source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/smallstep-core.func)
 
 APP="step-cli"
@@ -26,6 +26,147 @@ function header_info() {
              /_/                                          
 
 EOF
+}
+
+# shellcheck disable=SC2116
+# shellcheck disable=SC2028
+YW=$(echo "\033[33m")
+# shellcheck disable=SC2116
+# shellcheck disable=SC2028
+GN=$(echo "\033[1;92m")
+# shellcheck disable=SC2116
+# shellcheck disable=SC2028
+RD=$(echo "\033[01;31m")
+# shellcheck disable=SC2116
+# shellcheck disable=SC2028
+BL=$(echo "\033[36m")
+# shellcheck disable=SC2116
+# shellcheck disable=SC2028
+CL=$(echo "\033[m")
+CM="${GN}✔️${CL}"
+CROSS="${RD}✖️${CL}"
+INFO="${BL}ℹ️${CL}"
+# shellcheck disable=SC2034
+TAB="  "
+
+function msg_info() { echo -e "${INFO} ${YW}${1}...${CL}"; }
+function msg_ok() { echo -e "${CM} ${GN}${1}${CL}"; }
+function msg_error() { echo -e "${CROSS} ${RD}${1}${CL}"; }
+function msg_warn() { echo -e "⚠️  ${YW}${1}${CL}"; }
+
+function die() {
+  echo -e "\n${BL}[ERROR]${GN} ${RD}${1}${CL}\n"
+  exit 1
+}
+
+function whiptail_radiolist() {
+  local TITLE=$1
+  local TEXT=$2
+  local -n LIST=$3
+  local CHOICE
+  local OPTIONS=()
+  local WIDTH=$(( ${#TITLE} + 16 ))
+  local WIDTH_OFFSET=12
+
+  for ((i=0; i<${#LIST[@]}; i+=2)); do
+    local j=$(( i+1 ))
+    (( ${#LIST[i]} > MAX_LEFT )) && MAX_LEFT=${#LIST[i]}
+	(( ${#LIST[j]} > MAX_RIGHT )) && MAX_RIGHT=${#LIST[j]}
+    OPTIONS+=("${LIST[i]}" "${LIST[j]}" "OFF")  
+  done
+  (( MAX_LEFT + MAX_RIGHT + WIDTH_OFFSET > WIDTH )) && WIDTH=$(( MAX_LEFT + MAX_RIGHT + WIDTH_OFFSET ))
+  local LEN=$(( ${#OPTIONS[@]} / 2 ))
+  local HIGHT=$(( LEN + 9 ))
+
+  CHOICE=$(whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --radiolist "$TEXT" \
+    "$HIGHT" "$WIDTH" "$LEN" "${OPTIONS[@]}" 3>&1 1>&2 2>&3 | tr -d '"')
+  echo "$CHOICE"
+}
+
+function whiptail_checklist() {
+  local TITLE=$1
+  local TEXT=$2
+  local -n LIST=$3
+  local CHOICE
+  local OPTIONS=()
+  local WIDTH=$(( ${#TITLE} + 16 ))
+  local WIDTH_OFFSET=12
+
+  for ((i=0; i<${#LIST[@]}; i+=2)); do
+    local j=$(( i+1 ))
+    (( ${#LIST[i]} > MAX_LEFT )) && MAX_LEFT=${#LIST[i]}
+	(( ${#LIST[j]} > MAX_RIGHT )) && MAX_RIGHT=${#LIST[j]}
+    OPTIONS+=("${LIST[i]}" "${LIST[j]}" "OFF")  
+  done
+  (( MAX_LEFT + MAX_RIGHT + WIDTH_OFFSET > WIDTH )) && WIDTH=$(( MAX_LEFT + MAX_RIGHT + WIDTH_OFFSET ))
+  local LEN=$(( ${#OPTIONS[@]} / 2 ))
+  local HIGHT=$(( LEN + 9 ))
+
+  CHOICE=$(whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --checklist "$TEXT" \
+    "$HIGHT" "$WIDTH" "$LEN" "${OPTIONS[@]}" 3>&1 1>&2 2>&3 | tr -d '"')
+  echo "$CHOICE"
+}
+
+function whiptail_menu() {
+  local TITLE=$1
+  local TEXT="\nSelect an option:"
+  local LEN=$(( ${#OPTIONS[@]} / 2 ))
+  local HIGHT=$(( LEN + 9 ))
+  local WIDTH=$(( ${#TITLE} + 16 ))
+  local WIDTH_OFFSET=5
+  local CHOICE
+  local MAX_LEFT=0
+  local MAX_RIGHT=0
+  for ((i=0; i<${#OPTIONS[@]}; i+=2)); do
+    (( ${#OPTIONS[i]} > MAX_LEFT )) && MAX_LEFT=${#OPTIONS[i]}
+ 	  (( ${#OPTIONS[$(( i+1 ))]} > MAX_RIGHT )) && MAX_RIGHT=${#OPTIONS[$(( i+1 ))]}
+  done
+  (( MAX_LEFT + MAX_RIGHT + WIDTH_OFFSET > WIDTH )) && WIDTH=$(( MAX_LEFT + MAX_RIGHT + WIDTH_OFFSET ))
+
+  CHOICE=$(whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --menu "$TEXT" \
+    "$HIGHT" "$WIDTH" "$LEN" "${OPTIONS[@]}" 3>&1 1>&2 2>&3 || true)
+  echo "$CHOICE"
+}
+
+function whiptail_inputbox() {
+  local TITLE=$1
+  local TEXT=$2
+  local VALUE_INIT=$3
+  local VALUE_INPUT
+  local HIGHT=10
+  local WIDTH=$(( ${#TITLE} + 16 ))
+  local WIDTH_ARRAY=( "$WIDTH" $(( ${#TEXT} + 4 )) $(( ${#VALUE_INIT} + 8 )) )
+  for i in "${WIDTH_ARRAY[@]}"; do
+    (( i > WIDTH )) && WIDTH=$i
+  done
+
+  VALUE_INPUT=$(whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --inputbox "\n$TEXT" \
+    "$HIGHT" "$WIDTH" "$VALUE_INIT" 3>&1 1>&2 2>&3)
+  # shellcheck disable=SC2181
+  [ $? = 0 ] && echo "$VALUE_INPUT" || echo "$VALUE_INIT"
+}
+
+function whiptail_textbox() {
+  local TITLE=$1
+  local FILE=$2
+  local LEN
+  LEN=$(wc -l < "$FILE")
+  local HIGHT=$(( LEN + 7 ))
+  (( HIGHT > 30 )) && HIGHT=30
+  local WIDTH=$(( ${#TITLE} + 16 ))
+  local WIDTH_ARRAY=( "$WIDTH" $(( ${#TEXT} + 4 )) $(( ${#VALUE_INIT} + 8 )) )
+  for i in "${WIDTH_ARRAY[@]}"; do
+    (( i > WIDTH )) && WIDTH=$i
+  done
+
+  whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --scrolltext --textbox "$FILE" "$HIGHT" 150 3>&1 1>&2 2>&3
+}
+
+function resolve_ip() {
+  local FQDN=$1
+  local IP
+  IP=$(dig +short "$FQDN")
+ [[ -z "$IP" ]] && exit 1 || echo "$IP"
 }
 
 function detect_os() {
@@ -480,7 +621,6 @@ function x509_view(){
   CERT_LIST=()
   local CERT_FILE_ARRAY=("$CERT_PATH/x509/"*.crt)
   local FLAGS=("--provisioner")
-  local Test="test"
 
   echo "Serial Number|CN|Type|File|Validity|Not Before|Not After" > "$CERT_PATH/x509/x509Certs.txt"
   if [ -d "$CA_PATH/db" ]; then
@@ -508,7 +648,7 @@ function x509_view(){
 	  FILE="local"
 	  NotBefore=$(step certificate inspect "${ITEM}" | grep "Not Before:" | awk -F 'Not Before: ' '{print $2}')
       NotAfter=$(step certificate inspect "${ITEM}" | grep "Not After :" | awk -F 'Not After : ' '{print $2}')
-	  [ $(date -d "${NotAfter}" +%s) > $(date +%s) ] && [ $(date -d "${NotBefore}" +%s) < $(date +%s) ] && VALIDITY="Valid" || VALIDITY="Expired"
+	  [ "$(date -d "${NotAfter}" +%s)" -gt "$(date +%s)" ] && [ "$(date -d "${NotBefore}" +%s)" -lt "$(date +%s)" ] && VALIDITY="Valid" || VALIDITY="Expired"
       echo "$SERIAL|$CN|$TYPE|$FILE|$VALIDITY|$NotBefore|$NotAfter" >> "$CERT_PATH/x509/x509Certs.txt"
       CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
     done
