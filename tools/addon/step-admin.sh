@@ -533,8 +533,8 @@ function x509_revoke() {
 function x509_list() {
   local BACK_TO_MENU="$1"
   x509_view
-  #whiptail --backtitle "$APP_BACKTITLE" --title "Certificates by $CA_FQDN" --scrolltext --textbox "$CERT_PATH/x509/x509Certs.txt" 20 150 3>&1 1>&2 2>&3
-  whiptail_textbox "Certificates by $CA_FQDN" "$CERT_PATH/x509/x509Certs.txt"
+  #whiptail --backtitle "$APP_BACKTITLE" --title "Certificates Issued by $CA_FQDN" --scrolltext --textbox "$CERT_PATH/x509/x509Certs.txt" 20 150 3>&1 1>&2 2>&3
+  whiptail_textbox "Certificates Issued by $CA_FQDN" "$CERT_PATH/x509/x509Certs.txt"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
@@ -662,7 +662,7 @@ function x509_certs_menu() {
   local CERT_ACTION=$1
   local CHOICE
   x509_view
-  [[ ${#CERT_LIST[@]} -gt 0 ]] && CHOICE=$(whiptail_checklist "Certificates by $CA_FQDN" "\nSelect Certificate(s) to ${CERT_ACTION}:" "CERT_LIST")
+  [[ ${#CERT_LIST[@]} -gt 0 ]] && CHOICE=$(whiptail_checklist "Certificates Issued by $CA_FQDN" "\nSelect Certificate(s) to ${CERT_ACTION}:" "CERT_LIST")
   if [[ -z $CHOICE ]]; then
     x509_maintenance_menu
   else
