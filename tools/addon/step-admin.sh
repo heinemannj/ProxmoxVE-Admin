@@ -66,7 +66,7 @@ function whiptail_radiolist() {
   local CHOICE
   local OPTIONS=()
   local WIDTH=$(( ${#TITLE} + 16 ))
-  local WIDTH_OFFSET=14
+  local WIDTH_OFFSET=13
 
   for ((i=0; i<${#LIST[@]}; i+=2)); do
     local j=$(( i+1 ))
@@ -91,7 +91,7 @@ function whiptail_checklist() {
   local CHOICE
   local OPTIONS=()
   local WIDTH=$(( ${#TITLE} + 16 ))
-  local WIDTH_OFFSET=14
+  local WIDTH_OFFSET=13
 
   for ((i=0; i<${#LIST[@]}; i+=2)); do
     local j=$(( i+1 ))
