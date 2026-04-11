@@ -475,7 +475,7 @@ function x509_inspect() {
   for SERIAL in "${CERT_ARRAY[@]}"; do
     echo -e "${BL}[Info]${GN} Inspect x509 Certificate with CN ${BL}${CN}${GN} and Serial Number ${BL}${SERIAL}${GN}:${CL}\n"
     x509_query
-    [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]] || die "Serial Number ${SERIAL} mismatch!"
+    step certificate inspect "${CRT}" | grep -q "${SERIAL}" || die "Serial Number ${SERIAL} mismatch!"
     step certificate inspect "${CRT}" || die "Failed to inspect certificate!"
     echo -e "\n${BL}[Info]${GN} Public Key:${CL}\n"
     cat "${CRT}"
@@ -631,7 +631,7 @@ function x509_view(){
       echo "$DB_EXPORT" | awk 'NR>1 {print $1 "|" $2 "|" $3 "|none|" $7 "|" $5 "|" $6}' | sed 's/CN=//g' >> "$CERT_PATH/x509/x509Certs.txt"
       while IFS='|' read -r SERIAL CN TYPE FILE VALIDITY NotBefore NotAfter; do
         local CRT="$CERT_PATH/x509/$CN.crt"
-        if [ -f "${CRT}" ] && [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
+        if [ -f "${CRT}" ] && step certificate inspect "${CRT}" | grep -q "${SERIAL}"; then
           sed -i "/${SERIAL}/s/none/local/g" "$CERT_PATH/x509/x509Certs.txt"
 		  FILE="local"
         fi
