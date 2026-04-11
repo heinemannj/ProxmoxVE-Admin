@@ -696,11 +696,6 @@ function app_init() {
 	CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}')
 	CA_FINGERPRINT=$(grep "fingerprint" "$CA_PATH/config/defaults.json" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
 
-    echo "CA_URL: $CA_URL"
-    echo "CA_FQDN: $CA_FQDN"
-    echo "CA_FINGERPRINT: $CA_FINGERPRINT"
-    exit 0
-
     PROVISIONER_TYPE="JWK"
     PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_PATH/config/ca.json")
     PROVISIONER="${PROVISIONER#\"}"
@@ -719,11 +714,6 @@ function app_init() {
     CA_URL=$(grep "ca-url" "$CONFIG_PATH/config/defaults.json" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
 	CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}')
 	CA_FINGERPRINT=$(grep "fingerprint" "$CONFIG_PATH/config/defaults.json" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
-
-    echo "CA_URL: $CA_URL"
-    echo "CA_FQDN: $CA_FQDN"
-    echo "CA_FINGERPRINT: $CA_FINGERPRINT"
-    exit 0
 
 	PROVISIONER_TYPE="ACME"
 	PROVISIONER="acme@$(hostname -d)"
