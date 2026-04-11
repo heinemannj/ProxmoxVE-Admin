@@ -101,6 +101,7 @@ function whiptail_checklist() {
   (( MAX_LEFT + MAX_RIGHT + WIDTH_OFFSET > WIDTH )) && WIDTH=$(( MAX_LEFT + MAX_RIGHT + WIDTH_OFFSET ))
   local LEN=$(( ${#OPTIONS[@]} / 2 ))
   local HIGHT=$(( LEN + 9 ))
+  (( HIGHT > 30 )) && HIGHT=30
 
   CHOICE=$(whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --checklist "$TEXT" \
     "$HIGHT" "$WIDTH" "$LEN" "${OPTIONS[@]}" 3>&1 1>&2 2>&3 | tr -d '"')
