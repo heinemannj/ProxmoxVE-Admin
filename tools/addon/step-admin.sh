@@ -692,12 +692,10 @@ function app_init() {
     grep -q "export STEPHOME=" /etc/profile || echo "export STEPHOME=${CONFIG_PATH}" >> /etc/profile
 	sed -i "/export STEPHOME=/c\export STEPHOME=${CONFIG_PATH}" /etc/profile
 
-    CA_URL=$(grep "ca-url" "$CA_PATH/config/defaults.json" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
-	CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}')
-	CA_FINGERPRINT=$(grep "fingerprint" "$CA_PATH/config/defaults.json" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
-
+    CA_DEFAULTS="$CA_PATH/config/defaults.json"
+	CA_CONFIG="$CA_PATH/config/ca.json"
     PROVISIONER_TYPE="JWK"
-    PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_PATH/config/ca.json")
+    PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_CONFIG")
     PROVISIONER="${PROVISIONER#\"}"
     PROVISIONER="${PROVISIONER%\"}"
     PROVISIONER_PWD_FILE="$CA_PATH/encryption/provisioner.pwd"
@@ -711,13 +709,15 @@ function app_init() {
     grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CONFIG_PATH}" >> /etc/profile
     sed -i "/export STEPPATH=/c\export STEPPATH=${CONFIG_PATH}" /etc/profile
 
-    CA_URL=$(grep "ca-url" "$CONFIG_PATH/config/defaults.json" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
-	CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}')
-	CA_FINGERPRINT=$(grep "fingerprint" "$CONFIG_PATH/config/defaults.json" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
-
+    CA_DEFAULTS="$CONFIG_PATH/config/defaults.json"
 	PROVISIONER_TYPE="ACME"
 	PROVISIONER="acme@$(hostname -d)"
   fi
+
+  CA_URL=$(grep "ca-url" "$CA_DEFAULTS" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
+  CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}')
+  CA_FINGERPRINT=$(grep "fingerprint" "$CA_DEFAULTS" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
+
   mkdir -p "$CERT_PATH/ssh/_archive/"
   mkdir -p "$CERT_PATH/x509/_archive/"
   mkdir -p "$KEY_PATH/_archive/"
