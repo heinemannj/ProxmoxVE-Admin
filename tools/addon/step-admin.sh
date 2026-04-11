@@ -716,6 +716,15 @@ function app_init() {
     grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CONFIG_PATH}" >> /etc/profile
     sed -i "/export STEPPATH=/c\export STEPPATH=${CONFIG_PATH}" /etc/profile
 
+    CA_URL=$(grep "ca-url" "$CONFIG_PATH/config/defaultd.json" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
+	CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}')
+	CA_FINGERPRINT=$(grep "fingerprint" "$CONFIG_PATH/config/defaultd.json" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
+
+    echo "CA_URL: $CA_URL"
+    echo "CA_FQDN: $CA_FQDN"
+    echo "CA_FINGERPRINT: $CA_FINGERPRINT"
+    exit 0
+
 	PROVISIONER_TYPE="ACME"
 	PROVISIONER="acme@$(hostname -d)"
   fi
