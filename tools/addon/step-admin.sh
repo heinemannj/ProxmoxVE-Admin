@@ -692,9 +692,9 @@ function app_init() {
     grep -q "export STEPHOME=" /etc/profile || echo "export STEPHOME=${CONFIG_PATH}" >> /etc/profile
 	sed -i "/export STEPHOME=/c\export STEPHOME=${CONFIG_PATH}" /etc/profile
 
-    CA_URL=$(grep "ca-url" "$CA_PATH/config/defaultd.json" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
+    CA_URL=$(grep "ca-url" "$CA_PATH/config/defaults.json" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
 	CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}')
-	CA_FINGERPRINT=$(grep "fingerprint" "$CA_PATH/config/defaultd.json" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
+	CA_FINGERPRINT=$(grep "fingerprint" "$CA_PATH/config/defaults.json" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
 
     echo "CA_URL: $CA_URL"
     echo "CA_FQDN: $CA_FQDN"
@@ -716,9 +716,9 @@ function app_init() {
     grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CONFIG_PATH}" >> /etc/profile
     sed -i "/export STEPPATH=/c\export STEPPATH=${CONFIG_PATH}" /etc/profile
 
-    CA_URL=$(grep "ca-url" "$CONFIG_PATH/config/defaultd.json" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
+    CA_URL=$(grep "ca-url" "$CONFIG_PATH/config/defaults.json" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
 	CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}')
-	CA_FINGERPRINT=$(grep "fingerprint" "$CONFIG_PATH/config/defaultd.json" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
+	CA_FINGERPRINT=$(grep "fingerprint" "$CONFIG_PATH/config/defaults.json" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
 
     echo "CA_URL: $CA_URL"
     echo "CA_FQDN: $CA_FQDN"
