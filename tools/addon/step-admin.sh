@@ -369,7 +369,7 @@ function bootstrap_menu() {
 
 function bootstrap() {
   local BACK_TO_MENU="$1"
-  CA_FQDN="step-ca.$(hostname -d)"
+  [[ -z $CA_FQDN ]] && CA_FQDN="step-ca.$(hostname -d)"
   bootstrap_menu
   msg_info "Installing step-ca Root Certificate"
   $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
