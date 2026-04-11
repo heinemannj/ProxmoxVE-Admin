@@ -508,7 +508,7 @@ function x509_view(){
 	  FILE="local"
 	  NotBefore=$(step certificate inspect "${ITEM}" | grep "Not Before:" | awk -F 'Not Before: ' '{print $2}')
       NotAfter=$(step certificate inspect "${ITEM}" | grep "Not After :" | awk -F 'Not After : ' '{print $2}')
-	  [ $(date -d "${NotAfter}" +%s) > $(date +%s) ] && [ $(date -d "${NotBefore}" +%s) < $(date +%s) ] && VALIDITY="valid" || VALIDITY="expired"
+	  [ $(date -d "${NotAfter}" +%s) > $(date +%s) ] && [ $(date -d "${NotBefore}" +%s) < $(date +%s) ] && VALIDITY="Valid" || VALIDITY="Expired"
       echo "$SERIAL|$CN|$TYPE|$FILE|$VALIDITY|$NotBefore|$NotAfter" >> "$CERT_PATH/x509/x509Certs.txt"
       CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
     done
