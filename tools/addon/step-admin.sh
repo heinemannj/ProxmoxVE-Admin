@@ -79,7 +79,7 @@ function whiptail_radiolist() {
   (( LEN > 21 )) && LEN=21
   local HIGHT=$(( LEN + 9 ))
 
-  CHOICE=$(whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --radiolist "$TEXT" \
+  CHOICE=$(whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --scrolltext --radiolist "$TEXT" \
     "$HIGHT" "$WIDTH" "$LEN" "${OPTIONS[@]}" 3>&1 1>&2 2>&3 | tr -d '"')
   echo "$CHOICE"
 }
@@ -104,7 +104,7 @@ function whiptail_checklist() {
   (( LEN > 21 )) && LEN=21
   local HIGHT=$(( LEN + 9 ))
 
-  CHOICE=$(whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --checklist "$TEXT" \
+  CHOICE=$(whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --scrolltext --checklist "$TEXT" \
     "$HIGHT" "$WIDTH" "$LEN" "${OPTIONS[@]}" 3>&1 1>&2 2>&3 | tr -d '"')
   echo "$CHOICE"
 }
