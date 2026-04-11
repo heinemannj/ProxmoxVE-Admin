@@ -514,8 +514,8 @@ function x509_view(){
     done
   fi
   cat "$CERT_PATH/x509/x509Certs.txt" | column -t -s '|' > "$CERT_PATH/x509/x509Certs.txt"
-  TOTAL_CERTS=(( $(wc -l < "$CERT_PATH/x509/x509Certs.txt") - 1 ))
-  VALID_CERTS=(( $(grep -c "Valid" "$CERT_PATH/x509/x509Certs.txt") - 1))
+  TOTAL_CERTS=$(( $(wc -l < "$CERT_PATH/x509/x509Certs.txt") - 1 ))
+  VALID_CERTS=$(( $(grep -c "Valid" "$CERT_PATH/x509/x509Certs.txt") - 1))
   EXPIRED_CERTS=$(( TOTAL_CERTS - VALID_CERTS ))
   echo -e "\n\nTotal Certificates  : ${TOTAL_CERTS}\nValid Certificates  : ${VALID_CERTS}\nExpired Certificates: ${EXPIRED_CERTS}" >> "$CERT_PATH/x509/x509Certs.txt"
 }
