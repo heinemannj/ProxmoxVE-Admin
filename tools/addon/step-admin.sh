@@ -688,7 +688,7 @@ function app_init() {
     grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CA_PATH}" >> /etc/profile
 	sed -i "/export STEPPATH=/c\export STEPPATH=${CA_PATH}" /etc/profile
 
-	export STEPHOME="${CONFIG_PATH}"^
+	export STEPHOME="${CONFIG_PATH}"
     grep -q "export STEPHOME=" /etc/profile || echo "export STEPHOME=${CONFIG_PATH}" >> /etc/profile
 	sed -i "/export STEPHOME=/c\export STEPHOME=${CONFIG_PATH}" /etc/profile
 
