@@ -66,7 +66,7 @@ function whiptail_radiolist() {
   local CHOICE
   local OPTIONS=()
   local WIDTH=$(( ${#TITLE} + 16 ))
-  local WIDTH_OFFSET=13
+  local WIDTH_OFFSET=14
 
   for ((i=0; i<${#LIST[@]}; i+=2)); do
     local j=$(( i+1 ))
@@ -91,7 +91,7 @@ function whiptail_checklist() {
   local CHOICE
   local OPTIONS=()
   local WIDTH=$(( ${#TITLE} + 16 ))
-  local WIDTH_OFFSET=13
+  local WIDTH_OFFSET=14
 
   for ((i=0; i<${#LIST[@]}; i+=2)); do
     local j=$(( i+1 ))
@@ -155,13 +155,9 @@ function whiptail_textbox() {
   LEN=$(wc -l < "$FILE")
   local HIGHT=$(( LEN + 7 ))
   (( HIGHT > 30 )) && HIGHT=30
-  local WIDTH=$(( ${#TITLE} + 16 ))
-  local WIDTH_ARRAY=( "$WIDTH" $(( ${#TEXT} + 4 )) $(( ${#VALUE_INIT} + 8 )) )
-  for i in "${WIDTH_ARRAY[@]}"; do
-    (( i > WIDTH )) && WIDTH=$i
-  done
+  local WIDTH=150
 
-  whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --scrolltext --textbox "$FILE" "$HIGHT" 150 3>&1 1>&2 2>&3
+  whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --scrolltext --textbox "$FILE" "$HIGHT" "$WIDTH" 3>&1 1>&2 2>&3
 }
 
 function resolve_ip() {
