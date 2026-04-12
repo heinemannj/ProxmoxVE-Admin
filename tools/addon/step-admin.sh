@@ -548,7 +548,7 @@ function bootstrap_menu() {
     "<Continue>")
       bootstrap_fqdn_check || bootstrap_menu
       ;;
-    *) maintenance_menu ;;
+    *) x509_maintenance_menu ;;
     esac
 }
 
