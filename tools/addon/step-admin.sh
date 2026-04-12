@@ -845,12 +845,14 @@ function x509_certs_menu() {
   local CHOICE
   x509_view
   [[ ${#CERT_LIST[@]} -gt 0 ]] && CHOICE=$(whiptail_checklist "Certificates Issued by $CA_FQDN" "\nSelect Certificate(s) to ${CERT_ACTION}:" "CERT_LIST")
-  if [[ -z $CHOICE ]]; then
-    x509_maintenance_menu
-  else
-    # shellcheck disable=SC2206
-    CERT_ARRAY=(${CHOICE})
-  fi
+  CERT_ARRAY=(${CHOICE})
+
+  #if [[ -z $CHOICE ]]; then
+  #  x509_maintenance_menu
+  #else
+  #  # shellcheck disable=SC2206
+  #  CERT_ARRAY=(${CHOICE})
+  #fi
 }
 
 #function ssh_badger_list() {
