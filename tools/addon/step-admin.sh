@@ -618,10 +618,9 @@ function x509_request() {
   HOST="$(hostname)"
   IP=$(resolve_ip "${FQDN}") || die "Resolution failed for ${FQDN}!"
   SAN=""
-  VALID_TO="168h"
+  VALID_TO="168h" # Default validity of 7 days (168 hours)
 
-  x509_request_menu
-
+  [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || x509_request_menu
   msg_info "Requesting x509 Certificate by $PROVISIONER"
   local FLAGS=(-f
     --not-after="$VALID_TO"
