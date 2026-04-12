@@ -30,7 +30,7 @@ var_backup_storage="${var_backup_storage:-}"
 #     - ""            : Interactive selection via Whiptail
 var_container="${var_container:-}"
 
-# var_unattended: Run updates without user interaction inside containers
+# var_unattended: Run without user interaction
 #   Options: "yes" | "no" | "" (empty = interactive prompt)
 var_unattended="${var_unattended:-}"
 
@@ -107,7 +107,7 @@ Environment Variables:
   var_backup          Enable backup before update (yes/no)
   var_backup_storage  Storage location for backups
   var_container       Container selection (all/all_running/all_stopped/101,102,...)
-  var_unattended      Run updates unattended (yes/no)
+  var_unattended      Run without user interaction (yes/no)
   var_skip_confirm    Skip initial confirmation (yes/no)
   var_tags            Optionally override auto-detection tags ("prod|smb|community-script")
   var_action          Skip initial dialog and directly perform an maintenance option (install/update/uninstall/maintain)
@@ -164,7 +164,7 @@ function init_app() {
   fi
 
   CA_URL=$(grep "ca-url" "$CA_DEFAULTS" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
-  CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}')
+  [[ -n $CA_URL ]] && CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}') || CA_FQDN="step-ca.$(hostname -d)"
   CA_FINGERPRINT=$(grep "fingerprint" "$CA_DEFAULTS" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
   CA_ROOT=$(grep "root" "$CA_DEFAULTS" | awk -F'"root": "' '{print $2}' | awk -F'"' '{print $1}')
 
@@ -554,8 +554,7 @@ function bootstrap_menu() {
 
 function bootstrap() {
   local BACK_TO_MENU="$1"
-  [[ -z $CA_FQDN ]] && CA_FQDN="step-ca.$(hostname -d)"
-  bootstrap_menu
+  [[ var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
   msg_info "Installing step-ca Root Certificate"
   $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
   $STD step certificate install --all "${CERT_PATH}/root_ca.crt" || die "Installation of step-ca Root Certificate failed!"
