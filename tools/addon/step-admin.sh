@@ -180,7 +180,6 @@ CONFIG_PATH="/etc/step"
 CA_PATH="/etc/step-ca"
 CERT_PATH="${CONFIG_PATH}/certs"
 KEY_PATH="${CONFIG_PATH}/private"
-test="test"
 
 # Handle command line arguments
 case "${1:-}" in
@@ -850,6 +849,7 @@ function x509_certs_menu() {
   if [ ${#CERT_ARRAY[@]} -eq 0 ]; then
     msg_warn "No certificate(s) selected."
     if [[ "$CERT_ACTION" == "Renew" ]] || [[ "$CERT_ACTION" == "Revoke" ]] || [[ "$CERT_ACTION" == "Inspect" ]]; then
+	  echo "test xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 	  echo "test xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       exit 1
     else
