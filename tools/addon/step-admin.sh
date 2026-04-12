@@ -46,9 +46,13 @@ var_tags="${var_tags:-community-script|proxmox-helper-scripts}"
 #   Options: "install" | "update" | "uninstall" | "maintain" | "" (default: empty = interactive prompt)
 var_action="${var_action:-}"
 
-# var_cert_type: Skip initial dialog and directly maintain selected certificate type
+# var_cert_type: Skip dialog and directly maintain selected certificate type
 #   Options: "x509" | "ssh" | "" (default: empty = interactive prompt)
 var_cert_type="${var_cert_type:-}"
+
+# var_x509_action: Skip dialog and directly perform an maintenance option for x509 certificates
+#   Options: "bootstrap" | "request" | "renew" | "revoke" | "inspect" | "list" | "" (default: empty = interactive prompt)
+var_x509_action="${var_x509_action:-}"
 # =============================================================================
 # JSON CONFIG EXPORT
 # Run with --export-config to output current configuration as JSON
@@ -65,6 +69,7 @@ function export_config_json() {
   "var_tags": "${var_tags}",
   "var_action": "${var_action}",
   "var_cert_type": "${var_cert_type}",
+  "var_x509_action": "${var_x509_action}",
   "APP": "${APP}",
   "APP_TITLE": "${APP_TITLE}",
   "APP_BACKTITLE": "${APP_BACKTITLE}",
@@ -106,7 +111,8 @@ Environment Variables:
   var_skip_confirm    Skip initial confirmation (yes/no)
   var_tags            Optionally override auto-detection tags ("prod|smb|community-script")
   var_action          Skip initial dialog and directly perform an maintenance option (install/update/uninstall/maintain)
-  var_cert_type       Skip initial dialog and directly maintain selected certificate type (x509/ssh)
+  var_cert_type       Skip dialog and directly maintain selected certificate type (x509/ssh)
+  var_x509_action     Skip dialog and directly perform an maintenance option for x509 certificates (bootstrap/request/renew/revoke/inspect/list)
 
 Examples:
   # Run interactively
