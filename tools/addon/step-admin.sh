@@ -851,8 +851,8 @@ function x509_certs_menu() {
       x509_maintenance_menu
     else
       msg_warn "No certificate(s) selected."
-	  exit 1
-	fi
+      exit 1
+    fi
   fi
 }
 
@@ -887,6 +887,7 @@ case "$var_x509_action" in
 	;;
   inspect)
     x509_inspect
+	exit 0
 	;;
   list) x509_list ;;
 esac
