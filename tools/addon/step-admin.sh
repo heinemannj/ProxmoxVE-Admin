@@ -746,12 +746,7 @@ function maintenance_menu() {
   OPTIONS=(x509 "Maintain x509 Certificate"
     ssh "Maintain ssh Certificate")
 
-  case "$var_cert_type" in
-    x509) x509_maintenance_menu ;;
-    ssh) ssh_maintenance_menu ;;
-    *) CHOICE=$(whiptail_menu "$APP_TITLE") ;;
-  esac
-  
+  CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
     x509) x509_maintenance_menu ;;
     ssh) ssh_maintenance_menu ;;
@@ -871,6 +866,11 @@ function x509_certs_menu() {
 
 init_app
 header_info
+
+case "$var_cert_type" in
+  x509) x509_maintenance_menu ;;
+  ssh) ssh_maintenance_menu ;;
+esac
 
 case "$var_action" in
   install) install ;;
