@@ -132,7 +132,7 @@ function init_app() {
     PROVISIONER_PWD_FILE="$CA_PATH/encryption/provisioner.pwd"
 
     mkdir -p "$CONFIG_PATH/db-copy/"
-    mkdir -p "$CONFIG_PATH/certs/ca/_archive/"
+    mkdir -p "$CERT_PATH/ca/_archive/"
   else
     APP_TITLE="step ACME Client"
 	APP_BACKTITLE="Proxmox VE Helper Scripts"
