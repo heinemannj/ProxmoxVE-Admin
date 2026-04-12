@@ -67,6 +67,7 @@ function export_config_json() {
   "CA_DEFAULTS": "${CA_DEFAULTS}",
   "CA_URL": "${CA_URL}",
   "CA_FQDN": "${CA_FQDN}",
+  "CA_ROOT": "${CA_ROOT}",
   "CA_FINGERPRINT": "${CA_FINGERPRINT}",
   "PROVISIONER": "${PROVISIONER}",
   "PROVISIONER_TYPE": "${PROVISIONER_TYPE}",
@@ -147,6 +148,7 @@ function init_app() {
   CA_URL=$(grep "ca-url" "$CA_DEFAULTS" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
   CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}')
   CA_FINGERPRINT=$(grep "fingerprint" "$CA_DEFAULTS" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
+  CA_ROOT=$(grep "root" "$CA_DEFAULTS" | awk -F'"root": "' '{print $2}' | awk -F'"' '{print $1}')
 
   mkdir -p "$CERT_PATH/ssh/_archive/"
   mkdir -p "$CERT_PATH/x509/_archive/"
