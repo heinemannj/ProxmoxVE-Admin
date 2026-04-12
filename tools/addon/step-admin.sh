@@ -868,11 +868,22 @@ init_app
 header_info
 
 case "$var_x509_action" in
-  bootstrap) bootstrap ;;
-  request) x509_request ;;
-  renew) x509_renew ;;
-  revoke) x509_revoke ;;
-  inspect) x509_inspect ;;
+  bootstrap)
+    bootstrap
+	exit 0
+	;;
+  request)
+    x509_request
+	;;
+  renew)
+    x509_renew
+	;;
+  revoke)
+    x509_revoke
+	;;
+  inspect)
+    x509_inspect
+	;;
   list) x509_list ;;
 esac
 
