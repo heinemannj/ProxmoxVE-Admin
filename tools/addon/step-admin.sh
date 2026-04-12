@@ -876,9 +876,11 @@ case "$var_x509_action" in
 	;;
   renew)
     x509_renew
+	exit 0
 	;;
   revoke)
     x509_revoke
+	exit 0
 	;;
   inspect)
     x509_inspect
