@@ -554,7 +554,7 @@ function bootstrap_menu() {
 
 function bootstrap() {
   local BACK_TO_MENU="$1"
-  [[ var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
+  [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
   msg_info "Installing step-ca Root Certificate"
   $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
   $STD step certificate install --all "${CERT_PATH}/root_ca.crt" || die "Installation of step-ca Root Certificate failed!"
