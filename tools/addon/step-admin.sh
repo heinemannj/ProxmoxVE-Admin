@@ -180,6 +180,7 @@ CONFIG_PATH="/etc/step"
 CA_PATH="/etc/step-ca"
 CERT_PATH="${CONFIG_PATH}/certs"
 KEY_PATH="${CONFIG_PATH}/private"
+test="test"
 
 # Handle command line arguments
 case "${1:-}" in
