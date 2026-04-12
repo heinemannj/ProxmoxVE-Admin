@@ -848,10 +848,11 @@ function x509_certs_menu() {
   CERT_ARRAY=(${CHOICE})
   if [ ${#CERT_ARRAY[@]} -eq 0 ]; then
     msg_warn "No certificate(s) selected."
-    if [ -z "$CERT_ACTION" ]; then
+
+    if [ -z "$var_x509_action" ]; then
       x509_maintenance_menu
     else
-	  return 1
+	  exit 1
 	fi
   fi
 }
