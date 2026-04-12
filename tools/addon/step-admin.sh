@@ -38,10 +38,6 @@ var_unattended="${var_unattended:-}"
 #   Options: "yes" | "no" (default: no)
 var_skip_confirm="${var_skip_confirm:-no}"
 
-# var_auto_reboot: Automatically reboot containers that require it after update
-#   Options: "yes" | "no" | "" (empty = interactive prompt)
-var_auto_reboot="${var_auto_reboot:-}"
-
 # var_tags: Optionally override the tags used for auto-detection
 #   Options: "community-script|proxmox-helper-scripts" (default)
 var_tags="${var_tags:-community-script|proxmox-helper-scripts}"
@@ -58,8 +54,25 @@ function export_config_json() {
   "var_container": "${var_container}",
   "var_unattended": "${var_unattended}",
   "var_skip_confirm": "${var_skip_confirm}",
-  "var_auto_reboot": "${var_auto_reboot}",
-  "var_tags": "${var_tags}"
+  "var_tags": "${var_tags}",
+  "APP": "${APP}",
+  "APP_TITLE": "${APP_TITLE}",
+  "APP_BACKTITLE": "${APP_BACKTITLE}",
+  "STEPPATH": "${STEPPATH}",
+  "STEPHOME": "${STEPHOME}",
+  "BINARY_PATH": "${BINARY_PATH}",
+  "CONFIG_PATH": "${CONFIG_PATH}",
+  "CA_PATH": "${CA_PATH}",
+  "CERT_PATH": "${CERT_PATH}",
+  "KEY_PATH": "${KEY_PATH}"
+  "CA_DEFAULTS": "${CA_DEFAULTS}",
+  "CA_CONFIG": "${CA_CONFIG}",
+  "CA_URL": "${CA_URL}",
+  "CA_FQDN": "${CA_FQDN}",
+  "CA_FINGERPRINT": "${CA_FINGERPRINT}"
+  "PROVISIONER_TYPE": "${PROVISIONER_TYPE}",
+  "PROVISIONER": "${PROVISIONER}",
+  "PROVISIONER_PWD_FILE": "${PROVISIONER_PWD_FILE}",
 }
 EOF
 }
@@ -80,7 +93,6 @@ Environment Variables:
   var_container       Container selection (all/all_running/all_stopped/101,102,...)
   var_unattended      Run updates unattended (yes/no)
   var_skip_confirm    Skip initial confirmation (yes/no)
-  var_auto_reboot     Auto-reboot containers if required (yes/no)
   var_tags            Optionally override auto-detection tags ("prod|smb|community-script")
 
 Examples:
@@ -98,6 +110,57 @@ Examples:
 EOF
 }
 
+function init_app() {
+  if [ -d "$CA_PATH" ]; then
+    APP_TITLE="step-ca Admin"
+    APP_BACKTITLE="Proxmox VE Helper Scripts"
+	export STEPPATH="${CA_PATH}"
+    grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CA_PATH}" >> /etc/profile
+	sed -i "/export STEPPATH=/c\export STEPPATH=${CA_PATH}" /etc/profile
+
+	export STEPHOME="${CONFIG_PATH}"
+    grep -q "export STEPHOME=" /etc/profile || echo "export STEPHOME=${CONFIG_PATH}" >> /etc/profile
+	sed -i "/export STEPHOME=/c\export STEPHOME=${CONFIG_PATH}" /etc/profile
+
+    CA_DEFAULTS="$CA_PATH/config/defaults.json"
+	CA_CONFIG="$CA_PATH/config/ca.json"
+    PROVISIONER_TYPE="JWK"
+    PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_CONFIG")
+    PROVISIONER="${PROVISIONER#\"}"
+    PROVISIONER="${PROVISIONER%\"}"
+    PROVISIONER_PWD_FILE="$CA_PATH/encryption/provisioner.pwd"
+
+    mkdir -p "$CONFIG_PATH/db-copy/"
+    mkdir -p "$CONFIG_PATH/certs/ca/_archive/"
+  else
+    APP_TITLE="step ACME Client"
+	APP_BACKTITLE="Proxmox VE Helper Scripts"
+    export STEPPATH="${CONFIG_PATH}"
+    grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CONFIG_PATH}" >> /etc/profile
+    sed -i "/export STEPPATH=/c\export STEPPATH=${CONFIG_PATH}" /etc/profile
+
+    CA_DEFAULTS="$CONFIG_PATH/config/defaults.json"
+	PROVISIONER_TYPE="ACME"
+	PROVISIONER="acme@$(hostname -d)"
+  fi
+
+  CA_URL=$(grep "ca-url" "$CA_DEFAULTS" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
+  CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}')
+  CA_FINGERPRINT=$(grep "fingerprint" "$CA_DEFAULTS" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
+
+  mkdir -p "$CERT_PATH/ssh/_archive/"
+  mkdir -p "$CERT_PATH/x509/_archive/"
+  mkdir -p "$KEY_PATH/_archive/"
+}
+
+# GLOBAL CONFIGURATION VARIABLES
+APP="step-cli"
+BINARY_PATH="/usr/bin/step"
+CONFIG_PATH="/etc/step"
+CA_PATH="/etc/step-ca"
+CERT_PATH="${CONFIG_PATH}/certs"
+KEY_PATH="${CONFIG_PATH}/private"
+
 # Handle command line arguments
 case "${1:-}" in
 --help | -h)
@@ -105,19 +168,13 @@ case "${1:-}" in
   exit 0
   ;;
 --export-config)
+  init_app
   export_config_json
   exit 0
   ;;
 esac
 
 # =============================================================================
-
-APP="step-cli"
-BINARY_PATH="/usr/bin/step"
-CONFIG_PATH="/etc/step"
-CA_PATH="/etc/step-ca"
-CERT_PATH="${CONFIG_PATH}/certs"
-KEY_PATH="${CONFIG_PATH}/private"
 
 function header_info() {
   clear
@@ -784,50 +841,7 @@ function x509_certs_menu() {
 #  fi
 #}
 
-function app_init() {
-  if [ -d "$CA_PATH" ]; then
-    APP_TITLE="step-ca Admin"
-    APP_BACKTITLE="Proxmox VE Helper Scripts"
-	export STEPPATH="${CA_PATH}"
-    grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CA_PATH}" >> /etc/profile
-	sed -i "/export STEPPATH=/c\export STEPPATH=${CA_PATH}" /etc/profile
-
-	export STEPHOME="${CONFIG_PATH}"
-    grep -q "export STEPHOME=" /etc/profile || echo "export STEPHOME=${CONFIG_PATH}" >> /etc/profile
-	sed -i "/export STEPHOME=/c\export STEPHOME=${CONFIG_PATH}" /etc/profile
-
-    CA_DEFAULTS="$CA_PATH/config/defaults.json"
-	CA_CONFIG="$CA_PATH/config/ca.json"
-    PROVISIONER_TYPE="JWK"
-    PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_CONFIG")
-    PROVISIONER="${PROVISIONER#\"}"
-    PROVISIONER="${PROVISIONER%\"}"
-    PROVISIONER_PWD_FILE="$CA_PATH/encryption/provisioner.pwd"
-
-    mkdir -p "$CONFIG_PATH/db-copy/"
-    mkdir -p "$CONFIG_PATH/certs/ca/_archive/"
-  else
-    APP_TITLE="step ACME Client"
-	APP_BACKTITLE="Proxmox VE Helper Scripts"
-    export STEPPATH="${CONFIG_PATH}"
-    grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CONFIG_PATH}" >> /etc/profile
-    sed -i "/export STEPPATH=/c\export STEPPATH=${CONFIG_PATH}" /etc/profile
-
-    CA_DEFAULTS="$CONFIG_PATH/config/defaults.json"
-	PROVISIONER_TYPE="ACME"
-	PROVISIONER="acme@$(hostname -d)"
-  fi
-
-  CA_URL=$(grep "ca-url" "$CA_DEFAULTS" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
-  CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}')
-  CA_FINGERPRINT=$(grep "fingerprint" "$CA_DEFAULTS" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
-
-  mkdir -p "$CERT_PATH/ssh/_archive/"
-  mkdir -p "$CERT_PATH/x509/_archive/"
-  mkdir -p "$KEY_PATH/_archive/"
-}
-
-app_init
+init_app
 header_info
 detect_os
 main_menu
