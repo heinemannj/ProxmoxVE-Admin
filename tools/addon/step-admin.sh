@@ -850,6 +850,7 @@ function x509_certs_menu() {
   if [ ${#CERT_ARRAY[@]} -eq 0 ]; then
     msg_warn "No certificate(s) selected."
     if [[ "$CERT_ACTION" == "Renew" ]] || [[ "$CERT_ACTION" == "Revoke" ]] || [[ "$CERT_ACTION" == "Inspect" ]]; then
+	  echo "test xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       exit 1
     else
       x509_maintenance_menu
