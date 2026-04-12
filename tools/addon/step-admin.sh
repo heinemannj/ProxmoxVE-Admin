@@ -867,6 +867,15 @@ function x509_certs_menu() {
 init_app
 header_info
 
+case "$var_x509_action" in
+  bootstrap) bootstrap ;;
+  request) x509_request ;;
+  renew) x509_renew ;;
+  revoke) x509_revoke ;;
+  inspect) x509_inspect ;;
+  list) x509_list ;;
+esac
+
 case "$var_cert_type" in
   x509) x509_maintenance_menu ;;
   ssh) ssh_maintenance_menu ;;
