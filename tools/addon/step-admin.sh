@@ -847,11 +847,10 @@ function x509_certs_menu() {
   [[ ${#CERT_LIST[@]} -gt 0 ]] && CHOICE=$(whiptail_checklist "Certificates Issued by $CA_FQDN" "\nSelect Certificate(s) to ${CERT_ACTION}:" "CERT_LIST")
   CERT_ARRAY=(${CHOICE})
   if [ ${#CERT_ARRAY[@]} -eq 0 ]; then
-    msg_warn "No certificate(s) selected."
-
     if [ -z "$var_x509_action" ]; then
       x509_maintenance_menu
     else
+      msg_warn "No certificate(s) selected."
 	  exit 1
 	fi
   fi
