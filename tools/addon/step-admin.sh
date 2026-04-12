@@ -873,6 +873,7 @@ case "$var_x509_action" in
 	;;
   request)
     x509_request
+	exit 0
 	;;
   renew)
     x509_renew
