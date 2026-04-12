@@ -58,13 +58,11 @@ function export_config_json() {
   "APP": "${APP}",
   "APP_TITLE": "${APP_TITLE}",
   "APP_BACKTITLE": "${APP_BACKTITLE}",
-  "STEPPATH": "${STEPPATH}",
-  "STEPHOME": "${STEPHOME}",
   "BINARY_PATH": "${BINARY_PATH}",
   "CONFIG_PATH": "${CONFIG_PATH}",
+  "STEPPATH": "${STEPPATH}",
+  "STEPHOME": "${STEPHOME}",
   "CA_PATH": "${CA_PATH}",
-  "CERT_PATH": "${CERT_PATH}",
-  "KEY_PATH": "${KEY_PATH}"
   "CA_DEFAULTS": "${CA_DEFAULTS}",
   "CA_CONFIG": "${CA_CONFIG}",
   "CA_URL": "${CA_URL}",
@@ -73,6 +71,8 @@ function export_config_json() {
   "PROVISIONER_TYPE": "${PROVISIONER_TYPE}",
   "PROVISIONER": "${PROVISIONER}",
   "PROVISIONER_PWD_FILE": "${PROVISIONER_PWD_FILE}",
+  "CERT_PATH": "${CERT_PATH}",
+  "KEY_PATH": "${KEY_PATH}"
 }
 EOF
 }
