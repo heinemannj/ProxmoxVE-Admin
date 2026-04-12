@@ -871,20 +871,20 @@ header_info
 case "$var_x509_action" in
   bootstrap)
     bootstrap
-	exit 0
-	;;
+    exit 0
+    ;;
   request)
     x509_request
-	exit 0
-	;;
+    exit 0
+    ;;
   renew)
     x509_renew
-	exit 0
-	;;
+    exit 0
+    ;;
   revoke)
     x509_revoke
-	exit 0
-	;;
+    exit 0
+    ;;
   inspect)
     x509_inspect
     exit 0
