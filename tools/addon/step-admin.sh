@@ -472,6 +472,7 @@ function uninstall() {
   $PKG_UNINSTALL $APP
   $PKG_AUTOREMOVE
   rm -rf "${CONFIG_PATH}"
+  rm -f "/etc/apt/sources.list.d/smallstep.sources"
   rm -f "/usr/local/bin/update_${APP,,}"
   rm -f "/etc/systemd/system/cert-renewer@.service"
   rm -f "/etc/systemd/system/cert-renewer@.timer"
@@ -696,7 +697,6 @@ function x509_revoke() {
 function x509_list() {
   local BACK_TO_MENU="$1"
   x509_view
-  #whiptail --backtitle "$APP_BACKTITLE" --title "Certificates Issued by $CA_FQDN" --scrolltext --textbox "$CERT_PATH/x509/x509Certs.txt" 20 150 3>&1 1>&2 2>&3
   whiptail_textbox "Certificates Issued by $CA_FQDN" "$CERT_PATH/x509/x509Certs.txt"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
