@@ -851,6 +851,7 @@ function x509_certs_menu() {
     if [ "$CERT_ACTION" == "Renew" ] || [ "$CERT_ACTION" == "Revoke" ] || [ "$CERT_ACTION" == "Inspect" ]; then
 	  echo "test xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 	  echo "test xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	  echo "test xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       exit 1
     else
       x509_maintenance_menu
