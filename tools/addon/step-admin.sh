@@ -890,6 +890,7 @@ case "$var_x509_action" in
     exit 0
     ;;
   list) x509_list
+    echo "test xxxxxxxxxxxxxxxxx"
     exit 0
     ;;
 esac
