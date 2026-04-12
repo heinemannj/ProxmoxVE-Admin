@@ -388,6 +388,7 @@ function detect_os() {
 
 function install() {
   msg_info "Installing dependencies"
+  detect_os
   $PKG_UPDATE
   $PKG_INSTALL curl whiptail dnsutils jq
   msg_ok "Installed dependencies"
@@ -464,6 +465,7 @@ function update() {
     die "$APP is not installed"
   fi
   msg_info "Updating $APP"
+  detect_os
   $PKG_UPDATE
   $PKG_UPGRADE $APP
   msg_ok "Updated $APP successfully"
@@ -471,6 +473,7 @@ function update() {
 
 function uninstall() {
   msg_info "Uninstalling $APP"
+  detect_os
   systemctl disable cert-renewer@.timer
   systemctl disable cert-renewer@.service
   systemctl stop cert-renewer@*.timer
@@ -851,7 +854,6 @@ function x509_certs_menu() {
 
 init_app
 header_info
-detect_os
 
 case "$var_action" in
   install) install ;;
