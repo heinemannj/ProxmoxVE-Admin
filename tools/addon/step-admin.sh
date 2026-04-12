@@ -42,9 +42,9 @@ var_skip_confirm="${var_skip_confirm:-no}"
 #   Options: "community-script|proxmox-helper-scripts" (default)
 var_tags="${var_tags:-community-script|proxmox-helper-scripts}"
 
-# var_action: Skip initial dialog and directly perform an action (e.g., install, update, uninstall, maintain)
-#   Options: "install|update|unistall|maintain" (default)
-var_action="${var_action:install|update|unistall|-maintain}"
+# var_action: Skip initial dialog and directly perform an maintenance option (e.g., install, update, uninstall, maintain)
+#   Options: "install" | "update" | "uninstall" | "maintain" | "" (default: empty = interactive prompt)
+var_action="${var_action:-}"
 # =============================================================================
 # JSON CONFIG EXPORT
 # Run with --export-config to output current configuration as JSON
@@ -100,7 +100,7 @@ Environment Variables:
   var_unattended      Run updates unattended (yes/no)
   var_skip_confirm    Skip initial confirmation (yes/no)
   var_tags            Optionally override auto-detection tags ("prod|smb|community-script")
-  var_action          Skip initial dialog and directly perform an action (install/update/uninstall/maintain)
+  var_action          Skip initial dialog and directly perform an maintenance option (install/update/uninstall/maintain)
 
 Examples:
   # Run interactively
@@ -852,4 +852,11 @@ function x509_certs_menu() {
 init_app
 header_info
 detect_os
-main_menu
+
+case "$var_action" in
+  install) install ;;
+  update) update ;;
+  uninstall) uninstall ;;
+  maintain) maintenance_menu ;;
+  *) main_menu ;;
+esac
