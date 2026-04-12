@@ -41,6 +41,10 @@ var_skip_confirm="${var_skip_confirm:-no}"
 # var_tags: Optionally override the tags used for auto-detection
 #   Options: "community-script|proxmox-helper-scripts" (default)
 var_tags="${var_tags:-community-script|proxmox-helper-scripts}"
+
+# var_action: Skip initial dialog and directly perform an action (e.g., install, update, uninstall, maintain)
+#   Options: "install|update|unistall|maintain" (default)
+var_action="${var_action:install|update|unistall|-maintain}"
 # =============================================================================
 # JSON CONFIG EXPORT
 # Run with --export-config to output current configuration as JSON
@@ -55,6 +59,7 @@ function export_config_json() {
   "var_unattended": "${var_unattended}",
   "var_skip_confirm": "${var_skip_confirm}",
   "var_tags": "${var_tags}",
+  "var_action": "${var_action}",
   "APP": "${APP}",
   "APP_TITLE": "${APP_TITLE}",
   "APP_BACKTITLE": "${APP_BACKTITLE}",
@@ -95,6 +100,7 @@ Environment Variables:
   var_unattended      Run updates unattended (yes/no)
   var_skip_confirm    Skip initial confirmation (yes/no)
   var_tags            Optionally override auto-detection tags ("prod|smb|community-script")
+  var_action          Skip initial dialog and directly perform an action (install/update/uninstall/maintain)
 
 Examples:
   # Run interactively
