@@ -887,8 +887,8 @@ case "$var_x509_action" in
 	;;
   inspect)
     x509_inspect
-	exit 0
-	;;
+    exit 0
+    ;;
   list) x509_list ;;
 esac
 
