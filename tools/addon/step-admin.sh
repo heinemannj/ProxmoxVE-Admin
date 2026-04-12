@@ -671,7 +671,6 @@ function x509_renew() {
   local BACK_TO_MENU="$1"
   x509_certs_menu "Renew"
   msg_info "Renewing Certificate(s)"
-  [ ${#CERT_ARRAY[@]} -eq 0 ] && msg_warn "No certificate(s) selected for renewal!" && return
   for SERIAL in "${CERT_ARRAY[@]}"; do
     echo -e "${BL}[Info]${GN} Renew x509 Certificate with CN ${BL}${CN}${GN} and Serial Number ${BL}${SERIAL}${GN}:${CL}\n"
     x509_query
@@ -847,6 +846,10 @@ function x509_certs_menu() {
   x509_view
   [[ ${#CERT_LIST[@]} -gt 0 ]] && CHOICE=$(whiptail_checklist "Certificates Issued by $CA_FQDN" "\nSelect Certificate(s) to ${CERT_ACTION}:" "CERT_LIST")
   CERT_ARRAY=(${CHOICE})
+  if [ ${#CERT_ARRAY[@]} -eq 0 ]; then
+    msg_warn "No certificate(s) selected."
+	[[ "$CERT_ACTION" == "Renew" ]] && exit 1 || x509_maintenance_menu
+  fi
 }
 
 #function ssh_badger_list() {
