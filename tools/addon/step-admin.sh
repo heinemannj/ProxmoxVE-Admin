@@ -270,8 +270,8 @@ EOF
   $STD systemctl daemon-reload
   msg_ok "Installed $APP"
 
-  bootstrap "" || msg_error "Installation of step-ca Root Certificate failed!"; exit 1
-  x509_request "" || msg_error "Main - Request System Certificate failed!"; exit 1
+  bootstrap "" || msg_error "Installation of step-ca Root Certificate failed!" || exit 1
+  x509_request "" || msg_error "Main - Request System Certificate failed!" || exit 1
 }
 
 # ==============================================================================
@@ -279,7 +279,8 @@ EOF
 # ==============================================================================
 function update() {
   if [[ ! -e $BINARY_PATH ]]; then
-    msg_error "$APP is not installed!"; exit 1
+    msg_error "$APP is not installed!"
+    exit 1
   fi
   msg_info "Updating $APP"
   detect_os
@@ -331,7 +332,7 @@ function x509_request() {
   local BACK_TO_MENU="$1"
   FQDN="$(hostname -f)"
   HOST="$(hostname)"
-  IP=$(resolve_ip "${FQDN}") || msg_error "Resolution failed for ${FQDN}!"; exit 1
+  IP=$(resolve_ip "${FQDN}") || msg_error "Resolution failed for ${FQDN}!" || exit 1
   SAN=""
   VALID_TO="168h" # Default validity of 7 days (168 hours)
 
@@ -349,7 +350,7 @@ function x509_request() {
   $STD step ca certificate "$FQDN" \
     "${CERT_PATH}"/x509/"$FQDN".crt \
     "${KEY_PATH}"/"$FQDN".key \
-    "${FLAGS[@]}" || msg_error "Certificate Signing Request (CSR) by $PROVISIONER failed!"; exit 1
+    "${FLAGS[@]}" || msg_error "Certificate Signing Request (CSR) by $PROVISIONER failed!" || exit 1
   msg_ok "Requested x509 Certificate for CN '$FQDN' by '$PROVISIONER'"
 
   if [ "$PROVISIONER_TYPE" = "ACME" ]; then
@@ -370,12 +371,13 @@ function x509_renew() {
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
       CRT_OLD="${CERT_PATH}/x509/_archive/${CN}_$(date +%Y%m%d%H%M%S).crt"
       KEY_OLD="${KEY_PATH}/_archive/${CN}_$(date +%Y%m%d%H%M%S).key"
-      cp "${CRT}" "${CRT_OLD}" || msg_error "Failed to backup ${CRT}!"; exit 1
-      cp "${KEY}" "${KEY_OLD}" || msg_error "Failed to backup ${KEY}!"; exit 1
-      $STD step ca renew --force "${CRT}" "${KEY}" || msg_error "Failed to renew certificate!"; exit 1
+      cp "${CRT}" "${CRT_OLD}" || msg_error "Failed to backup ${CRT}!" || exit 1
+      cp "${KEY}" "${KEY_OLD}" || msg_error "Failed to backup ${KEY}!" || exit 1
+      $STD step ca renew --force "${CRT}" "${KEY}" || msg_error "Failed to renew certificate!" || exit 1
       $STD step ca revoke --cert "${CRT_OLD}" --key "${KEY_OLD}"
     else
-      msg_error "Failed to renew certificate!"; exit 1
+      msg_error "Failed to renew certificate!"
+      exit 1
     fi
     msg_ok "Renewed x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
   done
@@ -390,13 +392,14 @@ function x509_revoke() {
     msg_info "Revoke x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
       $STD step ca revoke --cert "${CRT}" --key "${KEY}"
-      rm -f "${CRT}" || msg_error "Failed to delete ${CRT}!"; exit 1
-      rm -f "${KEY}" || msg_error "Failed to delete ${KEY}!"; exit 1
+      rm -f "${CRT}" || msg_error "Failed to delete ${CRT}!" || exit 1
+      rm -f "${KEY}" || msg_error "Failed to delete ${KEY}!" || exit 1
     elif [[ "$PROVISIONER_TYPE" == "JWK" ]] && [ -f "$PROVISIONER_PWD_FILE" ]; then
       TOKEN=$(step ca token --provisioner="$PROVISIONER" --provisioner-password-file="$PROVISIONER_PWD_FILE" --revoke "${SERIAL}")
-      $STD step ca revoke --token "$TOKEN" "${SERIAL}" || msg_error "Failed to revoke certificate!"; exit 1
+      $STD step ca revoke --token "$TOKEN" "${SERIAL}" || msg_error "Failed to revoke certificate!" || exit 1
     else
-      msg_error "Failed to revoke certificate!"; exit 1
+      msg_error "Failed to revoke certificate!"
+      exit 1
     fi
     msg_ok "Revoked x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
   done
@@ -410,8 +413,8 @@ function x509_inspect() {
   for SERIAL in "${CERT_ARRAY[@]}"; do
     msg_info "Inspect x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'\n"
     x509_query
-    step certificate inspect "${CRT}" | grep -q "${SERIAL}" || msg_error "Serial Number ${SERIAL} mismatch!"; exit 1
-    step certificate inspect "${CRT}" || msg_error "Failed to inspect certificate!"; exit 1
+    step certificate inspect "${CRT}" | grep -q "${SERIAL}" || msg_error "Serial Number ${SERIAL} mismatch!" || exit 1
+    step certificate inspect "${CRT}" || msg_error "Failed to inspect certificate!" || exit 1
     echo -e "${BL}[Info]${GN} Public Key${CL}"
     cat "${CRT}"
     echo -e "${BL}[Info]${GN} Private Key${CL}"
@@ -517,7 +520,7 @@ function main_menu() {
 }
 
 function maintenance_menu() {
-  [[ ! -e $BINARY_PATH ]] && msg_error "$APP is not installed!"; exit 1
+  [[ ! -e $BINARY_PATH ]] && msg_error "$APP is not installed!" && exit 1
 
   local CHOICE
   OPTIONS=(x509 "Maintain x509 Certificate"
@@ -621,7 +624,7 @@ function x509_request_menu() {
     "FQDN")
       FQDN=$(whiptail_inputbox "$TITLE" "FQDN (e.g. mylxc.example.com)" "$FQDN")
       HOST=$(echo "$FQDN" | awk -F'.' '{print $1}')
-      IP=$(resolve_ip "${FQDN}") || msg_error "Resolution failed for ${FQDN}!"; exit 1
+      IP=$(resolve_ip "${FQDN}") || msg_error "Resolution failed for ${FQDN}!" || exit 1
       x509_request_menu
       ;;
     "Hostname")
@@ -674,7 +677,8 @@ function x509_certs_menu() {
 }
 
 function ssh_maintenance_menu() {
-  msg_error "Maintain ssh Certificate - To be implemented in future"; exit 1
+  msg_error "Maintain ssh Certificate - To be implemented in future"
+  exit 1
 }
 
 # ==============================================================================
