@@ -269,7 +269,6 @@ RandomizedDelaySec=12s
 [Install]
 WantedBy=timers.target
 EOF
-  #$STD systemctl daemon-reload
   systemctl daemon-reload
   msg_ok "Installed $APP"
 
@@ -288,8 +287,8 @@ function update() {
   fi
   msg_info "Updating $APP"
   detect_os
-  $PKG_UPDATE
-  $PKG_UPGRADE $APP
+  $STD $PKG_UPDATE
+  $STD $PKG_UPGRADE $APP
   msg_ok "Updated $APP successfully"
 }
 
@@ -303,14 +302,14 @@ function uninstall() {
   systemctl disable cert-renewer@.service
   systemctl stop cert-renewer@*.timer
   systemctl stop cert-renewer@*.service
-  $PKG_UNINSTALL $APP
-  $PKG_AUTOREMOVE
+  $STD $PKG_UNINSTALL $APP
+  $STD $PKG_AUTOREMOVE
   rm -rf "${CONFIG_PATH}"
   rm -f "/etc/apt/sources.list.d/smallstep.sources"
   rm -f "/usr/local/bin/update_${APP,,}"
   rm -f "/etc/systemd/system/cert-renewer@.service"
   rm -f "/etc/systemd/system/cert-renewer@.timer"
-  $STD systemctl daemon-reload
+  systemctl daemon-reload
   msg_ok "Uninstalled $APP"
 }
 
@@ -320,7 +319,7 @@ function uninstall() {
 function bootstrap() {
   local BACK_TO_MENU="$1"
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
-  msg_info "Installing step-ca Root Certificate"
+  msg_info "Installing step-ca Root Certificate\n"
   #$STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
   #$STD step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
   #$STD update-ca-certificates  || die "Update of System CA Certificates failed!"
