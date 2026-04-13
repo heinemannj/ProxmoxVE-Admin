@@ -356,10 +356,10 @@ function x509_request() {
   msg_ok "Requested x509 Certificate for CN '$FQDN' by '$PROVISIONER'"
 
   if [ "$PROVISIONER_TYPE" = "ACME" ]; then
-    msg_info "Starting Certificate Renewal as a Daemon for CN '$FQDN'"
+    msg_info "Starting x509 Certificate Renewal as a Daemon for CN '$FQDN'"
     $STD systemctl enable --now cert-renewer@"${FQDN}".timer
     $STD systemctl list-units cert-renewer@\*.timer
-    msg_ok "Started Certificate Renewal as a Daemon for CN '$FQDN'"
+    msg_ok "Started x509 Certificate Renewal as a Daemon for CN '$FQDN'"
   fi
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
