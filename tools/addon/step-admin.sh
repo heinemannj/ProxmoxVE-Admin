@@ -273,7 +273,7 @@ EOF
   msg_ok "Installed $APP"
 
   $STD bootstrap "" || die "Installation of step-ca Root Certificate failed!"
-  x509_request "" || die "Main - Request System Certificate failed!"
+  $STD x509_request "" || die "Main - Request System Certificate failed!"
 }
 
 # ==============================================================================
@@ -318,14 +318,10 @@ function bootstrap() {
   local BACK_TO_MENU="$1"
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
   msg_info "Installing step-ca Root Certificate\n"
-  #$STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
-  #$STD step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
-  #$STD update-ca-certificates  || die "Update of System CA Certificates failed!"
-  #$STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
-  step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
-  step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
-  update-ca-certificates  || die "Update of System CA Certificates failed!"
-  step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
+  $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
+  $STD step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
+  $STD update-ca-certificates  || die "Update of System CA Certificates failed!"
+  $STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
   msg_ok "Installed step-ca Root Certificate"
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
 }
