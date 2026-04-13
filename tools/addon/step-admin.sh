@@ -368,9 +368,9 @@ function x509_request() {
 function x509_renew() {
   local BACK_TO_MENU="$1"
   x509_certs_menu "Renew"
-  msg_info "Renewing Certificate(s)"
+  #msg_info "Renewing Certificate(s)"
   for SERIAL in "${CERT_ARRAY[@]}"; do
-    echo -e "${BL}[Info]${GN} Renew x509 Certificate with CN ${BL}'${CN}'${GN} and Serial Number ${BL}'${SERIAL}'${GN}:${CL}\n"
+    msg_info "Renew x509 Certificate with CN ${BL}'${CN}'${YW} and Serial Number ${BL}'${SERIAL}'${GN}"
     x509_query
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
       CRT_OLD="${CERT_PATH}/x509/_archive/${CN}_$(date +%Y%m%d%H%M%S).crt"
@@ -382,10 +382,10 @@ function x509_renew() {
     else
       die "Failed to renew certificate!"
     fi
-    echo
+    msg_ok "Renewed x509 Certificate with CN ${BL}'${CN}'${YW} and Serial Number ${BL}'${SERIAL}'${GN}"
   done
-  msg_ok "Renewed Certificate(s)"
-  [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
+  #msg_ok "Renewed Certificate(s)"
+  #[[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
 }
 
 function x509_revoke() {
