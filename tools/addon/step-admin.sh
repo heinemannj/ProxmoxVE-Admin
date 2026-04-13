@@ -101,16 +101,16 @@ function init_app() {
   if [ -d "$CA_PATH" ]; then
     APP_TITLE="step-ca Admin"
     APP_BACKTITLE="Proxmox VE Helper Scripts"
-	export STEPPATH="${CA_PATH}"
+    export STEPPATH="${CA_PATH}"
     grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CA_PATH}" >> /etc/profile
-	sed -i "/export STEPPATH=/c\export STEPPATH=${CA_PATH}" /etc/profile
+    sed -i "/export STEPPATH=/c\export STEPPATH=${CA_PATH}" /etc/profile
 
-	export STEPHOME="${CONFIG_PATH}"
+    export STEPHOME="${CONFIG_PATH}"
     grep -q "export STEPHOME=" /etc/profile || echo "export STEPHOME=${CONFIG_PATH}" >> /etc/profile
-	sed -i "/export STEPHOME=/c\export STEPHOME=${CONFIG_PATH}" /etc/profile
+    sed -i "/export STEPHOME=/c\export STEPHOME=${CONFIG_PATH}" /etc/profile
 
     CA_DEFAULTS="$CA_PATH/config/defaults.json"
-	CA_CONFIG="$CA_PATH/config/ca.json"
+    CA_CONFIG="$CA_PATH/config/ca.json"
     PROVISIONER_TYPE="JWK"
     PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_CONFIG")
     PROVISIONER="${PROVISIONER#\"}"
@@ -121,14 +121,14 @@ function init_app() {
     mkdir -p "$CERT_PATH/ca/_archive/"
   else
     APP_TITLE="step ACME Client"
-	APP_BACKTITLE="Proxmox VE Helper Scripts"
+    APP_BACKTITLE="Proxmox VE Helper Scripts"
     export STEPPATH="${CONFIG_PATH}"
     grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CONFIG_PATH}" >> /etc/profile
     sed -i "/export STEPPATH=/c\export STEPPATH=${CONFIG_PATH}" /etc/profile
 
     CA_DEFAULTS="$CONFIG_PATH/config/defaults.json"
-	PROVISIONER_TYPE="ACME"
-	PROVISIONER="acme@$(hostname -d)"
+    PROVISIONER_TYPE="ACME"
+    PROVISIONER="acme@$(hostname -d)"
   fi
 
   CA_URL=$(grep "ca-url" "$CA_DEFAULTS" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
@@ -247,7 +247,7 @@ function whiptail_checklist() {
   for ((i=0; i<${#LIST[@]}; i+=2)); do
     local j=$(( i+1 ))
     (( ${#LIST[i]} > MAX_LEFT )) && MAX_LEFT=${#LIST[i]}
-	(( ${#LIST[j]} > MAX_RIGHT )) && MAX_RIGHT=${#LIST[j]}
+    (( ${#LIST[j]} > MAX_RIGHT )) && MAX_RIGHT=${#LIST[j]}
     OPTIONS+=("${LIST[i]}" "${LIST[j]}" "OFF")  
   done
   (( MAX_LEFT + MAX_RIGHT + WIDTH_OFFSET > WIDTH )) && WIDTH=$(( MAX_LEFT + MAX_RIGHT + WIDTH_OFFSET ))
@@ -272,7 +272,7 @@ function whiptail_menu() {
   local MAX_RIGHT=0
   for ((i=0; i<${#OPTIONS[@]}; i+=2)); do
     (( ${#OPTIONS[i]} > MAX_LEFT )) && MAX_LEFT=${#OPTIONS[i]}
- 	  (( ${#OPTIONS[$(( i+1 ))]} > MAX_RIGHT )) && MAX_RIGHT=${#OPTIONS[$(( i+1 ))]}
+    (( ${#OPTIONS[$(( i+1 ))]} > MAX_RIGHT )) && MAX_RIGHT=${#OPTIONS[$(( i+1 ))]}
   done
   (( MAX_LEFT + MAX_RIGHT + WIDTH_OFFSET > WIDTH )) && WIDTH=$(( MAX_LEFT + MAX_RIGHT + WIDTH_OFFSET ))
 
@@ -498,7 +498,7 @@ function bootstrap_menu() {
 
   OPTIONS=("step-ca FQDN" "$CA_FQDN"
     "step-ca Fingerprint" "$CA_FINGERPRINT"
-	  " " " "
+      " " " "
     "<Continue>" "Install step-ca Root Certificate")
   local TITLE="step-ca Bootstrap Options"
 
@@ -542,7 +542,7 @@ function x509_request_menu() {
     "Subject Alternative Name(s) (SANs)" "$SAN"
     "Validity" "$VALID_TO"
     "Provisioner" "$PROVISIONER"
-	  " " " "
+      " " " "
     "<Continue>" "Request Certificate by $PROVISIONER")
   local TITLE="Certificate Signing Request (CSR) by $PROVISIONER_TYPE"
 
@@ -611,10 +611,10 @@ function x509_request() {
   msg_ok "Requested x509 Certificate by $PROVISIONER"
 
   if [ "$PROVISIONER_TYPE" = "ACME" ]; then
-	msg_info "Starting Certificate Renewal as a Daemon"
-	$STD systemctl enable --now cert-renewer@"${FQDN}".timer
-	systemctl list-units cert-renewer@\*.timer
-	msg_ok "Started Certificate Renewal as a Daemon"
+    msg_info "Starting Certificate Renewal as a Daemon"
+    $STD systemctl enable --now cert-renewer@"${FQDN}".timer
+    systemctl list-units cert-renewer@\*.timer
+    msg_ok "Started Certificate Renewal as a Daemon"
   fi
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
 }
@@ -645,15 +645,15 @@ function x509_renew() {
     echo -e "${BL}[Info]${GN} Renew x509 Certificate with CN ${BL}${CN}${GN} and Serial Number ${BL}${SERIAL}${GN}:${CL}\n"
     x509_query
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
-	  CRT_OLD="${CERT_PATH}/x509/_archive/${CN}_$(date +%Y%m%d%H%M%S).crt"
-	  KEY_OLD="${KEY_PATH}/_archive/${CN}_$(date +%Y%m%d%H%M%S).key"
+      CRT_OLD="${CERT_PATH}/x509/_archive/${CN}_$(date +%Y%m%d%H%M%S).crt"
+      KEY_OLD="${KEY_PATH}/_archive/${CN}_$(date +%Y%m%d%H%M%S).key"
       cp "${CRT}" "${CRT_OLD}" || die "Failed to backup ${CRT}!"
-	  cp "${KEY}" "${KEY_OLD}" || die "Failed to backup ${KEY}!"
+      cp "${KEY}" "${KEY_OLD}" || die "Failed to backup ${KEY}!"
       step ca renew --force "${CRT}" "${KEY}" || die "Failed to renew certificate!"
       step ca revoke --cert "${CRT_OLD}" --key "${KEY_OLD}"
-	else
-	  die "Failed to renew certificate!"
-	fi
+    else
+      die "Failed to renew certificate!"
+    fi
     echo
   done
   msg_ok "Renewed Certificate(s)"
@@ -668,15 +668,15 @@ function x509_revoke() {
     x509_query
     echo -e "${BL}[Info]${GN} Revoke x509 Certificate with CN ${BL}${CN}${GN} and Serial Number ${BL}${SERIAL}${GN}:${CL}\n"
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
-	  step ca revoke --cert "${CRT}" --key "${KEY}"
-	  rm -f "${CRT}" || die "Failed to delete ${CRT}!"
-	  rm -f "${KEY}" || die "Failed to delete ${KEY}!"
-	elif [[ "$PROVISIONER_TYPE" == "JWK" ]] && [ -f "$PROVISIONER_PWD_FILE" ]; then
+      step ca revoke --cert "${CRT}" --key "${KEY}"
+      rm -f "${CRT}" || die "Failed to delete ${CRT}!"
+      rm -f "${KEY}" || die "Failed to delete ${KEY}!"
+    elif [[ "$PROVISIONER_TYPE" == "JWK" ]] && [ -f "$PROVISIONER_PWD_FILE" ]; then
       TOKEN=$(step ca token --provisioner="$PROVISIONER" --provisioner-password-file="$PROVISIONER_PWD_FILE" --revoke "${SERIAL}")
       step ca revoke --token "$TOKEN" "${SERIAL}" || die "Failed to revoke certificate!"
-	else
-	  die "Failed to revoke certificate!"
-	fi
+    else
+      die "Failed to revoke certificate!"
+    fi
     echo
   done
   msg_ok "Revoked Certificate(s)"
@@ -734,7 +734,7 @@ function x509_maintenance_menu() {
     Renew "Renew Certificate by $PROVISIONER_TYPE"
     Revoke "Revoke Certificate by $PROVISIONER_TYPE"
     Inspect "Inspect Certificate by $PROVISIONER_TYPE"
-	List "List Certificates")
+    List "List Certificates")
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
@@ -783,22 +783,22 @@ function x509_view(){
         local CRT="$CERT_PATH/x509/$CN.crt"
         if [ -f "${CRT}" ] && step certificate inspect "${CRT}" | grep -q "${SERIAL}"; then
           sed -i "/${SERIAL}/s/none/local/g" "$CERT_PATH/x509/x509Certs.txt"
-		  FILE="local"
+          FILE="local"
         fi
-		CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
+        CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
       done < <(sed '1d' "$CERT_PATH/x509/x509Certs.txt")
     fi
   else
     for ITEM in "${CERT_FILE_ARRAY[@]}"; do
       [ -f "${ITEM}" ] || break
-	  SERIAL=$(step certificate inspect "${ITEM}" | grep "Serial Number:" | awk '{print $3}')
-	  CN=$(step certificate inspect "${ITEM}" | grep "Subject:" | awk '{print $2}')
-	  CN="${CN/CN=/}"
-	  TYPE=$(step certificate inspect "${ITEM}" | grep "Type:" | awk '{print $2}')
-	  FILE="local"
-	  NotBefore=$(step certificate inspect "${ITEM}" | grep "Not Before:" | awk -F 'Not Before: ' '{print $2}')
+      SERIAL=$(step certificate inspect "${ITEM}" | grep "Serial Number:" | awk '{print $3}')
+      CN=$(step certificate inspect "${ITEM}" | grep "Subject:" | awk '{print $2}')
+      CN="${CN/CN=/}"
+      TYPE=$(step certificate inspect "${ITEM}" | grep "Type:" | awk '{print $2}')
+      FILE="local"
+      NotBefore=$(step certificate inspect "${ITEM}" | grep "Not Before:" | awk -F 'Not Before: ' '{print $2}')
       NotAfter=$(step certificate inspect "${ITEM}" | grep "Not After :" | awk -F 'Not After : ' '{print $2}')
-	  [ "$(date -d "${NotAfter}" +%s)" -gt "$(date +%s)" ] && [ "$(date -d "${NotBefore}" +%s)" -lt "$(date +%s)" ] && VALIDITY="Valid" || VALIDITY="Expired"
+      [ "$(date -d "${NotAfter}" +%s)" -gt "$(date +%s)" ] && [ "$(date -d "${NotBefore}" +%s)" -lt "$(date +%s)" ] && VALIDITY="Valid" || VALIDITY="Expired"
       echo "$SERIAL|$CN|$TYPE|$FILE|$VALIDITY|$NotBefore|$NotAfter" >> "$CERT_PATH/x509/x509Certs.txt"
       CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
     done
