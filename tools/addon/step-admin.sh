@@ -356,9 +356,8 @@ function x509_request() {
 
   if [ "$PROVISIONER_TYPE" = "ACME" ]; then
     msg_info "Starting Certificate Renewal as a Daemon"
-    #$STD systemctl enable --now cert-renewer@"${FQDN}".timer
     systemctl enable --now cert-renewer@"${FQDN}".timer
-    systemctl list-units cert-renewer@\*.timer
+    $STD systemctl list-units cert-renewer@\*.timer
     msg_ok "Started Certificate Renewal as a Daemon"
   fi
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
