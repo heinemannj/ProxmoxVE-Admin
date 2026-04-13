@@ -498,7 +498,7 @@ function bootstrap_menu() {
 
   OPTIONS=("step-ca FQDN" "$CA_FQDN"
     "step-ca Fingerprint" "$CA_FINGERPRINT"
-      " " " "
+    " " " "
     "<Continue>" "Install step-ca Root Certificate")
   local TITLE="step-ca Bootstrap Options"
 
@@ -519,7 +519,7 @@ function bootstrap_menu() {
       bootstrap_fqdn_check || bootstrap_menu
       ;;
     *) x509_maintenance_menu ;;
-    esac
+  esac
 }
 
 function bootstrap() {
@@ -542,7 +542,7 @@ function x509_request_menu() {
     "Subject Alternative Name(s) (SANs)" "$SAN"
     "Validity" "$VALID_TO"
     "Provisioner" "$PROVISIONER"
-      " " " "
+    " " " "
     "<Continue>" "Request Certificate by $PROVISIONER")
   local TITLE="Certificate Signing Request (CSR) by $PROVISIONER_TYPE"
 
@@ -579,7 +579,7 @@ function x509_request_menu() {
       ;;
     "<Continue>") ;;
     *) x509_maintenance_menu ;;
-    esac
+  esac
 }
 
 function x509_request() {
@@ -597,7 +597,7 @@ function x509_request() {
     --provisioner="$PROVISIONER")
 
   [ "$PROVISIONER_TYPE" = "JWK" ] && [ -f "$PROVISIONER_PWD_FILE" ] && FLAGS+=(--provisioner-password-file="$PROVISIONER_PWD_FILE")
- 
+
   local SAN_ITEMS=("$FQDN" "$HOST" "$IP" "$SAN")
   for item in "${SAN_ITEMS[@]}"; do
     FLAGS+=(--san "$item")
@@ -759,11 +759,6 @@ function x509_query() {
     CRT="$CERT_PATH/x509/$CN.crt"
     KEY="$KEY_PATH/$CN.key"
   fi
-  #if ! [[ -f ${CRT} ]]; then
-  #  die "Certificate ${CRT} not found on localhost!"
-  #elif ! [[ -f ${KEY} ]]; then
-  #  die "Private Key ${KEY} not found on localhost!"
-  #fi
 }
 
 function x509_view(){
