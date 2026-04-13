@@ -325,7 +325,7 @@ function bootstrap() {
   $STD update-ca-certificates  || die "Update of System CA Certificates failed!"
   $STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
   msg_ok "Installed step-ca Root Certificate"
-  [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
 function x509_request() {
@@ -362,15 +362,14 @@ function x509_request() {
     $STD systemctl list-units cert-renewer@\*.timer
     msg_ok "Started Certificate Renewal as a Daemon"
   fi
-  #[[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
 function x509_renew() {
   local BACK_TO_MENU="$1"
   x509_certs_menu "Renew"
-  #msg_info "Renewing Certificate(s)"
   for SERIAL in "${CERT_ARRAY[@]}"; do
-    msg_info "Renew x509 Certificate with CN ${BL}'${CN}'${YW} and Serial Number ${BL}'${SERIAL}'${GN}"
+    msg_info "Renew x509 Certificate with CN '${CN}' and Serial Number '${SERIAL}'"
     x509_query
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
       CRT_OLD="${CERT_PATH}/x509/_archive/${CN}_$(date +%Y%m%d%H%M%S).crt"
@@ -382,10 +381,9 @@ function x509_renew() {
     else
       die "Failed to renew certificate!"
     fi
-    msg_ok "Renewed x509 Certificate with CN ${BL}'${CN}'${YW} and Serial Number ${BL}'${SERIAL}'${GN}"
+    msg_ok "Renewed x509 Certificate with CN '${CN}' and Serial Number '${SERIAL}'"
   done
-  #msg_ok "Renewed Certificate(s)"
-  #[[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
 function x509_revoke() {
@@ -408,7 +406,7 @@ function x509_revoke() {
     echo
   done
   msg_ok "Revoked Certificate(s)"
-  [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
 function x509_inspect() {
@@ -426,7 +424,7 @@ function x509_inspect() {
     cat "${KEY}"
   done
   msg_ok "Inspected Certificate(s)"
-  [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
 function x509_list() {
