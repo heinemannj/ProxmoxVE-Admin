@@ -319,7 +319,7 @@ function bootstrap() {
   local BACK_TO_MENU="$1"
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
   msg_info "Installing Root Certificate by Certificate Authority '$CA_FQDN'"
-  $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || msg_error "step-ca Bootstrapping failed!"; exit 1
+  $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT" || msg_error "step-ca Bootstrapping failed!"; exit 1
   $STD step certificate install --all "$CA_ROOT" || msg_error "Installation of step-ca Root Certificate failed!"; exit 1
   $STD update-ca-certificates  || msg_error "Update of System CA Certificates failed!"; exit 1
   $STD step certificate inspect https://"$CA_FQDN" || msg_error "Inspection of step-ca Root Certificate failed!"; exit 1
