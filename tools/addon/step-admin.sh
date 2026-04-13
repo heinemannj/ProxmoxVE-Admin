@@ -198,47 +198,6 @@ KEY_PATH="${CONFIG_PATH}/private"
 
 # ==============================================================================
 
-# shellcheck disable=SC2116
-# shellcheck disable=SC2028
-YW=$(echo "\033[33m")
-# shellcheck disable=SC2116
-# shellcheck disable=SC2028
-GN=$(echo "\033[1;92m")
-# shellcheck disable=SC2116
-# shellcheck disable=SC2028
-RD=$(echo "\033[01;31m")
-# shellcheck disable=SC2116
-# shellcheck disable=SC2028
-BL=$(echo "\033[36m")
-# shellcheck disable=SC2116
-# shellcheck disable=SC2028
-CL=$(echo "\033[m")
-CM="${GN}✔️${CL}"
-CROSS="${RD}✖️${CL}"
-INFO="${BL}ℹ️${CL}"
-# shellcheck disable=SC2034
-TAB="  "
-
-function msg_info() { echo -e "${INFO} ${YW}${1}...${CL}"; }
-function msg_ok() { echo -e "${CM} ${GN}${1}${CL}"; }
-function msg_error() { echo -e "${CROSS} ${RD}${1}${CL}"; }
-function msg_warn() { echo -e "⚠️  ${YW}${1}${CL}"; }
-
-function die() {
-  echo -e "\n${BL}[ERROR]${GN} ${RD}${1}${CL}\n"
-  exit 1
-}
-
-# ==============================================================================
-# HELPER FUNCTIONS
-# ==============================================================================
-function resolve_ip() {
-  local FQDN=$1
-  local IP
-  IP=$(dig +short "$FQDN")
-  [[ -z "$IP" ]] && exit 1 || echo "$IP"
-}
-
 # ==============================================================================
 # OS DETECTION
 # ==============================================================================
