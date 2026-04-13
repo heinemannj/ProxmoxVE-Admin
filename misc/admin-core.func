@@ -6,8 +6,7 @@
 # Source: https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/admin-core.func
 
 function die() {
-  msg_error "${1}"
-  exit 1
+  msg_error "${1}"; exit 1
 }
 
 # ==============================================================================
