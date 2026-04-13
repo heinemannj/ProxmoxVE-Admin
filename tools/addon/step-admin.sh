@@ -318,7 +318,7 @@ function whiptail_textbox() {
 function whiptail_msgbox() {
   local TITLE=$1
   local TEXT=$2
-  local HIGHT=9
+  local HIGHT=8
   local WIDTH=$(( ${#TITLE} + 16 ))
   local WIDTH_ARRAY=( "$WIDTH" $(( ${#TEXT} + 4 )) )
   for i in "${WIDTH_ARRAY[@]}"; do
