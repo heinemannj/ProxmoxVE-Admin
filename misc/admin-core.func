@@ -5,9 +5,9 @@
 # License: MIT | https://github.com/heinemannj/ProxmoxVE-Admin/raw/main/LICENSE
 # Source: https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/admin-core.func
 
-function die() {
-  msg_error "${1}"; exit 1
-}
+#function die() {
+#  msg_error "${1}"; exit 1
+#}
 
 # ==============================================================================
 # OS DETECTION
