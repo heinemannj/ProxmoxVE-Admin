@@ -222,7 +222,7 @@ function whiptail_radiolist() {
   for ((i=0; i<${#LIST[@]}; i+=2)); do
     local j=$(( i+1 ))
     (( ${#LIST[i]} > MAX_LEFT )) && MAX_LEFT=${#LIST[i]}
-	(( ${#LIST[j]} > MAX_RIGHT )) && MAX_RIGHT=${#LIST[j]}
+    (( ${#LIST[j]} > MAX_RIGHT )) && MAX_RIGHT=${#LIST[j]}
     OPTIONS+=("${LIST[i]}" "${LIST[j]}" "OFF")  
   done
   (( MAX_LEFT + MAX_RIGHT + WIDTH_OFFSET > WIDTH )) && WIDTH=$(( MAX_LEFT + MAX_RIGHT + WIDTH_OFFSET ))
