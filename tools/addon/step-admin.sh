@@ -24,7 +24,6 @@ function header_info() {
  (__  ) /_/  __/ /_/ /_____/ /_/ / /_/ / / / / / / / / / /
 /____/\__/\___/ .___/      \__,_/\__,_/_/ /_/ /_/_/_/ /_/ 
              /_/                                          
-
 EOF
 }
 
@@ -369,7 +368,7 @@ function x509_renew() {
   local BACK_TO_MENU="$1"
   x509_certs_menu "Renew"
   for SERIAL in "${CERT_ARRAY[@]}"; do
-    msg_info "Renew x509 Certificate with CN '${CN}' and Serial Number '${SERIAL}'"
+    msg_info "Renew x509 Certificate for CN '${CN}' and Serial Number '${SERIAL}'"
     x509_query
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
       CRT_OLD="${CERT_PATH}/x509/_archive/${CN}_$(date +%Y%m%d%H%M%S).crt"
@@ -381,7 +380,7 @@ function x509_renew() {
     else
       die "Failed to renew certificate!"
     fi
-    msg_ok "Renewed x509 Certificate with CN '${CN}' and Serial Number '${SERIAL}'"
+    msg_ok "Renewed x509 Certificate for CN '${CN}' and Serial Number '${SERIAL}'"
   done
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
@@ -389,10 +388,9 @@ function x509_renew() {
 function x509_revoke() {
   local BACK_TO_MENU="$1"
   x509_certs_menu "Revoke"
-  msg_info "Revoking Certificate(s)"
   for SERIAL in "${CERT_ARRAY[@]}"; do
     x509_query
-    echo -e "${BL}[Info]${GN} Revoke x509 Certificate with CN ${BL}${CN}${GN} and Serial Number ${BL}${SERIAL}${GN}:${CL}\n"
+    msg_info "Revoke x509 Certificate for CN '${CN}' and Serial Number '${SERIAL}'"
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
       $STD step ca revoke --cert "${CRT}" --key "${KEY}"
       rm -f "${CRT}" || die "Failed to delete ${CRT}!"
@@ -403,9 +401,8 @@ function x509_revoke() {
     else
       die "Failed to revoke certificate!"
     fi
-    echo
+    msg_ok "Revoked x509 Certificate for CN '${CN}' and Serial Number '${SERIAL}'"
   done
-  msg_ok "Revoked Certificate(s)"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
@@ -414,7 +411,7 @@ function x509_inspect() {
   x509_certs_menu "Inspect"
   msg_info "Inspecting Certificate(s)"
   for SERIAL in "${CERT_ARRAY[@]}"; do
-    echo -e "${BL}[Info]${GN} Inspect x509 Certificate with CN ${BL}${CN}${GN} and Serial Number ${BL}${SERIAL}${GN}:${CL}\n"
+    msg_info "Inspect x509 Certificate for CN '${CN}' and Serial Number '${SERIAL}'"
     x509_query
     step certificate inspect "${CRT}" | grep -q "${SERIAL}" || die "Serial Number ${SERIAL} mismatch!"
     step certificate inspect "${CRT}" || die "Failed to inspect certificate!"
@@ -422,8 +419,8 @@ function x509_inspect() {
     cat "${CRT}"
     echo -e "\n${BL}[Info]${GN} Private Key:${CL}\n"
     cat "${KEY}"
+    msg_ok "Inspected x509 Certificate for CN '${CN}' and Serial Number '${SERIAL}'"
   done
-  msg_ok "Inspected Certificate(s)"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
