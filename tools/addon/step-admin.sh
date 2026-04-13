@@ -270,8 +270,8 @@ EOF
   $STD systemctl daemon-reload
   msg_ok "Installed $APP"
 
-  bootstrap "" || die "Installation of step-ca Root Certificate failed!"
-  x509_request "" || die "Main - Request System Certificate failed!"
+  bootstrap "" || msg_error "Installation of step-ca Root Certificate failed!"
+  x509_request "" || msg_error "Main - Request System Certificate failed!"
 }
 
 # ==============================================================================
@@ -279,7 +279,7 @@ EOF
 # ==============================================================================
 function update() {
   if [[ ! -e $BINARY_PATH ]]; then
-    die "$APP is not installed"
+    msg_error "$APP is not installed!"
   fi
   msg_info "Updating $APP"
   detect_os
@@ -319,10 +319,10 @@ function bootstrap() {
   local BACK_TO_MENU="$1"
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
   msg_info "Installing Root Certificate by Certificate Authority '$CA_FQDN'"
-  $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
-  $STD step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
-  $STD update-ca-certificates  || die "Update of System CA Certificates failed!"
-  $STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
+  $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || msg_error "step-ca Bootstrapping failed!"
+  $STD step certificate install --all "$CA_ROOT" || msg_error "Installation of step-ca Root Certificate failed!"
+  $STD update-ca-certificates  || msg_error "Update of System CA Certificates failed!"
+  $STD step certificate inspect https://"$CA_FQDN" || msg_error "Inspection of step-ca Root Certificate failed!"
   msg_ok "Installed Root Certificate by Certificate Authority '$CA_FQDN'"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
@@ -331,7 +331,7 @@ function x509_request() {
   local BACK_TO_MENU="$1"
   FQDN="$(hostname -f)"
   HOST="$(hostname)"
-  IP=$(resolve_ip "${FQDN}") || die "Resolution failed for ${FQDN}!"
+  IP=$(resolve_ip "${FQDN}") || msg_error "Resolution failed for ${FQDN}!"
   SAN=""
   VALID_TO="168h" # Default validity of 7 days (168 hours)
 
@@ -349,7 +349,7 @@ function x509_request() {
   $STD step ca certificate "$FQDN" \
     "${CERT_PATH}"/x509/"$FQDN".crt \
     "${KEY_PATH}"/"$FQDN".key \
-    "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $PROVISIONER failed!"
+    "${FLAGS[@]}" || msg_error "Certificate Signing Request (CSR) by $PROVISIONER failed!"
   msg_ok "Requested x509 Certificate for CN '$FQDN' by '$PROVISIONER'"
 
   if [ "$PROVISIONER_TYPE" = "ACME" ]; then
@@ -370,12 +370,12 @@ function x509_renew() {
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
       CRT_OLD="${CERT_PATH}/x509/_archive/${CN}_$(date +%Y%m%d%H%M%S).crt"
       KEY_OLD="${KEY_PATH}/_archive/${CN}_$(date +%Y%m%d%H%M%S).key"
-      cp "${CRT}" "${CRT_OLD}" || die "Failed to backup ${CRT}!"
-      cp "${KEY}" "${KEY_OLD}" || die "Failed to backup ${KEY}!"
-      $STD step ca renew --force "${CRT}" "${KEY}" || die "Failed to renew certificate!"
+      cp "${CRT}" "${CRT_OLD}" || msg_error "Failed to backup ${CRT}!"
+      cp "${KEY}" "${KEY_OLD}" || msg_error "Failed to backup ${KEY}!"
+      $STD step ca renew --force "${CRT}" "${KEY}" || msg_error "Failed to renew certificate!"
       $STD step ca revoke --cert "${CRT_OLD}" --key "${KEY_OLD}"
     else
-      die "Failed to renew certificate!"
+      msg_error "Failed to renew certificate!"
     fi
     msg_ok "Renewed x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
   done
@@ -390,13 +390,13 @@ function x509_revoke() {
     msg_info "Revoke x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
       $STD step ca revoke --cert "${CRT}" --key "${KEY}"
-      rm -f "${CRT}" || die "Failed to delete ${CRT}!"
-      rm -f "${KEY}" || die "Failed to delete ${KEY}!"
+      rm -f "${CRT}" || msg_error "Failed to delete ${CRT}!"
+      rm -f "${KEY}" || msg_error "Failed to delete ${KEY}!"
     elif [[ "$PROVISIONER_TYPE" == "JWK" ]] && [ -f "$PROVISIONER_PWD_FILE" ]; then
       TOKEN=$(step ca token --provisioner="$PROVISIONER" --provisioner-password-file="$PROVISIONER_PWD_FILE" --revoke "${SERIAL}")
-      $STD step ca revoke --token "$TOKEN" "${SERIAL}" || die "Failed to revoke certificate!"
+      $STD step ca revoke --token "$TOKEN" "${SERIAL}" || msg_error "Failed to revoke certificate!"
     else
-      die "Failed to revoke certificate!"
+      msg_error "Failed to revoke certificate!"
     fi
     msg_ok "Revoked x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
   done
@@ -410,8 +410,8 @@ function x509_inspect() {
   for SERIAL in "${CERT_ARRAY[@]}"; do
     msg_info "Inspect x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'\n"
     x509_query
-    step certificate inspect "${CRT}" | grep -q "${SERIAL}" || die "Serial Number ${SERIAL} mismatch!"
-    step certificate inspect "${CRT}" || die "Failed to inspect certificate!"
+    step certificate inspect "${CRT}" | grep -q "${SERIAL}" || msg_error "Serial Number ${SERIAL} mismatch!"
+    step certificate inspect "${CRT}" || msg_error "Failed to inspect certificate!"
     echo -e "${BL}[Info]${GN} Public Key${CL}"
     cat "${CRT}"
     echo -e "${BL}[Info]${GN} Private Key${CL}"
@@ -517,7 +517,7 @@ function main_menu() {
 }
 
 function maintenance_menu() {
-  [[ ! -e $BINARY_PATH ]] && die "$APP is not installed"
+  [[ ! -e $BINARY_PATH ]] && msg_error "$APP is not installed!"
 
   local CHOICE
   OPTIONS=(x509 "Maintain x509 Certificate"
@@ -621,7 +621,7 @@ function x509_request_menu() {
     "FQDN")
       FQDN=$(whiptail_inputbox "$TITLE" "FQDN (e.g. mylxc.example.com)" "$FQDN")
       HOST=$(echo "$FQDN" | awk -F'.' '{print $1}')
-      IP=$(resolve_ip "${FQDN}") || die "Resolution failed for ${FQDN}!"
+      IP=$(resolve_ip "${FQDN}") || msg_error "Resolution failed for ${FQDN}!"
       x509_request_menu
       ;;
     "Hostname")
@@ -674,7 +674,7 @@ function x509_certs_menu() {
 }
 
 function ssh_maintenance_menu() {
-  die "Maintain ssh Certificate - To be implemented in future"
+  msg_error "Maintain ssh Certificate - To be implemented in future"
 }
 
 # ==============================================================================
