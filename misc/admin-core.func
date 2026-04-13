@@ -26,6 +26,59 @@ function die() {
 }
 
 # ==============================================================================
+# OS DETECTION
+# ==============================================================================
+function detect_os() {
+  if grep -qi "alpine" /etc/os-release; then
+    #OS="Alpine"
+    PKG_UPDATE=""
+    PKG_INSTALL="apk add --no-cache"
+    PKG_UPGRADE="apk update"
+    PKG_UNINSTALL="apk del"
+    PKG_AUTOREMOVE=""
+  elif grep -qi "arch" /etc/os-release; then
+    #OS="Arch"
+    PKG_UPDATE=""
+    PKG_INSTALL="pacman -S"
+    PKG_UPGRADE="pacman -Syu"
+    PKG_UNINSTALL="pacman -Rs"
+    PKG_AUTOREMOVE=""
+  elif grep -qi "debian" /etc/os-release; then
+    #OS="Debian"
+    PKG_UPDATE="apt update"
+    PKG_INSTALL="apt -y install"
+    PKG_UPGRADE="apt -y upgrade"
+    PKG_UNINSTALL="apt -y --purge remove"
+    PKG_AUTOREMOVE="apt -y --purge autoremove"
+    if ! [[ -f /etc/apt/sources.list.d/smallstep.sources ]]; then
+      setup_deb822_repo \
+        "smallstep" \
+        "https://packages.smallstep.com/keys/apt/repo-signing-key.gpg" \
+        "https://packages.smallstep.com/stable/debian" \
+        "debs" \
+        "main"
+    fi
+  elif grep -qi "ubuntu" /etc/os-release; then
+    #OS="Ubuntu"
+    PKG_UPDATE="apt update"
+    PKG_INSTALL="apt -y install"
+    PKG_UPGRADE="apt -y upgrade"
+    PKG_UNINSTALL="apt -y --purge remove"
+    PKG_AUTOREMOVE="apt -y --purge autoremove"
+    if ! [[ -f /etc/apt/sources.list.d/smallstep.sources ]]; then
+      setup_deb822_repo \
+        "smallstep" \
+        "https://packages.smallstep.com/keys/apt/repo-signing-key.gpg" \
+        "https://packages.smallstep.com/stable/debian" \
+        "debs" \
+        "main"
+    fi
+  else
+    die "Unsupported OS. Exiting."
+  fi
+}
+
+# ==============================================================================
 # HELPER FUNCTIONS
 # ==============================================================================
 function resolve_ip() {
