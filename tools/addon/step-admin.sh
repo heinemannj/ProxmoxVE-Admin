@@ -335,7 +335,7 @@ function x509_request() {
   VALID_TO="168h" # Default validity of 7 days (168 hours)
 
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || x509_request_menu
-  msg_info "Requesting x509 Certificate by $PROVISIONER"
+  #msg_info "Requesting x509 Certificate by $PROVISIONER"
   local FLAGS=(-f
     --not-after="$VALID_TO"
     --provisioner="$PROVISIONER")
