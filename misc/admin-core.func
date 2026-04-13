@@ -20,7 +20,7 @@
 #function msg_error() { echo -e "${CROSS} ${RD}${1}${CL}"; }
 #function msg_warn() { echo -e "⚠️  ${YW}${1}${CL}"; }
 
-function msg_info_step() { echo -e "${INFO} ${YW}${1}${CL}"; }
+#function msg_info_step() { echo -e "${INFO} ${YW}${1}${CL}"; }
 
 function die() {
   echo -e "\n${BL}[ERROR]${GN} ${RD}${1}${CL}\n"
