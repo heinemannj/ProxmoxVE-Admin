@@ -318,14 +318,14 @@ function whiptail_textbox() {
 function whiptail_msgbox() {
   local TITLE=$1
   local TEXT=$2
-  local HIGHT=10
+  local HIGHT=9
   local WIDTH=$(( ${#TITLE} + 16 ))
   local WIDTH_ARRAY=( "$WIDTH" $(( ${#TEXT} + 4 )) )
   for i in "${WIDTH_ARRAY[@]}"; do
     (( i > WIDTH )) && WIDTH=$i
   done
 
-  whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --scrolltext --msgbox "$TEXT" "$HIGHT" "$WIDTH" 3>&1 1>&2 2>&3
+  whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --msgbox "$TEXT" "$HIGHT" "$WIDTH" 3>&1 1>&2 2>&3
 }
 
 function resolve_ip() {
