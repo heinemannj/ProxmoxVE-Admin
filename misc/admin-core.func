@@ -6,7 +6,7 @@
 # Source: https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/admin-core.func
 
 function die() {
-  echo -e "\n${BL}[ERROR]${GN} ${RD}${1}${CL}\n"
+  msg_error "${1}"
   exit 1
 }
 
