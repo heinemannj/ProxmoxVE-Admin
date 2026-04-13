@@ -211,7 +211,8 @@ function install() {
 
   msg_info "Installing $APP"
   $STD $PKG_INSTALL $APP
-  cp -f /usr/bin/step-cli $BINARY_PATH
+  rm -f "${BINARY_PATH}"
+  cp -f /usr/bin/step-cli "${BINARY_PATH}"
   mkdir -p "$CONFIG_PATH"/certs
   mkdir -p "$CONFIG_PATH"/private
   
@@ -267,7 +268,7 @@ RandomizedDelaySec=12s
 [Install]
 WantedBy=timers.target
 EOF
-  systemctl daemon-reload
+  $STD systemctl daemon-reload
   msg_ok "Installed $APP"
 
   bootstrap "" || die "Installation of step-ca Root Certificate failed!"
@@ -285,7 +286,8 @@ function update() {
   detect_os
   $STD $PKG_UPDATE
   $STD $PKG_UPGRADE $APP
-  cp -f /usr/bin/step-cli $BINARY_PATH
+  rm -f "${BINARY_PATH}"
+  cp -f /usr/bin/step-cli "${BINARY_PATH}"
   msg_ok "Updated $APP successfully"
 }
 
@@ -301,7 +303,7 @@ function uninstall() {
   $STD systemctl stop cert-renewer@*.service
   $STD $PKG_UNINSTALL $APP
   $STD $PKG_AUTOREMOVE
-  rm -f "BINARY_PATH"
+  rm -f "${BINARY_PATH}"
   rm -rf "${CONFIG_PATH}"
   rm -f "/etc/apt/sources.list.d/smallstep.sources"
   rm -f "/usr/local/bin/update_${APP,,}"
