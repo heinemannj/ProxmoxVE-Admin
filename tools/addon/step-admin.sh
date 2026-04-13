@@ -212,7 +212,7 @@ function install() {
   msg_info "Installing $APP"
   $STD $PKG_INSTALL $APP
   if [[ ! -e $BINARY_PATH ]]; then
-    ln -s /usr/bin/step-cli $BINARY_PATH
+    cp /usr/bin/step-cli $BINARY_PATH
   fi
   mkdir -p "$CONFIG_PATH"/certs
   mkdir -p "$CONFIG_PATH"/private
@@ -317,7 +317,7 @@ function uninstall() {
 function bootstrap() {
   local BACK_TO_MENU="$1"
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
-  msg_info_step "Installing step-ca Root Certificate"
+  msg_info "Installing step-ca Root Certificate"
   $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
   $STD step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
   $STD update-ca-certificates  || die "Update of System CA Certificates failed!"
@@ -347,7 +347,7 @@ function x509_request() {
     FLAGS+=(--san "$item")
   done
 
-  $STD step-cli ca certificate "$FQDN" \
+  $STD step ca certificate "$FQDN" \
     "${CERT_PATH}"/x509/"$FQDN".crt \
     "${KEY_PATH}"/"$FQDN".key \
     "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $PROVISIONER failed!"
