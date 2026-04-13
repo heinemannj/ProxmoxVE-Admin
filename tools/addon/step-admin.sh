@@ -12,10 +12,23 @@ source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxV
 #source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/admin-core.func)
 #source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/smallstep-core.func)
 
-# =============================================================================
+function header_info() {
+  clear
+  cat <<"EOF"
+         __                             __          _     
+   _____/ /____  ____        ____ _____/ /___ ___  (_)___ 
+  / ___/ __/ _ \/ __ \______/ __ `/ __  / __ `__ \/ / __ \
+ (__  ) /_/  __/ /_/ /_____/ /_/ / /_/ / / / / / / / / / /
+/____/\__/\___/ .___/      \__,_/\__,_/_/ /_/ /_/_/_/ /_/ 
+             /_/                                          
+
+EOF
+}
+
+# ==============================================================================
 # CONFIGURATION VARIABLES
 # Set these variables to skip interactive prompts (Whiptail dialogs)
-# =============================================================================
+# ==============================================================================
 # var_unattended: Run without user interaction
 #   Options: "yes" | "no" | "" (empty = interactive prompt)
 var_unattended="${var_unattended:-}"
@@ -31,11 +44,27 @@ var_cert_type="${var_cert_type:-}"
 # var_x509_action: Skip dialog and directly perform an maintenance option for x509 certificates
 #   Options: "bootstrap" | "request" | "renew" | "revoke" | "inspect" | "list" | "" (default: empty = interactive prompt)
 var_x509_action="${var_x509_action:-}"
-# =============================================================================
+
+# ==============================================================================
+# OPTIONS
+# Handle command line arguments
+# ==============================================================================
+case "${1:-}" in
+  --help | -h)
+    print_usage
+    exit 0
+    ;;
+  --export-config)
+    init_app
+    export_config_json
+    exit 0
+    ;;
+esac
+
+# ==============================================================================
 # JSON CONFIG EXPORT
 # Run with --export-config to output current configuration as JSON
-# =============================================================================
-
+# ==============================================================================
 function export_config_json() {
   cat <<EOF
 {
@@ -67,6 +96,10 @@ function export_config_json() {
 EOF
 }
 
+# ==============================================================================
+# USAGE
+# Run with --help to output the script usage
+# ==============================================================================
 function print_usage() {
   cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
@@ -101,6 +134,12 @@ Examples:
 EOF
 }
 
+# ==============================================================================
+# INITIALIZATION
+# Set CONFIGURATION VARIABLES
+# ==============================================================================
+#
+# step specific CONFIGURATION VARIABLES
 function init_app() {
   if [ -d "$CA_PATH" ]; then
     APP_TITLE="step-ca Admin"
@@ -155,33 +194,7 @@ CA_PATH="/etc/step-ca"
 CERT_PATH="${CONFIG_PATH}/certs"
 KEY_PATH="${CONFIG_PATH}/private"
 
-# Handle command line arguments
-case "${1:-}" in
-  --help | -h)
-    print_usage
-    exit 0
-    ;;
-  --export-config)
-    init_app
-    export_config_json
-    exit 0
-    ;;
-esac
-
-# =============================================================================
-
-function header_info() {
-  clear
-  cat <<"EOF"
-         __                             __          _     
-   _____/ /____  ____        ____ _____/ /___ ___  (_)___ 
-  / ___/ __/ _ \/ __ \______/ __ `/ __  / __ `__ \/ / __ \
- (__  ) /_/  __/ /_/ /_____/ /_/ / /_/ / / / / / / / / / /
-/____/\__/\___/ .___/      \__,_/\__,_/_/ /_/ /_/_/_/ /_/ 
-             /_/                                          
-
-EOF
-}
+# ==============================================================================
 
 # shellcheck disable=SC2116
 # shellcheck disable=SC2028
