@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-# Copyright (c) 2021-2026 community-scripts ORG
+# Copyright (c) 2026 Joerg Heinemann (heinemannj)
 # Author: Joerg Heinemann (heinemannj)
-# License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
-# Source: https://github.com/smallstep/cli
+# License: MIT | https://github.com/heinemannj/step-admin/raw/main/LICENSE
+# Source: https://raw.githubusercontent.com/heinemannj/step-admin/main/step-admin.sh
 
 #source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/admin-core.func)
 #source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/smallstep-core.func)
@@ -309,6 +309,19 @@ function whiptail_textbox() {
   local WIDTH=150
 
   whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --scrolltext --textbox "$FILE" "$HIGHT" "$WIDTH" 3>&1 1>&2 2>&3
+}
+
+function whiptail_msgbox() {
+  local TITLE=$1
+  local TEXT=$2
+  local HIGHT=10
+  local WIDTH=$(( ${#TITLE} + 16 ))
+  local WIDTH_ARRAY=( "$WIDTH" $(( ${#TEXT} + 4 )) )
+  for i in "${WIDTH_ARRAY[@]}"; do
+    (( i > WIDTH )) && WIDTH=$i
+  done
+
+  whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --scrolltext --msgbox "$TEXT" "$HIGHT" "$WIDTH" 3>&1 1>&2 2>&3
 }
 
 function resolve_ip() {
@@ -813,7 +826,7 @@ function x509_certs_menu() {
   if [[ ${#CERT_LIST[@]} -gt 0 ]]; then
     CHOICE=$(whiptail_checklist "Certificates Issued by $CA_FQDN" "\nSelect Certificate(s) to ${CERT_ACTION}:" "CERT_LIST")
   else
-    whiptail --backtitle "Proxmox VE Helper Scripts" --title "Certificates Issued by $CA_FQDN" --msgbox "No certificate(s) found on localhost." 10 58
+    whiptail_msgbox "Certificates Issued by $CA_FQDN" "No certificate(s) found on localhost."
   fi
   # shellcheck disable=SC2206
   CERT_ARRAY=(${CHOICE})
