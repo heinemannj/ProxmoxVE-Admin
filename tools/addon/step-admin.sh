@@ -315,7 +315,7 @@ function resolve_ip() {
   local FQDN=$1
   local IP
   IP=$(dig +short "$FQDN")
- [[ -z "$IP" ]] && exit 1 || echo "$IP"
+  [[ -z "$IP" ]] && exit 1 || echo "$IP"
 }
 
 function detect_os() {
