@@ -269,7 +269,8 @@ RandomizedDelaySec=12s
 [Install]
 WantedBy=timers.target
 EOF
-  $STD systemctl daemon-reload
+  #$STD systemctl daemon-reload
+  systemctl daemon-reload
   msg_ok "Installed $APP"
 
   #$STD bootstrap "" || die "Installation of step-ca Root Certificate failed!"
@@ -320,10 +321,14 @@ function bootstrap() {
   local BACK_TO_MENU="$1"
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
   msg_info "Installing step-ca Root Certificate"
-  $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
-  $STD step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
-  $STD update-ca-certificates  || die "Update of System CA Certificates failed!"
-  $STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
+  #$STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
+  #$STD step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
+  #$STD update-ca-certificates  || die "Update of System CA Certificates failed!"
+  #$STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
+  step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
+  step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
+  update-ca-certificates  || die "Update of System CA Certificates failed!"
+  step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
   msg_ok "Installed step-ca Root Certificate"
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
 }
@@ -358,7 +363,8 @@ function x509_request() {
 
   if [ "$PROVISIONER_TYPE" = "ACME" ]; then
     msg_info "Starting Certificate Renewal as a Daemon"
-    $STD systemctl enable --now cert-renewer@"${FQDN}".timer
+    #$STD systemctl enable --now cert-renewer@"${FQDN}".timer
+    systemctl enable --now cert-renewer@"${FQDN}".timer
     systemctl list-units cert-renewer@\*.timer
     msg_ok "Started Certificate Renewal as a Daemon"
   fi
