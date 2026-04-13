@@ -318,12 +318,12 @@ function uninstall() {
 function bootstrap() {
   local BACK_TO_MENU="$1"
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
-  msg_info "Installing step-ca Root Certificate"
+  msg_info "Installing Root Certificate by Certificate Authority '$CA_FQDN'"
   $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
   $STD step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
   $STD update-ca-certificates  || die "Update of System CA Certificates failed!"
   $STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
-  msg_ok "Installed step-ca Root Certificate"
+  msg_ok "Installed Root Certificate by Certificate Authority '$CA_FQDN'"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
@@ -340,9 +340,7 @@ function x509_request() {
   local FLAGS=(-f
     --not-after="$VALID_TO"
     --provisioner="$PROVISIONER")
-
   [ "$PROVISIONER_TYPE" = "JWK" ] && [ -f "$PROVISIONER_PWD_FILE" ] && FLAGS+=(--provisioner-password-file="$PROVISIONER_PWD_FILE")
-
   local SAN_ITEMS=("$FQDN" "$HOST" "$IP" "$SAN")
   for item in "${SAN_ITEMS[@]}"; do
     FLAGS+=(--san "$item")
@@ -352,7 +350,6 @@ function x509_request() {
     "${CERT_PATH}"/x509/"$FQDN".crt \
     "${KEY_PATH}"/"$FQDN".key \
     "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $PROVISIONER failed!"
-
   msg_ok "Requested x509 Certificate for CN '$FQDN' by '$PROVISIONER'"
 
   if [ "$PROVISIONER_TYPE" = "ACME" ]; then
