@@ -316,7 +316,6 @@ function uninstall() {
 # CORE FUNCTIONS
 # ==============================================================================
 function bootstrap() {
-  test="test"
   local BACK_TO_MENU="$1"
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
   msg_info "Installing Root Certificate by Certificate Authority '$CA_FQDN'"
