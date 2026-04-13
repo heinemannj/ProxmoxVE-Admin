@@ -12,35 +12,9 @@
 # CONFIGURATION VARIABLES
 # Set these variables to skip interactive prompts (Whiptail dialogs)
 # =============================================================================
-# var_backup: Enable/disable backup before update
-#   Options: "yes" | "no" | "" (empty = interactive prompt)
-var_backup="${var_backup:-}"
-
-# var_backup_storage: Storage location for backups (only used if var_backup=yes)
-#   Options: Storage name from /etc/pve/storage.cfg (e.g., "local", "nas-backup")
-#   Leave empty for interactive selection
-var_backup_storage="${var_backup_storage:-}"
-
-# var_container: Which containers to update
-#   Options:
-#     - "all"         : All containers with community-scripts tags
-#     - "all_running" : Only running containers with community-scripts tags
-#     - "all_stopped" : Only stopped containers with community-scripts tags
-#     - "101,102,109" : Comma-separated list of specific container IDs
-#     - ""            : Interactive selection via Whiptail
-var_container="${var_container:-}"
-
 # var_unattended: Run without user interaction
 #   Options: "yes" | "no" | "" (empty = interactive prompt)
 var_unattended="${var_unattended:-}"
-
-# var_skip_confirm: Skip initial confirmation dialog
-#   Options: "yes" | "no" (default: no)
-var_skip_confirm="${var_skip_confirm:-no}"
-
-# var_tags: Optionally override the tags used for auto-detection
-#   Options: "community-script|proxmox-helper-scripts" (default)
-var_tags="${var_tags:-community-script|proxmox-helper-scripts}"
 
 # var_action: Skip initial dialog and directly perform an maintenance option
 #   Options: "install" | "update" | "uninstall" | "maintain" | "" (default: empty = interactive prompt)
@@ -61,12 +35,7 @@ var_x509_action="${var_x509_action:-}"
 function export_config_json() {
   cat <<EOF
 {
-  "var_backup": "${var_backup}",
-  "var_backup_storage": "${var_backup_storage}",
-  "var_container": "${var_container}",
   "var_unattended": "${var_unattended}",
-  "var_skip_confirm": "${var_skip_confirm}",
-  "var_tags": "${var_tags}",
   "var_action": "${var_action}",
   "var_cert_type": "${var_cert_type}",
   "var_x509_action": "${var_x509_action}",
@@ -98,19 +67,14 @@ function print_usage() {
   cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
 
-Update LXC containers created with community-scripts.
+Maintain certificate(s) issued by a Step certificate authority.
 
 Options:
   --help              Show this help message
   --export-config     Export current configuration as JSON
 
 Environment Variables:
-  var_backup          Enable backup before update (yes/no)
-  var_backup_storage  Storage location for backups
-  var_container       Container selection (all/all_running/all_stopped/101,102,...)
   var_unattended      Run without user interaction (yes/no)
-  var_skip_confirm    Skip initial confirmation (yes/no)
-  var_tags            Optionally override auto-detection tags ("prod|smb|community-script")
   var_action          Skip initial dialog and directly perform an maintenance option (install/update/uninstall/maintain)
   var_cert_type       Skip dialog and directly maintain selected certificate type (x509/ssh)
   var_x509_action     Skip dialog and directly perform an maintenance option for x509 certificates (bootstrap/request/renew/revoke/inspect/list)
@@ -119,11 +83,14 @@ Examples:
   # Run interactively
   $(basename "$0")
 
-  # Update all running containers unattended with backup
-  var_backup=yes var_backup_storage=local var_container=all_running var_unattended=yes var_skip_confirm=yes $(basename "$0")
+  # Install unattended
+  var_unattended=yes var_action=install $(basename "$0")
 
-  # Update specific containers without backup
-  var_backup=no var_container=101,102,105 var_unattended=yes var_skip_confirm=yes $(basename "$0")
+  # Update unattended
+  var_unattended=yes var_action=update $(basename "$0")
+
+  # Renew system certificate unattended
+  var_unattended=yes var_x509_action=renew $(basename "$0")
 
   # Export current configuration
   $(basename "$0") --export-config
