@@ -317,7 +317,7 @@ function uninstall() {
 function bootstrap() {
   local BACK_TO_MENU="$1"
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
-  #msg_info "Installing step-ca Root Certificate\n"
+  msg_info_step "Installing step-ca Root Certificate\n"
   $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT"  || die "step-ca Bootstrapping failed!"
   $STD step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
   $STD update-ca-certificates  || die "Update of System CA Certificates failed!"
@@ -335,7 +335,7 @@ function x509_request() {
   VALID_TO="168h" # Default validity of 7 days (168 hours)
 
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || x509_request_menu
-  #msg_info "Requesting x509 Certificate by $PROVISIONER"
+  msg_info_step "Requesting x509 Certificate by $PROVISIONER"
   local FLAGS=(-f
     --not-after="$VALID_TO"
     --provisioner="$PROVISIONER")
