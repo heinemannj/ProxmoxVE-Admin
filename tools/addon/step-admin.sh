@@ -272,8 +272,8 @@ EOF
   systemctl daemon-reload
   msg_ok "Installed $APP"
 
-  $STD bootstrap "" || die "Installation of step-ca Root Certificate failed!"
-  $STD x509_request "" || die "Main - Request System Certificate failed!"
+  bootstrap "" || die "Installation of step-ca Root Certificate failed!"
+  x509_request "" || die "Main - Request System Certificate failed!"
 }
 
 # ==============================================================================
