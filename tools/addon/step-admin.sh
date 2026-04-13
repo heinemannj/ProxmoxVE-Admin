@@ -71,6 +71,7 @@ function export_config_json() {
   "var_cert_type": "${var_cert_type}",
   "var_x509_action": "${var_x509_action}",
   "APP": "${APP}",
+  "APP_TYPE": "${APP_TYPE}",
   "APP_TITLE": "${APP_TITLE}",
   "APP_BACKTITLE": "${APP_BACKTITLE}",
   "BINARY_PATH": "${BINARY_PATH}",
@@ -176,6 +177,7 @@ function init_app() {
 
 # GLOBAL CONFIGURATION VARIABLES
 APP="step-cli"
+APP_TYPE="addon"
 BINARY_PATH="/usr/bin/step"
 CONFIG_PATH="/etc/step"
 CA_PATH="/etc/step-ca"
@@ -834,6 +836,7 @@ function x509_view(){
       CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
     done
   fi
+  # shellcheck disable=SC2094
   cat "$CERT_PATH/x509/x509Certs.txt" | column -t -s '|' > "$CERT_PATH/x509/x509Certs.txt"
   TOTAL_CERTS=$(( $(wc -l < "$CERT_PATH/x509/x509Certs.txt") - 1 ))
   VALID_CERTS=$(( $(grep -c "Valid" "$CERT_PATH/x509/x509Certs.txt") - 1))
@@ -850,6 +853,7 @@ function x509_certs_menu() {
   else
     whiptail --backtitle "Proxmox VE Helper Scripts" --title "Certificates Issued by $CA_FQDN" --msgbox "No certificate(s) found on localhost." 10 58
   fi
+  # shellcheck disable=SC2206
   CERT_ARRAY=(${CHOICE})
   if [ ${#CERT_ARRAY[@]} -eq 0 ]; then
     if [ -z "$var_x509_action" ]; then
