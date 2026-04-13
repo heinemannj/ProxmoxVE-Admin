@@ -855,7 +855,7 @@ function x509_certs_menu() {
     if [ -z "$var_x509_action" ]; then
       x509_maintenance_menu
     else
-      msg_warn "No certificate(s) selected."
+      msg_warn "No certificate(s) selected or found on localhost."
       exit 1
     fi
   fi
