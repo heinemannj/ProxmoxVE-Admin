@@ -5,7 +5,7 @@
 # License: MIT | https://github.com/heinemannj/step-admin/raw/main/LICENSE
 # Source: https://raw.githubusercontent.com/heinemannj/step-admin/main/step-admin.sh
 
-#source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/core.func)
+source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/core.func)
 source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/tools.func)
 #source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/error_handler.func)
 
