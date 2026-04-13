@@ -12,6 +12,9 @@ source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxV
 #source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/admin-core.func)
 #source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin/main/misc/smallstep-core.func)
 
+# ==============================================================================
+# HEADER
+# ==============================================================================
 function header_info() {
   clear
   cat <<"EOF"
@@ -136,7 +139,6 @@ EOF
 
 # ==============================================================================
 # INITIALIZATION
-# Set CONFIGURATION VARIABLES
 # ==============================================================================
 #
 # step specific CONFIGURATION VARIABLES
@@ -227,6 +229,9 @@ function die() {
   exit 1
 }
 
+# ==============================================================================
+# HELPER FUNCTIONS
+# ==============================================================================
 function whiptail_radiolist() {
   local TITLE=$1
   local TEXT=$2
@@ -348,6 +353,9 @@ function resolve_ip() {
   [[ -z "$IP" ]] && exit 1 || echo "$IP"
 }
 
+# ==============================================================================
+# OS DETECTION
+# ==============================================================================
 function detect_os() {
   if grep -qi "alpine" /etc/os-release; then
     #OS="Alpine"
@@ -398,6 +406,9 @@ function detect_os() {
   fi
 }
 
+# ==============================================================================
+# INSTALL
+# ==============================================================================
 function install() {
   msg_info "Installing dependencies"
   detect_os
@@ -472,6 +483,9 @@ EOF
   $STD x509_request "" || die "Main - Request System Certificate failed!"
 }
 
+# ==============================================================================
+# UPDATE
+# ==============================================================================
 function update() {
   if [[ ! -e $BINARY_PATH ]]; then
     die "$APP is not installed"
@@ -483,6 +497,9 @@ function update() {
   msg_ok "Updated $APP successfully"
 }
 
+# ==============================================================================
+# UNINSTALL
+# ==============================================================================
 function uninstall() {
   msg_info "Uninstalling $APP"
   detect_os
@@ -501,57 +518,9 @@ function uninstall() {
   msg_ok "Uninstalled $APP"
 }
 
-function bootstrap_fqdn_check() {
-  if [[ -z $CA_FQDN ]]; then
-    CA_FQDN="Please change!"
-    return 1
-  else
-    CA_IP=$(resolve_ip "${CA_FQDN}")
-    if [[ -z $CA_IP ]]; then
-      CA_FQDN="DNS Resolution failed - Please change!"
-      return 1
-    fi
-  fi
-}
-
-function bootstrap_fingerprint_check() {
-  if [[ -z $CA_FINGERPRINT ]]; then
-    CA_FINGERPRINT="Please change!"
-    return 1
-  fi
-}
-
-function bootstrap_menu() {
-  local CHOICE
-  bootstrap_fqdn_check
-  bootstrap_fingerprint_check
-
-  OPTIONS=("step-ca FQDN" "$CA_FQDN"
-    "step-ca Fingerprint" "$CA_FINGERPRINT"
-    " " " "
-    "<Continue>" "Install step-ca Root Certificate")
-  local TITLE="step-ca Bootstrap Options"
-
-  CHOICE=$(whiptail_menu "$TITLE")
-  case "$CHOICE" in
-    "step-ca FQDN")
-      CA_FQDN=$(whiptail_inputbox "$TITLE" "step-ca FQDN (e.g. $CA_FQDN)" "$CA_FQDN")
-      bootstrap_menu
-      ;;
-    "step-ca Fingerprint")
-      CA_FINGERPRINT=$(whiptail_inputbox "$TITLE" "step-ca Fingerprint" "$CA_FINGERPRINT")
-      bootstrap_menu
-      ;;
-    " ")
-      bootstrap_menu
-      ;;
-    "<Continue>")
-      bootstrap_fqdn_check || bootstrap_menu
-      ;;
-    *) x509_maintenance_menu ;;
-  esac
-}
-
+# ==============================================================================
+# STEP FUNCTIONS
+# ==============================================================================
 function bootstrap() {
   local BACK_TO_MENU="$1"
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
@@ -562,54 +531,6 @@ function bootstrap() {
   $STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
   msg_ok "Installed step-ca Root Certificate"
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
-}
-
-function x509_request_menu() {
-  local CHOICE
-  OPTIONS=("FQDN" "$FQDN"
-    "Hostname" "$HOST"
-    "IP Address" "$IP"
-    "Subject Alternative Name(s) (SANs)" "$SAN"
-    "Validity" "$VALID_TO"
-    "Provisioner" "$PROVISIONER"
-    " " " "
-    "<Continue>" "Request Certificate by $PROVISIONER")
-  local TITLE="Certificate Signing Request (CSR) by $PROVISIONER_TYPE"
-
-  CHOICE=$(whiptail_menu "$TITLE")
-  case "$CHOICE" in
-    "FQDN")
-      FQDN=$(whiptail_inputbox "$TITLE" "FQDN (e.g. mylxc.example.com)" "$FQDN")
-      HOST=$(echo "$FQDN" | awk -F'.' '{print $1}')
-      IP=$(resolve_ip "${FQDN}") || die "Resolution failed for ${FQDN}!"
-      x509_request_menu
-      ;;
-    "Hostname")
-      HOST=$(whiptail_inputbox "$TITLE" "Hostname (e.g. mylxc)" "$HOST")
-      x509_request_menu
-      ;;
-    "IP Address")
-      IP=$(whiptail_inputbox "$TITLE" "IP Address (e.g. x.x.x.x)" "$IP")
-      x509_request_menu
-      ;;
-    "Subject Alternative Name(s) (SANs)")
-      SAN=$(whiptail_inputbox "$TITLE" "Subject Alternative Name(s) (SAN) (e.g. e.g. myapp-1.example.com, myapp-2.example.com)" "$SAN")
-      x509_request_menu
-      ;;
-    "Validity")
-      VALID_TO=$(whiptail_inputbox "$TITLE" "Validity (e.g. 168h, 30m0s or 2034-12-31T23:59:59Z)" "$VALID_TO")
-      x509_request_menu
-      ;;
-    "Provisioner")
-      PROVISIONER=$(whiptail_inputbox "$TITLE" "Provisioner (e.g. $PROVISIONER)" "$PROVISIONER")
-      x509_request_menu
-      ;;
-    " ")
-      x509_request_menu
-      ;;
-    "<Continue>") ;;
-    *) x509_maintenance_menu ;;
-  esac
 }
 
 function x509_request() {
@@ -646,24 +567,6 @@ function x509_request() {
     systemctl list-units cert-renewer@\*.timer
     msg_ok "Started Certificate Renewal as a Daemon"
   fi
-  [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
-}
-
-function x509_inspect() {
-  local BACK_TO_MENU="$1"
-  x509_certs_menu "Inspect"
-  msg_info "Inspecting Certificate(s)"
-  for SERIAL in "${CERT_ARRAY[@]}"; do
-    echo -e "${BL}[Info]${GN} Inspect x509 Certificate with CN ${BL}${CN}${GN} and Serial Number ${BL}${SERIAL}${GN}:${CL}\n"
-    x509_query
-    step certificate inspect "${CRT}" | grep -q "${SERIAL}" || die "Serial Number ${SERIAL} mismatch!"
-    step certificate inspect "${CRT}" || die "Failed to inspect certificate!"
-    echo -e "\n${BL}[Info]${GN} Public Key:${CL}\n"
-    cat "${CRT}"
-    echo -e "\n${BL}[Info]${GN} Private Key:${CL}\n"
-    cat "${KEY}"
-  done
-  msg_ok "Inspected Certificate(s)"
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
 }
 
@@ -713,69 +616,29 @@ function x509_revoke() {
   [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
 }
 
+function x509_inspect() {
+  local BACK_TO_MENU="$1"
+  x509_certs_menu "Inspect"
+  msg_info "Inspecting Certificate(s)"
+  for SERIAL in "${CERT_ARRAY[@]}"; do
+    echo -e "${BL}[Info]${GN} Inspect x509 Certificate with CN ${BL}${CN}${GN} and Serial Number ${BL}${SERIAL}${GN}:${CL}\n"
+    x509_query
+    step certificate inspect "${CRT}" | grep -q "${SERIAL}" || die "Serial Number ${SERIAL} mismatch!"
+    step certificate inspect "${CRT}" || die "Failed to inspect certificate!"
+    echo -e "\n${BL}[Info]${GN} Public Key:${CL}\n"
+    cat "${CRT}"
+    echo -e "\n${BL}[Info]${GN} Private Key:${CL}\n"
+    cat "${KEY}"
+  done
+  msg_ok "Inspected Certificate(s)"
+  [[ "$BACK_TO_MENU" ]] && read -n 1 -r -s -p $'\nPress any key to continue...\n' && "$BACK_TO_MENU" || true
+}
+
 function x509_list() {
   local BACK_TO_MENU="$1"
   x509_view
   whiptail_textbox "Certificates Issued by $CA_FQDN" "$CERT_PATH/x509/x509Certs.txt"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
-}
-
-function main_menu() {
-  local CHOICE
-  OPTIONS=(Install "Install $APP"
-    Update "Update $APP"
-    Uninstall "Uninstall $APP"
-    Maintenance "Maintain Certificates")
-
-  CHOICE=$(whiptail_menu "$APP_TITLE")
-  case "$CHOICE" in
-    Install) install ;;
-    Update) update ;;
-    Uninstall) uninstall ;;
-    Maintenance) maintenance_menu ;;
-    *) exit 0 ;;
-  esac
-}
-
-function maintenance_menu() {
-  [[ ! -e $BINARY_PATH ]] && die "$APP is not installed"
-
-  local CHOICE
-  OPTIONS=(x509 "Maintain x509 Certificate"
-    ssh "Maintain ssh Certificate")
-
-  CHOICE=$(whiptail_menu "$APP_TITLE")
-  case "$CHOICE" in
-    x509) x509_maintenance_menu ;;
-    ssh) ssh_maintenance_menu ;;
-    *) exit 0 ;;
-  esac
-}
-
-function ssh_maintenance_menu() {
-  die "Maintain ssh Certificate - To be implemented in future"
-}
-
-function x509_maintenance_menu() {
-  local CHOICE
-  OPTIONS=()
-  [ -d "$CA_PATH/config" ] || OPTIONS+=(Bootstrap "Install step-ca Root Certificate")
-  OPTIONS+=(Request "Certificate Signing Request (CSR) by $PROVISIONER_TYPE"
-    Renew "Renew Certificate by $PROVISIONER_TYPE"
-    Revoke "Revoke Certificate by $PROVISIONER_TYPE"
-    Inspect "Inspect Certificate by $PROVISIONER_TYPE"
-    List "List Certificates")
-
-  CHOICE=$(whiptail_menu "$APP_TITLE")
-  case "$CHOICE" in
-    Bootstrap) bootstrap "x509_maintenance_menu" ;;
-    Request) x509_request "x509_maintenance_menu" ;;
-    Renew) x509_renew "x509_maintenance_menu" ;;
-    Revoke) x509_revoke "x509_maintenance_menu" ;;
-    Inspect) x509_inspect "x509_maintenance_menu" ;;
-    List) x509_list "x509_maintenance_menu" ;;
-    *) exit 0 ;;
-  esac
 }
 
 function x509_query() {
@@ -836,6 +699,172 @@ function x509_view(){
   echo -e "\n\nTotal Certificates  : ${TOTAL_CERTS}\nValid Certificates  : ${VALID_CERTS}\nExpired Certificates: ${EXPIRED_CERTS}" >> "$CERT_PATH/x509/x509Certs.txt"
 }
 
+#function ssh_badger_list() {
+#  CERT_LIST=""
+#  cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
+#  cp --recursive --force "$CA_PATH/certs/"* "$CONFIG_PATH/certs/ca/"
+#  if [[ $(step-badger sshCerts "${CONFIG_PATH}/db-copy" 2>/dev/null) ]]; then
+#    CERT_LIST=$(step-badgersshCerts ${CONFIG_PATH}/db-copy 2>/dev/null)
+#  fi
+#}
+
+# ==============================================================================
+# MENU FUNCTIONS
+# Interactive prompts via Whiptail dialogs
+# ==============================================================================
+function main_menu() {
+  local CHOICE
+  OPTIONS=(Install "Install $APP"
+    Update "Update $APP"
+    Uninstall "Uninstall $APP"
+    Maintenance "Maintain Certificates")
+
+  CHOICE=$(whiptail_menu "$APP_TITLE")
+  case "$CHOICE" in
+    Install) install ;;
+    Update) update ;;
+    Uninstall) uninstall ;;
+    Maintenance) maintenance_menu ;;
+    *) exit 0 ;;
+  esac
+}
+
+function maintenance_menu() {
+  [[ ! -e $BINARY_PATH ]] && die "$APP is not installed"
+
+  local CHOICE
+  OPTIONS=(x509 "Maintain x509 Certificate"
+    ssh "Maintain ssh Certificate")
+
+  CHOICE=$(whiptail_menu "$APP_TITLE")
+  case "$CHOICE" in
+    x509) x509_maintenance_menu ;;
+    ssh) ssh_maintenance_menu ;;
+    *) exit 0 ;;
+  esac
+}
+
+function x509_maintenance_menu() {
+  local CHOICE
+  OPTIONS=()
+  [ -d "$CA_PATH/config" ] || OPTIONS+=(Bootstrap "Install step-ca Root Certificate")
+  OPTIONS+=(Request "Certificate Signing Request (CSR) by $PROVISIONER_TYPE"
+    Renew "Renew Certificate by $PROVISIONER_TYPE"
+    Revoke "Revoke Certificate by $PROVISIONER_TYPE"
+    Inspect "Inspect Certificate by $PROVISIONER_TYPE"
+    List "List Certificates")
+
+  CHOICE=$(whiptail_menu "$APP_TITLE")
+  case "$CHOICE" in
+    Bootstrap) bootstrap "x509_maintenance_menu" ;;
+    Request) x509_request "x509_maintenance_menu" ;;
+    Renew) x509_renew "x509_maintenance_menu" ;;
+    Revoke) x509_revoke "x509_maintenance_menu" ;;
+    Inspect) x509_inspect "x509_maintenance_menu" ;;
+    List) x509_list "x509_maintenance_menu" ;;
+    *) exit 0 ;;
+  esac
+}
+
+function bootstrap_menu() {
+  local CHOICE
+  bootstrap_fqdn_check
+  bootstrap_fingerprint_check
+
+  OPTIONS=("step-ca FQDN" "$CA_FQDN"
+    "step-ca Fingerprint" "$CA_FINGERPRINT"
+    " " " "
+    "<Continue>" "Install step-ca Root Certificate")
+  local TITLE="step-ca Bootstrap Options"
+
+  CHOICE=$(whiptail_menu "$TITLE")
+  case "$CHOICE" in
+    "step-ca FQDN")
+      CA_FQDN=$(whiptail_inputbox "$TITLE" "step-ca FQDN (e.g. $CA_FQDN)" "$CA_FQDN")
+      bootstrap_menu
+      ;;
+    "step-ca Fingerprint")
+      CA_FINGERPRINT=$(whiptail_inputbox "$TITLE" "step-ca Fingerprint" "$CA_FINGERPRINT")
+      bootstrap_menu
+      ;;
+    " ")
+      bootstrap_menu
+      ;;
+    "<Continue>")
+      bootstrap_fqdn_check || bootstrap_menu
+      ;;
+    *) x509_maintenance_menu ;;
+  esac
+}
+
+function bootstrap_fqdn_check() {
+  if [[ -z $CA_FQDN ]]; then
+    CA_FQDN="Please change!"
+    return 1
+  else
+    CA_IP=$(resolve_ip "${CA_FQDN}")
+    if [[ -z $CA_IP ]]; then
+      CA_FQDN="DNS Resolution failed - Please change!"
+      return 1
+    fi
+  fi
+}
+
+function bootstrap_fingerprint_check() {
+  if [[ -z $CA_FINGERPRINT ]]; then
+    CA_FINGERPRINT="Please change!"
+    return 1
+  fi
+}
+
+function x509_request_menu() {
+  local CHOICE
+  OPTIONS=("FQDN" "$FQDN"
+    "Hostname" "$HOST"
+    "IP Address" "$IP"
+    "Subject Alternative Name(s) (SANs)" "$SAN"
+    "Validity" "$VALID_TO"
+    "Provisioner" "$PROVISIONER"
+    " " " "
+    "<Continue>" "Request Certificate by $PROVISIONER")
+  local TITLE="Certificate Signing Request (CSR) by $PROVISIONER_TYPE"
+
+  CHOICE=$(whiptail_menu "$TITLE")
+  case "$CHOICE" in
+    "FQDN")
+      FQDN=$(whiptail_inputbox "$TITLE" "FQDN (e.g. mylxc.example.com)" "$FQDN")
+      HOST=$(echo "$FQDN" | awk -F'.' '{print $1}')
+      IP=$(resolve_ip "${FQDN}") || die "Resolution failed for ${FQDN}!"
+      x509_request_menu
+      ;;
+    "Hostname")
+      HOST=$(whiptail_inputbox "$TITLE" "Hostname (e.g. mylxc)" "$HOST")
+      x509_request_menu
+      ;;
+    "IP Address")
+      IP=$(whiptail_inputbox "$TITLE" "IP Address (e.g. x.x.x.x)" "$IP")
+      x509_request_menu
+      ;;
+    "Subject Alternative Name(s) (SANs)")
+      SAN=$(whiptail_inputbox "$TITLE" "Subject Alternative Name(s) (SAN) (e.g. e.g. myapp-1.example.com, myapp-2.example.com)" "$SAN")
+      x509_request_menu
+      ;;
+    "Validity")
+      VALID_TO=$(whiptail_inputbox "$TITLE" "Validity (e.g. 168h, 30m0s or 2034-12-31T23:59:59Z)" "$VALID_TO")
+      x509_request_menu
+      ;;
+    "Provisioner")
+      PROVISIONER=$(whiptail_inputbox "$TITLE" "Provisioner (e.g. $PROVISIONER)" "$PROVISIONER")
+      x509_request_menu
+      ;;
+    " ")
+      x509_request_menu
+      ;;
+    "<Continue>") ;;
+    *) x509_maintenance_menu ;;
+  esac
+}
+
 function x509_certs_menu() {
   local CERT_ACTION=$1
   local CHOICE
@@ -857,15 +886,13 @@ function x509_certs_menu() {
   fi
 }
 
-#function ssh_badger_list() {
-#  CERT_LIST=""
-#  cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
-#  cp --recursive --force "$CA_PATH/certs/"* "$CONFIG_PATH/certs/ca/"
-#  if [[ $(step-badger sshCerts "${CONFIG_PATH}/db-copy" 2>/dev/null) ]]; then
-#    CERT_LIST=$(step-badgersshCerts ${CONFIG_PATH}/db-copy 2>/dev/null)
-#  fi
-#}
+function ssh_maintenance_menu() {
+  die "Maintain ssh Certificate - To be implemented in future"
+}
 
+# ==============================================================================
+# MAIN
+# ==============================================================================
 init_app
 header_info
 
@@ -901,6 +928,9 @@ case "$var_cert_type" in
   ssh) ssh_maintenance_menu ;;
 esac
 
+#
+# *) NO use of CONFIGURATION VARIABLES for interactive prompts via Whiptail dialogs
+#
 case "$var_action" in
   install) install ;;
   update) update ;;
