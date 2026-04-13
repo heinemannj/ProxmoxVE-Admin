@@ -368,7 +368,7 @@ function x509_renew() {
   local BACK_TO_MENU="$1"
   x509_certs_menu "Renew"
   for SERIAL in "${CERT_ARRAY[@]}"; do
-    msg_info "Renew x509 Certificate for CN '${CN}' and Serial Number '${SERIAL}'"
+    msg_info "Renew x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
     x509_query
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
       CRT_OLD="${CERT_PATH}/x509/_archive/${CN}_$(date +%Y%m%d%H%M%S).crt"
@@ -380,7 +380,7 @@ function x509_renew() {
     else
       die "Failed to renew certificate!"
     fi
-    msg_ok "Renewed x509 Certificate for CN '${CN}' and Serial Number '${SERIAL}'"
+    msg_ok "Renewed x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
   done
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
@@ -390,7 +390,7 @@ function x509_revoke() {
   x509_certs_menu "Revoke"
   for SERIAL in "${CERT_ARRAY[@]}"; do
     x509_query
-    msg_info "Revoke x509 Certificate for CN '${CN}' and Serial Number '${SERIAL}'"
+    msg_info "Revoke x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
       $STD step ca revoke --cert "${CRT}" --key "${KEY}"
       rm -f "${CRT}" || die "Failed to delete ${CRT}!"
@@ -401,7 +401,7 @@ function x509_revoke() {
     else
       die "Failed to revoke certificate!"
     fi
-    msg_ok "Revoked x509 Certificate for CN '${CN}' and Serial Number '${SERIAL}'"
+    msg_ok "Revoked x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
   done
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
@@ -411,15 +411,15 @@ function x509_inspect() {
   x509_certs_menu "Inspect"
   msg_info "Inspecting Certificate(s)"
   for SERIAL in "${CERT_ARRAY[@]}"; do
-    msg_info "Inspect x509 Certificate for CN '${CN}' and Serial Number '${SERIAL}'"
+    msg_info "Inspect x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'\n"
     x509_query
     step certificate inspect "${CRT}" | grep -q "${SERIAL}" || die "Serial Number ${SERIAL} mismatch!"
     step certificate inspect "${CRT}" || die "Failed to inspect certificate!"
-    echo -e "\n${BL}[Info]${GN} Public Key:${CL}\n"
+    echo -e "${BL}[Info]${GN} Public Key${CL}"
     cat "${CRT}"
-    echo -e "\n${BL}[Info]${GN} Private Key:${CL}\n"
+    echo -e "${BL}[Info]${GN} Private Key${CL}"
     cat "${KEY}"
-    msg_ok "Inspected x509 Certificate for CN '${CN}' and Serial Number '${SERIAL}'"
+    msg_ok "Inspected x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
   done
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
