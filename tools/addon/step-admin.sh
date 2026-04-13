@@ -197,6 +197,8 @@ CERT_PATH="${CONFIG_PATH}/certs"
 KEY_PATH="${CONFIG_PATH}/private"
 
 # Initialize all core functions (colors, formatting, icons, STD mode)
+# Initialize all core functions (colors, formatting, icons, STD mode)
+# Initialize all core functions (colors, formatting, icons, STD mode)
 load_functions
 
 # ==============================================================================
