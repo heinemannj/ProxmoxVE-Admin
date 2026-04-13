@@ -336,7 +336,7 @@ function x509_request() {
   VALID_TO="168h" # Default validity of 7 days (168 hours)
 
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || x509_request_menu
-  msg_info "Requesting x509 Certificate by $PROVISIONER"
+  msg_info "Requesting x509 Certificate for CN '$FQDN' by '$PROVISIONER'"
   local FLAGS=(-f
     --not-after="$VALID_TO"
     --provisioner="$PROVISIONER")
@@ -353,13 +353,13 @@ function x509_request() {
     "${KEY_PATH}"/"$FQDN".key \
     "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $PROVISIONER failed!"
 
-  msg_ok "Requested x509 Certificate by $PROVISIONER"
+  msg_ok "Requested x509 Certificate for CN '$FQDN' by '$PROVISIONER'"
 
   if [ "$PROVISIONER_TYPE" = "ACME" ]; then
-    msg_info "Starting Certificate Renewal as a Daemon"
+    msg_info "Starting Certificate Renewal as a Daemon for CN '$FQDN'"
     $STD systemctl enable --now cert-renewer@"${FQDN}".timer
     $STD systemctl list-units cert-renewer@\*.timer
-    msg_ok "Started Certificate Renewal as a Daemon"
+    msg_ok "Started Certificate Renewal as a Daemon for CN '$FQDN'"
   fi
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
