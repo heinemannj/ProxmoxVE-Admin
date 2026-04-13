@@ -153,15 +153,15 @@ KEY_PATH="${CONFIG_PATH}/private"
 
 # Handle command line arguments
 case "${1:-}" in
---help | -h)
-  print_usage
-  exit 0
-  ;;
---export-config)
-  init_app
-  export_config_json
-  exit 0
-  ;;
+  --help | -h)
+    print_usage
+    exit 0
+    ;;
+  --export-config)
+    init_app
+    export_config_json
+    exit 0
+    ;;
 esac
 
 # =============================================================================
