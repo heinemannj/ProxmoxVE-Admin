@@ -335,7 +335,7 @@ function x509_request() {
   VALID_TO="168h" # Default validity of 7 days (168 hours)
 
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || x509_request_menu
-  msg_info_step "Requesting x509 Certificate by $PROVISIONER"
+  msg_info "Requesting x509 Certificate by $PROVISIONER"
   local FLAGS=(-f
     --not-after="$VALID_TO"
     --provisioner="$PROVISIONER")
@@ -347,7 +347,7 @@ function x509_request() {
     FLAGS+=(--san "$item")
   done
 
-  $STD step ca certificate "$FQDN" \
+  $STD step-cli ca certificate "$FQDN" \
     "${CERT_PATH}"/x509/"$FQDN".crt \
     "${KEY_PATH}"/"$FQDN".key \
     "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $PROVISIONER failed!"
