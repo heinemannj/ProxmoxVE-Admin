@@ -54,6 +54,10 @@ EOF
 # CONFIGURATION VARIABLES
 # Set these variables to skip interactive prompts (Whiptail dialogs)
 # ==============================================================================
+# VERBOSE: Set default verbose mode (no = silent) for script execution
+#   Options: "yes" | "no" | "" (empty = silent)
+VERBOSE="${VERBOSE:-}"
+
 # var_unattended: Run without user interaction
 #   Options: "yes" | "no" | "" (empty = interactive prompt)
 var_unattended="${var_unattended:-}"
@@ -71,28 +75,13 @@ var_cert_type="${var_cert_type:-}"
 var_x509_action="${var_x509_action:-}"
 
 # ==============================================================================
-# OPTIONS
-# Handle command line arguments
-# ==============================================================================
-case "${1:-}" in
-  --help | -h)
-    print_usage
-    exit 0
-    ;;
-  --export-config)
-    init_app
-    export_config_json
-    exit 0
-    ;;
-esac
-
-# ==============================================================================
 # JSON CONFIG EXPORT
 # Run with --export-config to output current configuration as JSON
 # ==============================================================================
 function export_config_json() {
   cat <<EOF
 {
+  "VERBOSE": "${VERBOSE}",
   "var_unattended": "${var_unattended}",
   "var_action": "${var_action}",
   "var_cert_type": "${var_cert_type}",
@@ -136,6 +125,8 @@ Options:
   --export-config     Export current configuration as JSON
 
 Environment Variables:
+
+  VERBOSE             Run in verbose mode (yes/no); no for silent script execution
   var_unattended      Run without user interaction (yes/no)
   var_action          Skip initial dialog and directly perform an maintenance option (install/update/uninstall/maintain)
   var_cert_type       Skip dialog and directly maintain selected certificate type (x509/ssh)
@@ -193,6 +184,10 @@ function init_app() {
     grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CONFIG_PATH}" >> /etc/profile
     sed -i "/export STEPPATH=/c\export STEPPATH=${CONFIG_PATH}" /etc/profile
 
+    export STEPHOME="${CONFIG_PATH}"
+    grep -q "export STEPHOME=" /etc/profile || echo "export STEPHOME=${CONFIG_PATH}" >> /etc/profile
+    sed -i "/export STEPHOME=/c\export STEPHOME=${CONFIG_PATH}" /etc/profile
+
     CA_DEFAULTS="$CONFIG_PATH/config/defaults.json"
     PROVISIONER_TYPE="ACME"
     PROVISIONER="acme@$(hostname -d)"
@@ -216,15 +211,33 @@ APP_TYPE="addon"
 BINARY_PATH="/usr/bin/step"
 CONFIG_PATH="/etc/step"
 CA_PATH="/etc/step-ca"
+CA_CONFIG=""
 CERT_PATH="${CONFIG_PATH}/certs"
 KEY_PATH="${CONFIG_PATH}/private"
 CA_URL=""
 CA_FQDN=""
 CA_FINGERPRINT=""
 CA_ROOT="${CERT_PATH}/root_ca.crt"
+PROVISIONER_PWD_FILE=""
 
 # Initialize all core functions (colors, formatting, icons, STD mode)
 load_functions
+
+# ==============================================================================
+# OPTIONS
+# Handle command line arguments
+# ==============================================================================
+case "${1:-}" in
+  --help | -h)
+    print_usage
+    exit 0
+    ;;
+  --export-config)
+    init_app
+    export_config_json
+    exit 0
+    ;;
+esac
 
 # ==============================================================================
 # INSTALL
