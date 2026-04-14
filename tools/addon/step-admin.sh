@@ -588,7 +588,7 @@ function bootstrap_menu() {
   CHOICE=$(whiptail_menu "$TITLE")
   case "$CHOICE" in
     "step-ca FQDN")
-      CA_FQDN=$(whiptail_inputbox "$TITLE" "step-ca FQDN (e.g. $CA_FQDN)" "$CA_FQDN") || true
+      CA_FQDN=$(whiptail_inputbox "$TITLE" "step-ca FQDN (e.g. $CA_FQDN)" "$CA_FQDN")
       bootstrap_menu
       ;;
     "step-ca Fingerprint")
