@@ -18,6 +18,11 @@ source <(curl -fsSL https://raw.githubusercontent.com/heinemannj/ProxmoxVE-Admin
 #set -Eeuo pipefail
 #trap 'error_handler' ERR
 
+set -o errexit
+set -o errtrace
+set -o nounset
+set -o pipefail
+shopt -s expand_aliases
 alias die='EXIT=$? LINE=$LINENO error_exit'
 trap die ERR
 
