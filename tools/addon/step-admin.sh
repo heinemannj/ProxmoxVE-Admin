@@ -204,7 +204,6 @@ function init_app() {
     CA_FINGERPRINT=$(grep "fingerprint" "$CA_DEFAULTS" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
     CA_ROOT=$(grep "root" "$CA_DEFAULTS" | awk -F'"root": "' '{print $2}' | awk -F'"' '{print $1}')
   fi
-  [ -z "$CA_ROOT" ] && CA_ROOT="${CERT_PATH}/root_ca.crt"
 
   mkdir -p "$CERT_PATH/ssh/_archive/"
   mkdir -p "$CERT_PATH/x509/_archive/"
@@ -219,6 +218,10 @@ CONFIG_PATH="/etc/step"
 CA_PATH="/etc/step-ca"
 CERT_PATH="${CONFIG_PATH}/certs"
 KEY_PATH="${CONFIG_PATH}/private"
+CA_URL=""
+CA_FQDN=""
+CA_FINGERPRINT=""
+CA_ROOT="${CERT_PATH}/root_ca.crt"
 
 # Initialize all core functions (colors, formatting, icons, STD mode)
 load_functions
