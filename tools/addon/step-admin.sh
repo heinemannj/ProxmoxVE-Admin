@@ -349,7 +349,7 @@ function bootstrap() {
 }
 
 function x509_request() {
-  local BACK_TO_MENU="$1:-"
+  local BACK_TO_MENU="${1:-}"
   FQDN="$(hostname -f)"
   HOST="$(hostname)"
   IP=$(resolve_ip "${FQDN}") || die "Resolution failed for ${FQDN}!"
