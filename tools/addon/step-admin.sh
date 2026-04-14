@@ -322,10 +322,10 @@ function update() {
 function uninstall() {
   msg_info "Uninstalling $APP"
   detect_os
-  $STD systemctl disable cert-renewer@.timer
-  $STD systemctl disable cert-renewer@.service
-  $STD systemctl stop cert-renewer@*.timer
-  $STD systemctl stop cert-renewer@*.service
+  $STD systemctl -f disable cert-renewer@.timer
+  $STD systemctl -f disable cert-renewer@.service
+  $STD systemctl -f stop cert-renewer@*.timer
+  $STD systemctl -f stop cert-renewer@*.service
   $STD $PKG_UNINSTALL $APP
   $STD $PKG_AUTOREMOVE
   rm -f "${BINARY_PATH}"
