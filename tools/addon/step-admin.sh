@@ -29,6 +29,10 @@ trap die ERR
 test="test"
 test="test"
 test="test"
+test="test"
+test="test"
+test="test"
+
 
 function error_exit() {
   trap - ERR
