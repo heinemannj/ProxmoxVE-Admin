@@ -56,7 +56,7 @@ function whiptail_inputbox() {
   VALUE_INPUT=$(whiptail --backtitle "$APP_BACKTITLE" --title "$TITLE" --inputbox "\n$TEXT" \
     "$HIGHT" "$WIDTH" "$VALUE_INIT" 3>&1 1>&2 2>&3)
   # shellcheck disable=SC2181
-  [ $? = 0 ] && echo "$VALUE_INPUT" || echo "$VALUE_INIT"
+  [ $? = 0 ] && echo "$VALUE_INPUT" || echo "$VALUE_INIT" || true
 }
 
 function whiptail_textbox() {
