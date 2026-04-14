@@ -322,8 +322,8 @@ function update() {
 function uninstall() {
   msg_info "Uninstalling $APP"
   detect_os
-  $STD systemctl -f disable cert-renewer@.timer
-  $STD systemctl -f disable cert-renewer@.service
+  [ -f /etc/systemd/system/cert-renewer@.timer ] && $STD systemctl -f disable cert-renewer@.timer
+  [ -f /etc/systemd/system/cert-renewer@.service ] && $STD systemctl -f disable cert-renewer@.service
   $STD systemctl -f stop cert-renewer@*.timer
   $STD systemctl -f stop cert-renewer@*.service
   $STD $PKG_UNINSTALL $APP
