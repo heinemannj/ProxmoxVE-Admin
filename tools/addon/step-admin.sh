@@ -383,7 +383,7 @@ function x509_request() {
 }
 
 function x509_renew() {
-  local BACK_TO_MENU="$1"
+  local BACK_TO_MENU="${1:-}"
   x509_certs_menu "Renew"
   for SERIAL in "${CERT_ARRAY[@]}"; do
     msg_info "Renew x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
@@ -404,7 +404,7 @@ function x509_renew() {
 }
 
 function x509_revoke() {
-  local BACK_TO_MENU="$1"
+  local BACK_TO_MENU="${1:-}"
   x509_certs_menu "Revoke"
   for SERIAL in "${CERT_ARRAY[@]}"; do
     x509_query
@@ -425,7 +425,7 @@ function x509_revoke() {
 }
 
 function x509_inspect() {
-  local BACK_TO_MENU="$1"
+  local BACK_TO_MENU="${1:-}"
   x509_certs_menu "Inspect"
   msg_info "Inspecting Certificate(s)"
   for SERIAL in "${CERT_ARRAY[@]}"; do
@@ -443,7 +443,7 @@ function x509_inspect() {
 }
 
 function x509_list() {
-  local BACK_TO_MENU="$1"
+  local BACK_TO_MENU="${1:-}"
   x509_view
   whiptail_textbox "Certificates Issued by $CA_FQDN" "$CERT_PATH/x509/x509Certs.txt"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
@@ -674,7 +674,7 @@ function x509_request_menu() {
 }
 
 function x509_certs_menu() {
-  local CERT_ACTION=$1
+  local CERT_ACTION="$1"
   local CHOICE
   x509_view
   if [[ ${#CERT_LIST[@]} -gt 0 ]]; then
