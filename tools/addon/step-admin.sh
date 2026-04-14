@@ -334,21 +334,25 @@ function update() {
 # ==============================================================================
 function uninstall() {
   msg_info "Uninstalling $APP"
-  detect_os
-  [ -f /etc/systemd/system/cert-renewer@.timer ] && $STD systemctl -f disable cert-renewer@.timer
-  [ -f /etc/systemd/system/cert-renewer@.service ] && $STD systemctl -f disable cert-renewer@.service
-  $STD systemctl -f stop cert-renewer@*.timer
-  $STD systemctl -f stop cert-renewer@*.service
-  $STD $PKG_UNINSTALL $APP
-  $STD $PKG_AUTOREMOVE
-  rm -f "${BINARY_PATH}"
-  rm -rf "${CONFIG_PATH}"
-  rm -f "/etc/apt/sources.list.d/smallstep.sources"
-  rm -f "/usr/local/bin/update_${APP,,}"
-  rm -f "/etc/systemd/system/cert-renewer@.service"
-  rm -f "/etc/systemd/system/cert-renewer@.timer"
-  systemctl daemon-reload
-  msg_ok "Uninstalled $APP"
+  if [ -f "${CA_CONFIG}" ]; then
+    die "Uninstalling $APP on a CA server is not supported!"
+  else
+    detect_os
+    [ -f /etc/systemd/system/cert-renewer@.timer ] && $STD systemctl -f disable cert-renewer@.timer
+    [ -f /etc/systemd/system/cert-renewer@.service ] && $STD systemctl -f disable cert-renewer@.service
+    $STD systemctl -f stop cert-renewer@*.timer
+    $STD systemctl -f stop cert-renewer@*.service
+    $STD $PKG_UNINSTALL $APP
+    $STD $PKG_AUTOREMOVE
+    rm -f "${BINARY_PATH}"
+    rm -rf "${CONFIG_PATH}"
+    rm -f "/etc/apt/sources.list.d/smallstep.sources"
+    rm -f "/usr/local/bin/update_${APP,,}"
+    rm -f "/etc/systemd/system/cert-renewer@.service"
+    rm -f "/etc/systemd/system/cert-renewer@.timer"
+    systemctl daemon-reload
+    msg_ok "Uninstalled $APP"
+  fi
 }
 
 # ==============================================================================
@@ -361,7 +365,7 @@ function bootstrap() {
   $STD echo
   $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT" || die "step-ca Bootstrapping failed!"
   $STD step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
-  $STD update-ca-certificates  || die "Update of System CA Certificates failed!"
+  $STD update-ca-certificates || die "Update of System CA Certificates failed!"
   $STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
   msg_ok "Installed Root Certificate by Certificate Authority '$CA_FQDN'"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
