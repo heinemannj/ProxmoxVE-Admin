@@ -58,6 +58,7 @@ function whiptail_inputbox() {
     echo "$VALUE_INPUT"
   else
     echo "$VALUE_INIT"
+  fi
 }
 
 function whiptail_textbox() {
