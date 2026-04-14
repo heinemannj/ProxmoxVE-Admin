@@ -337,7 +337,7 @@ function uninstall() {
 # CORE FUNCTIONS
 # ==============================================================================
 function bootstrap() {
-  local BACK_TO_MENU="$1"
+  local BACK_TO_MENU="${1:-}"
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
   msg_info "Installing Root Certificate by Certificate Authority '$CA_FQDN'"
   $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT" || die "step-ca Bootstrapping failed!"
