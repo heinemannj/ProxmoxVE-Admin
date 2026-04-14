@@ -358,6 +358,7 @@ function bootstrap() {
   local BACK_TO_MENU="${1:-}"
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || bootstrap_menu
   msg_info "Installing Root Certificate by Certificate Authority '$CA_FQDN'"
+  $STD echo
   $STD step ca bootstrap -f --ca-url https://"$CA_FQDN" --install --fingerprint "$CA_FINGERPRINT" || die "step-ca Bootstrapping failed!"
   $STD step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
   $STD update-ca-certificates  || die "Update of System CA Certificates failed!"
@@ -385,6 +386,7 @@ function x509_request() {
     FLAGS+=(--san "$item")
   done
 
+  $STD echo
   $STD step ca certificate "$FQDN" \
     "${CERT_PATH}"/x509/"$FQDN".crt \
     "${KEY_PATH}"/"$FQDN".key \
