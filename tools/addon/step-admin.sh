@@ -27,6 +27,8 @@ alias die='EXIT=$? LINE=$LINENO error_exit'
 trap die ERR
 
 test="test"
+test="test"
+test="test"
 
 function error_exit() {
   trap - ERR
