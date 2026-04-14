@@ -419,7 +419,7 @@ function x509_renew() {
     else
       die "Failed to renew certificate!"
     fi
-    msg_ok "Renewed x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
+    msg_ok "Renewed x509 Certificate for CN '${CN}'"
   done
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
