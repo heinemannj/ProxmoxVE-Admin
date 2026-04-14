@@ -675,7 +675,7 @@ function x509_request_menu() {
 
 function x509_certs_menu() {
   local CERT_ACTION="$1"
-  local CHOICE
+  local CHOICE=""
   x509_view
   if [[ ${#CERT_LIST[@]} -gt 0 ]]; then
     CHOICE=$(whiptail_checklist "Certificates Issued by $CA_FQDN" "\nSelect Certificate(s) to ${CERT_ACTION}:" "CERT_LIST")
