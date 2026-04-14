@@ -413,6 +413,7 @@ function x509_renew() {
       KEY_OLD="${KEY_PATH}/_archive/${CN}_$(date +%Y%m%d%H%M%S).key"
       cp "${CRT}" "${CRT_OLD}" || die "Failed to backup ${CRT}!"
       cp "${KEY}" "${KEY_OLD}" || die "Failed to backup ${KEY}!"
+      $STD echo
       $STD step ca renew --force "${CRT}" "${KEY}" || die "Failed to renew certificate!"
       $STD step ca revoke --cert "${CRT_OLD}" --key "${KEY_OLD}"
     else
@@ -430,10 +431,12 @@ function x509_revoke() {
     x509_query
     msg_info "Revoke x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
+      $STD echo
       $STD step ca revoke --cert "${CRT}" --key "${KEY}"
       rm -f "${CRT}" || die "Failed to delete ${CRT}!"
       rm -f "${KEY}" || die "Failed to delete ${KEY}!"
     elif [[ "$PROVISIONER_TYPE" == "JWK" ]] && [ -f "$PROVISIONER_PWD_FILE" ]; then
+      $STD echo
       TOKEN=$(step ca token --provisioner="$PROVISIONER" --provisioner-password-file="$PROVISIONER_PWD_FILE" --revoke "${SERIAL}")
       $STD step ca revoke --token "$TOKEN" "${SERIAL}" || die "Failed to revoke certificate!"
     else
