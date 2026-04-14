@@ -38,7 +38,6 @@ function error_exit() {
   trap - ERR
   local reason="Unknown failure occured."
   local msg="${1:-$reason}"
-  local flag="$EXIT@$LINE"
   msg_error "ERROR $EXIT at line $LINE $msg" 1>&2
   exit "$EXIT"
 }
