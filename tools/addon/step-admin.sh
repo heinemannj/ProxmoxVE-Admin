@@ -79,6 +79,7 @@ var_x509_action="${var_x509_action:-}"
 # Run with --export-config to output current configuration as JSON
 # ==============================================================================
 function export_config_json() {
+  init_app
   cat <<EOF
 {
   "VERBOSE": "${VERBOSE}",
@@ -101,6 +102,7 @@ function export_config_json() {
   "CA_FQDN": "${CA_FQDN}",
   "CA_ROOT": "${CA_ROOT}",
   "CA_FINGERPRINT": "${CA_FINGERPRINT}",
+  "CA_CRL": "${CA_CRL}",
   "PROVISIONER": "${PROVISIONER}",
   "PROVISIONER_TYPE": "${PROVISIONER_TYPE}",
   "PROVISIONER_PWD_FILE": "${PROVISIONER_PWD_FILE}",
@@ -198,6 +200,7 @@ function init_app() {
     [[ -n $CA_URL ]] && CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}') || CA_FQDN="step-ca.$(hostname -d)"
     CA_FINGERPRINT=$(grep "fingerprint" "$CA_DEFAULTS" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
     CA_ROOT=$(grep "root" "$CA_DEFAULTS" | awk -F'"root": "' '{print $2}' | awk -F'"' '{print $1}')
+    CA_CRL="$CA_URL/1.0/crl"
   fi
 
   mkdir -p "$CERT_PATH/ssh/_archive/"
@@ -217,6 +220,7 @@ KEY_PATH="${CONFIG_PATH}/private"
 CA_URL=""
 CA_FQDN=""
 CA_FINGERPRINT=""
+CA_CRL=""
 CA_ROOT="${CERT_PATH}/root_ca.crt"
 PROVISIONER_PWD_FILE=""
 
@@ -233,7 +237,6 @@ case "${1:-}" in
     exit 0
     ;;
   --export-config)
-    init_app
     export_config_json
     exit 0
     ;;
@@ -367,6 +370,7 @@ function bootstrap() {
   $STD step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
   $STD update-ca-certificates || die "Update of System CA Certificates failed!"
   $STD step certificate inspect https://"$CA_FQDN" || die "Inspection of step-ca Root Certificate failed!"
+  init_app
   msg_ok "Installed Root Certificate by Certificate Authority '$CA_FQDN'"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
@@ -478,9 +482,9 @@ function x509_list() {
 
 function x509_crl() {
   local BACK_TO_MENU="${1:-}"
-  local CA_CRL=""
-  CA_CRL=$(step crl inspect --ca "$CA_ROOT" "$CA_URL/1.0/crl")
-  whiptail_msgbox "Certificate Revocation List by $CA_FQDN" "$CA_CRL"
+  local CA_CRL_CERT=""
+  CA_CRL_CERT=$(step crl inspect --ca "$CA_ROOT" "$CA_CRL")
+  whiptail_msgbox "Certificate Revocation List by $CA_FQDN" "$CA_CRL_CERT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
