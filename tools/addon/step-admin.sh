@@ -67,7 +67,7 @@ var_unattended="${var_unattended:-}"
 var_action="${var_action:-}"
 
 # var_cert_type: Skip dialog and directly maintain selected certificate type
-#   Options: "x509" | "ssh" | "" (default: empty = interactive prompt)
+#   Options: "x509" | "ssh" | "ca" | "" (default: empty = interactive prompt)
 var_cert_type="${var_cert_type:-}"
 
 # var_x509_action: Skip dialog and directly perform an maintenance option for x509 certificates
@@ -131,7 +131,7 @@ Environment Variables:
   VERBOSE             Run in verbose mode (yes/no); no for silent script execution
   var_unattended      Run without user interaction (yes/no)
   var_action          Skip initial dialog and directly perform an maintenance option (install/update/uninstall/maintain/export-config)
-  var_cert_type       Skip dialog and directly maintain selected certificate type (x509/ssh)
+  var_cert_type       Skip dialog and directly maintain selected certificate type (x509/ssh/ca)
   var_x509_action     Skip dialog and directly perform an maintenance option for x509 certificates (bootstrap/request/renew/revoke/inspect/list/crl)
 
 Examples:
@@ -583,12 +583,14 @@ function maintenance_menu() {
 
   local CHOICE
   OPTIONS=(x509 "Maintain x509 Certificate"
-    ssh "Maintain ssh Certificate")
+    ssh "Maintain ssh Certificate"
+    ca "Maintain Certificate Authority")
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
     x509) x509_maintenance_menu ;;
     ssh) ssh_maintenance_menu ;;
+    ca) ca_maintenance_menu ;;
     *) exit 0 ;;
   esac
 }
@@ -741,6 +743,10 @@ function ssh_maintenance_menu() {
   die "Maintain ssh Certificate - To be implemented in future"
 }
 
+function ca_maintenance_menu() {
+  die "Maintain Certificate Authority - To be implemented in future"
+}
+
 # ==============================================================================
 # MAIN
 # ==============================================================================
@@ -781,6 +787,7 @@ esac
 case "$var_cert_type" in
   x509) x509_maintenance_menu ;;
   ssh) ssh_maintenance_menu ;;
+  ca) ca_maintenance_menu ;;
 esac
 
 #
