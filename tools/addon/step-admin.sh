@@ -782,9 +782,9 @@ function ssh_maintenance_menu() {
 function ca_maintenance_menu() {
   local CHOICE
   test="Test"
-  OPTIONS=("root" "Inspect Root CA Certificate \($CA_ROOT\)"
-    "intermediate" "Inspect Intermediate CA Certificate \($CA_CRT\)"
-    "intermediate-url" "Inspect Intermediate CA Certificate \($CA_URL_CRT\)")
+  OPTIONS=("root" "Inspect Root CA Certificate ($CA_ROOT)"
+    "intermediate" "Inspect Intermediate CA Certificate ($CA_CRT)"
+    "intermediate-url" "Inspect Intermediate CA Certificate ($CA_URL_CRT)")
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
