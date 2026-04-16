@@ -504,7 +504,7 @@ function ca_root() {
   local BACK_TO_MENU="${1:-}"
   local CA_ROOT_CERT=""
   CA_ROOT_CERT=$(step certificate inspect "$CA_ROOT")
-  whiptail_msgbox "Root CA Certificate by $CA_FQDN" "$CA_ROOT_CERT"
+  whiptail_msgbox "Root CA Certificate ($CA_ROOT)" "$CA_ROOT_CERT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
@@ -512,7 +512,7 @@ function ca_intermediate() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRT_CERT=""
   CA_CRT_CERT=$(step certificate inspect "$CA_CRT" --bundle)
-  whiptail_msgbox "Intermediate CA Certificate by $CA_FQDN" "$CA_CRT_CERT"
+  whiptail_msgbox "Intermediate CA Certificate ($CA_CERT)" "$CA_CRT_CERT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
@@ -520,7 +520,7 @@ function ca_intermediate_url() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRT_CERT=""
   CA_CRT_CERT=$(step certificate inspect "$CA_URL_CRT" --bundle)
-  whiptail_msgbox "Intermediate CA Certificate by $CA_FQDN" "$CA_CRT_CERT"
+  whiptail_msgbox "Intermediate CA Certificate ($CA_URL_CRT)" "$CA_CRT_CERT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
