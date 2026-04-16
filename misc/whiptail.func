@@ -31,8 +31,6 @@
 function whiptail_msgbox() {
   local TITLE=$1
   local TEXT=$2
-  local HIGHT=echo "$var" | wc -l8
-  
   local LEN
   LEN=$(echo "$TEXT" | wc -l)
   local HIGHT=$(( LEN + 7 ))
