@@ -205,7 +205,7 @@ function init_app() {
   fi
 
   if [ -f "$CA_CONFIG" ]; then
-    CA_CRT=$(grep "crt" "$CA_DEFAULTS" | awk -F'"crt": "' '{print $2}' | awk -F'"' '{print $1}')
+    CA_CRT=$(grep "crt" "$CA_CONFIG" | awk -F'"crt": "' '{print $2}' | awk -F'"' '{print $1}')
   fi
 
   mkdir -p "$CERT_PATH/ssh/_archive/"
@@ -505,7 +505,7 @@ function ca_root() {
 function ca_intermediate() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRT_CERT=""
-  CA_CRT_CERT=$(step crl inspect --ca "$CA_ROOT" "$CA_CRL")
+  CA_CRT_CERT=$(step certificate inspect "$CA_CRT")
   whiptail_msgbox "intermediate CA Certificate by $CA_FQDN" "$CA_CRT_CERT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
