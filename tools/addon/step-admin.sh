@@ -480,7 +480,7 @@ function x509_crl() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRL=""
   CA_CRL=$(step crl inspect --ca "$CA_ROOT" "$CA_URL/1.0/crl")
-  whiptail_msgbox "Certificate Revocation List of $CA_FQDN" "$CA_CRL"
+  whiptail_msgbox "Certificate Revocation List by $CA_FQDN" "$CA_CRL"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
