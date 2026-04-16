@@ -197,10 +197,10 @@ function init_app() {
   fi
 
   if [ -f "$CA_DEFAULTS" ]; then
-    CA_URL=$(grep "ca-url" "$CA_DEFAULTS" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
+    CA_URL=$(grep '"ca-url"' "$CA_DEFAULTS" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
     [[ -n $CA_URL ]] && CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}') || CA_FQDN="step-ca.$(hostname -d)"
-    CA_FINGERPRINT=$(grep "fingerprint" "$CA_DEFAULTS" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
-    CA_ROOT=$(grep "root" "$CA_DEFAULTS" | awk -F'"root": "' '{print $2}' | awk -F'"' '{print $1}')
+    CA_FINGERPRINT=$(grep '"fingerprint"' "$CA_DEFAULTS" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
+    CA_ROOT=$(grep '"root"' "$CA_DEFAULTS" | awk -F'"root": "' '{print $2}' | awk -F'"' '{print $1}')
     CA_CRL="$CA_URL/1.0/crl"
   fi
 
@@ -498,7 +498,7 @@ function ca_root() {
   local BACK_TO_MENU="${1:-}"
   local CA_ROOT_CERT=""
   CA_ROOT_CERT=$(step certificate inspect "$CA_ROOT")
-  whiptail_msgbox "root CA Certificate by $CA_FQDN" "$CA_ROOT_CERT"
+  whiptail_msgbox "Root CA Certificate by $CA_FQDN" "$CA_ROOT_CERT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
@@ -506,7 +506,7 @@ function ca_intermediate() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRT_CERT=""
   CA_CRT_CERT=$(step certificate inspect "$CA_CRT")
-  whiptail_msgbox "intermediate CA Certificate by $CA_FQDN" "$CA_CRT_CERT"
+  whiptail_msgbox "Intermediate CA Certificate by $CA_FQDN" "$CA_CRT_CERT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
@@ -767,8 +767,8 @@ function ssh_maintenance_menu() {
 
 function ca_maintenance_menu() {
   local CHOICE
-  OPTIONS=(root "Inspect root CA Certificate by $CA_FQDN")
-  [ -d "$CA_PATH/config" ] && OPTIONS+=(intermediate "Inspect intermediate CA Certificate by $CA_FQDN")
+  OPTIONS=(root "Inspect Root CA Certificate by $CA_FQDN")
+  [ -d "$CA_PATH/config" ] && OPTIONS+=(intermediate "Inspect Intermediate CA Certificate by $CA_FQDN")
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
