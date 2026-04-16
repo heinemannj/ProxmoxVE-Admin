@@ -426,8 +426,8 @@ function x509_renew() {
   local BACK_TO_MENU="${1:-}"
   x509_certs_menu "Renew"
   for SERIAL in "${CERT_ARRAY[@]}"; do
-    msg_info "Renew x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
     x509_query
+    msg_info "Renew x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
     if [ -f "${CRT}" ] && [ -f "${KEY}" ]; then
       CRT_OLD="${CERT_PATH}/x509/_archive/${CN}_$(date +%Y%m%d%H%M%S).crt"
       KEY_OLD="${KEY_PATH}/_archive/${CN}_$(date +%Y%m%d%H%M%S).key"
@@ -473,8 +473,8 @@ function x509_inspect() {
   x509_certs_menu "Inspect"
   msg_info "Inspecting Certificate(s)"
   for SERIAL in "${CERT_ARRAY[@]}"; do
-    msg_info "Inspect x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'\n"
     x509_query
+    msg_info "Inspect x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'\n"
     step certificate inspect "${CRT}" | grep -q "${SERIAL}" || die "Serial Number ${SERIAL} mismatch!"
     step certificate inspect "${CRT}" || die "Failed to inspect certificate!"
     echo -e "${BL}[Info]${GN} Public Key${CL}"
