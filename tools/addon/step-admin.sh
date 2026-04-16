@@ -63,7 +63,7 @@ VERBOSE="${VERBOSE:-}"
 var_unattended="${var_unattended:-}"
 
 # var_action: Skip initial dialog and directly perform an maintenance option
-#   Options: "install" | "update" | "uninstall" | "maintain" | "" (default: empty = interactive prompt)
+#   Options: "install" | "update" | "uninstall" | "maintain" | "export-config" | "" (default: empty = interactive prompt)
 var_action="${var_action:-}"
 
 # var_cert_type: Skip dialog and directly maintain selected certificate type
@@ -122,13 +122,13 @@ Maintain certificate(s) issued by a Step certificate authority.
 
 Options:
   --help              Show this help message
-  --export-config     Export current configuration as JSON
+  --export-config     Export current Configuration as JSON
 
 Environment Variables:
 
   VERBOSE             Run in verbose mode (yes/no); no for silent script execution
   var_unattended      Run without user interaction (yes/no)
-  var_action          Skip initial dialog and directly perform an maintenance option (install/update/uninstall/maintain)
+  var_action          Skip initial dialog and directly perform an maintenance option (install/update/uninstall/maintain/export-config)
   var_cert_type       Skip dialog and directly maintain selected certificate type (x509/ssh)
   var_x509_action     Skip dialog and directly perform an maintenance option for x509 certificates (bootstrap/request/renew/revoke/inspect/list/crl)
 
@@ -145,7 +145,7 @@ Examples:
   # Renew system certificate unattended
   var_unattended=yes var_x509_action=renew $(basename "$0")
 
-  # Export current configuration
+  # Export current Configuration
   $(basename "$0") --export-config
 EOF
 }
@@ -560,7 +560,8 @@ function main_menu() {
   OPTIONS=(Install "Install $APP"
     Update "Update $APP"
     Uninstall "Uninstall $APP"
-    Maintenance "Maintain Certificates")
+    Maintenance "Maintain Certificates"
+    Config "Export current Configuration as JSON")
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
@@ -568,6 +569,7 @@ function main_menu() {
     Update) update ;;
     Uninstall) uninstall ;;
     Maintenance) maintenance_menu ;;
+    Config) export_config_json ;;
     *) exit 0 ;;
   esac
 }
@@ -785,5 +787,6 @@ case "$var_action" in
   update) update ;;
   uninstall) uninstall ;;
   maintain) maintenance_menu ;;
+  export-config) export_config_json ;;
   *) main_menu ;;
 esac
