@@ -71,7 +71,7 @@ var_action="${var_action:-}"
 var_cert_type="${var_cert_type:-}"
 
 # var_x509_action: Skip dialog and directly perform an maintenance option for x509 certificates
-#   Options: "bootstrap" | "request" | "renew" | "revoke" | "inspect" | "list" | "" (default: empty = interactive prompt)
+#   Options: "bootstrap" | "request" | "renew" | "revoke" | "inspect" | "list" | "crl" | "" (default: empty = interactive prompt)
 var_x509_action="${var_x509_action:-}"
 
 # ==============================================================================
@@ -130,7 +130,7 @@ Environment Variables:
   var_unattended      Run without user interaction (yes/no)
   var_action          Skip initial dialog and directly perform an maintenance option (install/update/uninstall/maintain)
   var_cert_type       Skip dialog and directly maintain selected certificate type (x509/ssh)
-  var_x509_action     Skip dialog and directly perform an maintenance option for x509 certificates (bootstrap/request/renew/revoke/inspect/list)
+  var_x509_action     Skip dialog and directly perform an maintenance option for x509 certificates (bootstrap/request/renew/revoke/inspect/list/crl)
 
 Examples:
   # Run interactively
@@ -476,6 +476,14 @@ function x509_list() {
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
+function x509_crl() {
+  local BACK_TO_MENU="${1:-}"
+  local CA_CRL=""
+  CA_CRL=$(step crl inspect --ca "$CERT_PATH/root_ca.crt" "$CA_URL/1.0/crl")
+  whiptail_msgbox "Certificate Revocation List of $CA_FQDN" "$CA_CRL"
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
+}
+
 function x509_query() {
   CRT=""
   KEY=""
@@ -587,7 +595,8 @@ function x509_maintenance_menu() {
     Renew "Renew Certificate by $PROVISIONER_TYPE"
     Revoke "Revoke Certificate by $PROVISIONER_TYPE"
     Inspect "Inspect Certificate by $PROVISIONER_TYPE"
-    List "List Certificates")
+    List "List Certificates"
+    CRL "Certificate Revocation List")
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
@@ -597,6 +606,7 @@ function x509_maintenance_menu() {
     Revoke) x509_revoke "x509_maintenance_menu" ;;
     Inspect) x509_inspect "x509_maintenance_menu" ;;
     List) x509_list "x509_maintenance_menu" ;;
+    CRL) x509_crl "x509_maintenance_menu" ;;
     *) exit 0 ;;
   esac
 }
@@ -754,6 +764,10 @@ case "$var_x509_action" in
     ;;
   list)
     x509_list
+    exit 0
+    ;;
+  crl)
+    x509_crl
     exit 0
     ;;
 esac
