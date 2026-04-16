@@ -781,15 +781,15 @@ function ssh_maintenance_menu() {
 
 function ca_maintenance_menu() {
   local CHOICE
-  OPTIONS=(root "Inspect Root CA Certificate ($CA_ROOT)"
-    intermediate "Inspect Intermediate CA Certificate ($CA_CRT)"
-    intermediate-url "Inspect Intermediate CA Certificate ($CA_URL_CRT)"
+  OPTIONS=("root" "Inspect Root CA Certificate ($CA_ROOT)"
+    "intermediate" "Inspect Intermediate CA Certificate ($CA_CRT)"
+    "intermediate-url" "Inspect Intermediate CA Certificate ($CA_URL_CRT)"
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
-    root) ca_root "ca_maintenance_menu" ;;
-    intermediate) ca_intermediate "ca_maintenance_menu" ;;
-    intermediate-url) ca_intermediate_url "ca_maintenance_menu" ;;
+    "root") ca_root "ca_maintenance_menu" ;;
+    "intermediate") ca_intermediate "ca_maintenance_menu" ;;
+    "intermediate-url") ca_intermediate_url "ca_maintenance_menu" ;;
     *) exit 0 ;;
   esac
 }
