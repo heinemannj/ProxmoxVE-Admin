@@ -476,7 +476,7 @@ function x509_inspect() {
     x509_query
     msg_info "Inspect x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'\n"
     step certificate inspect "${CRT}" | grep -q "${SERIAL}" || die "Serial Number ${SERIAL} mismatch!"
-    step certificate inspect "${CRT}" || die "Failed to inspect certificate!"
+    step certificate inspect "${CRT}" --bundle || die "Failed to inspect certificate!"
     echo -e "${BL}[Info]${GN} Public Key${CL}"
     cat "${CRT}"
     echo -e "${BL}[Info]${GN} Private Key${CL}"
