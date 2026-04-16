@@ -511,6 +511,14 @@ function ca_root() {
 function ca_intermediate() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRT_CERT=""
+  CA_CRT_CERT=$(step certificate inspect "$CA_CRT" --bundle)
+  whiptail_msgbox "Intermediate CA Certificate by $CA_FQDN" "$CA_CRT_CERT"
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
+}
+
+function ca_intermediate_url() {
+  local BACK_TO_MENU="${1:-}"
+  local CA_CRT_CERT=""
   CA_CRT_CERT=$(step certificate inspect "$CA_URL_CRT" --bundle)
   whiptail_msgbox "Intermediate CA Certificate by $CA_FQDN" "$CA_CRT_CERT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
@@ -773,13 +781,15 @@ function ssh_maintenance_menu() {
 
 function ca_maintenance_menu() {
   local CHOICE
-  OPTIONS=(root "Inspect Root CA Certificate by $CA_FQDN"
-    intermediate "Inspect Intermediate CA Certificate by $CA_FQDN")
+  OPTIONS=(root "Inspect Root CA Certificate by $CA_ROOT"
+    intermediate "Inspect Intermediate CA Certificate by $CA_CRT"
+    intermediate-url "Inspect Intermediate CA Certificate by $CA_FQDN")
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
     root) ca_root "ca_maintenance_menu" ;;
     intermediate) ca_intermediate "ca_maintenance_menu" ;;
+    intermediate-url) ca_intermediate_url "ca_maintenance_menu" ;;
     *) exit 0 ;;
   esac
 }
