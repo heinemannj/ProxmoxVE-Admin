@@ -16,7 +16,7 @@
 #   - height and listheight are automatically calculated based on the number of options in the list or the number of lines in the text file.
 #
 # WHIPTAIL Box options: 
-#   --msgbox <text> <height static> <width auto calculated>
+#   --msgbox <text> <height auto calculated> <width auto calculated>
 #   --yesno <text> <height> <width> (N/A)
 #   --infobox <text> <height> <width> (N/A)
 #   --inputbox <text> <height static> <width auto calculated> [init] 
