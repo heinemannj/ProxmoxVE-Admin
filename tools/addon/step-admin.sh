@@ -458,6 +458,7 @@ function x509_revoke() {
     elif [[ "$PROVISIONER_TYPE" == "JWK" ]] && [ -f "$PROVISIONER_PWD_FILE" ]; then
       $STD echo
       TOKEN=$(step ca token --provisioner="$PROVISIONER" --provisioner-password-file="$PROVISIONER_PWD_FILE" --revoke "${SERIAL}")
+      $STD echo
       $STD step ca revoke --token "$TOKEN" "${SERIAL}" || die "Failed to revoke certificate!"
     else
       die "Failed to revoke certificate!"
