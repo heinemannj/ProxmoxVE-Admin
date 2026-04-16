@@ -204,6 +204,10 @@ function init_app() {
     CA_CRL="$CA_URL/1.0/crl"
   fi
 
+  if [ -f "$CA_CONFIG" ]; then
+    CA_CRT=$(grep "crt" "$CA_DEFAULTS" | awk -F'"crt": "' '{print $2}' | awk -F'"' '{print $1}')
+  fi
+
   mkdir -p "$CERT_PATH/ssh/_archive/"
   mkdir -p "$CERT_PATH/x509/_archive/"
   mkdir -p "$KEY_PATH/_archive/"
@@ -764,7 +768,7 @@ function ssh_maintenance_menu() {
 function ca_maintenance_menu() {
   local CHOICE
   OPTIONS=(root "Inspect root CA Certificate by $CA_FQDN")
-  [ -d "$CA_PATH/config" ] || OPTIONS+=(intermediate "Inspect intermediate CA Certificate by $CA_FQDN")
+  [ -d "$CA_PATH/config" ] && OPTIONS+=(intermediate "Inspect intermediate CA Certificate by $CA_FQDN")
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
