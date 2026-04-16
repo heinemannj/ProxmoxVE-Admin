@@ -512,7 +512,7 @@ function ca_intermediate() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRT_CERT=""
   CA_CRT_CERT=$(step certificate inspect "$CA_CRT" --bundle)
-  whiptail_msgbox "Intermediate CA Certificate ($CA_CERT)" "$CA_CRT_CERT"
+  whiptail_msgbox "Intermediate CA Certificate ($CA_CRT)" "$CA_CRT_CERT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
