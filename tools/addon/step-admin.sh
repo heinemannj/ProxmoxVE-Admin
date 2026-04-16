@@ -101,6 +101,7 @@ function export_config_json() {
   "CA_URL": "${CA_URL}",
   "CA_FQDN": "${CA_FQDN}",
   "CA_ROOT": "${CA_ROOT}",
+  "CA_CRT": "${CA_CRT}",
   "CA_FINGERPRINT": "${CA_FINGERPRINT}",
   "CA_CRL": "${CA_CRL}",
   "PROVISIONER": "${PROVISIONER}",
@@ -222,6 +223,7 @@ CA_FQDN=""
 CA_FINGERPRINT=""
 CA_CRL=""
 CA_ROOT="${CERT_PATH}/root_ca.crt"
+CA_CRT=""
 PROVISIONER_PWD_FILE=""
 
 # Initialize all core functions (colors, formatting, icons, STD mode)
@@ -488,6 +490,22 @@ function x509_crl() {
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
+function ca_root() {
+  local BACK_TO_MENU="${1:-}"
+  local CA_ROOT_CERT=""
+  CA_ROOT_CERT=$(step certificate inspect "$CA_ROOT")
+  whiptail_msgbox "root CA Certificate by $CA_FQDN" "$CA_ROOT_CERT"
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
+}
+
+function ca_intermediate() {
+  local BACK_TO_MENU="${1:-}"
+  local CA_CRT_CERT=""
+  CA_CRT_CERT=$(step crl inspect --ca "$CA_ROOT" "$CA_CRL")
+  whiptail_msgbox "intermediate CA Certificate by $CA_FQDN" "$CA_CRT_CERT"
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
+}
+
 function x509_query() {
   CRT=""
   KEY=""
@@ -744,7 +762,16 @@ function ssh_maintenance_menu() {
 }
 
 function ca_maintenance_menu() {
-  die "Maintain Certificate Authority - To be implemented in future"
+  local CHOICE
+  OPTIONS=(root "Inspect root CA Certificate by $CA_FQDN")
+  [ -d "$CA_PATH/config" ] || OPTIONS+=(intermediate "Inspect intermediate CA Certificate by $CA_FQDN")
+
+  CHOICE=$(whiptail_menu "$APP_TITLE")
+  case "$CHOICE" in
+    root) ca_root "ca_maintenance_menu" ;;
+    intermediate) ca_intermediate "ca_maintenance_menu" ;;
+    *) exit 0 ;;
+  esac
 }
 
 # ==============================================================================
