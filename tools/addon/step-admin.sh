@@ -98,12 +98,14 @@ function export_config_json() {
   "CA_PATH": "${CA_PATH}",
   "CA_CONFIG": "${CA_CONFIG}",
   "CA_DEFAULTS": "${CA_DEFAULTS}",
-  "CA_URL": "${CA_URL}",
   "CA_FQDN": "${CA_FQDN}",
   "CA_ROOT": "${CA_ROOT}",
   "CA_CRT": "${CA_CRT}",
   "CA_FINGERPRINT": "${CA_FINGERPRINT}",
-  "CA_CRL": "${CA_CRL}",
+  "CA_URL": "${CA_URL}",
+  "CA_URL_ROOT": "${CA_URL_ROOT}",
+  "CA_URL_CRT": "${CA_URL_CRT}",
+  "CA_URL_CRL": "${CA_URL_CRL}",
   "PROVISIONER": "${PROVISIONER}",
   "PROVISIONER_TYPE": "${PROVISIONER_TYPE}",
   "PROVISIONER_PWD_FILE": "${PROVISIONER_PWD_FILE}",
@@ -201,7 +203,9 @@ function init_app() {
     [[ -n $CA_URL ]] && CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}') || CA_FQDN="step-ca.$(hostname -d)"
     CA_FINGERPRINT=$(grep '"fingerprint"' "$CA_DEFAULTS" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
     CA_ROOT=$(grep '"root"' "$CA_DEFAULTS" | awk -F'"root": "' '{print $2}' | awk -F'"' '{print $1}')
-    CA_CRL="$CA_URL/1.0/crl"
+    CA_URL_ROOT="$CA_URL/roots.pem"
+    CA_URL_CRT="$CA_URL/1.0/intermediates.pem"
+    CA_URL_CRL="$CA_URL/1.0/crl"
   fi
 
   if [ -f "$CA_CONFIG" ]; then
@@ -222,10 +226,12 @@ CA_PATH="/etc/step-ca"
 CA_CONFIG=""
 CERT_PATH="${CONFIG_PATH}/certs"
 KEY_PATH="${CONFIG_PATH}/private"
-CA_URL=""
 CA_FQDN=""
 CA_FINGERPRINT=""
-CA_CRL=""
+CA_URL=""
+CA_URL_ROOT=""
+CA_URL_CRT=""
+CA_URL_CRL=""
 CA_ROOT="${CERT_PATH}/root_ca.crt"
 CA_CRT=""
 PROVISIONER_PWD_FILE=""
@@ -488,9 +494,9 @@ function x509_list() {
 
 function x509_crl() {
   local BACK_TO_MENU="${1:-}"
-  local CA_CRL_CERT=""
-  CA_CRL_CERT=$(step crl inspect --ca "$CA_ROOT" "$CA_CRL")
-  whiptail_msgbox "Certificate Revocation List by $CA_FQDN" "$CA_CRL_CERT"
+  local CA_CRL=""
+  CA_CRL=$(step crl inspect --ca "$CA_ROOT" "$CA_URL_CRL")
+  whiptail_msgbox "Certificate Revocation List by $CA_FQDN" "$CA_CRL"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
@@ -505,7 +511,7 @@ function ca_root() {
 function ca_intermediate() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRT_CERT=""
-  CA_CRT_CERT=$(step certificate inspect "$CA_CRT")
+  CA_CRT_CERT=$(step certificate inspect "$CA_URL_CRT")
   whiptail_msgbox "Intermediate CA Certificate by $CA_FQDN" "$CA_CRT_CERT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
@@ -767,8 +773,8 @@ function ssh_maintenance_menu() {
 
 function ca_maintenance_menu() {
   local CHOICE
-  OPTIONS=(root "Inspect Root CA Certificate by $CA_FQDN")
-  [ -d "$CA_PATH/config" ] && OPTIONS+=(intermediate "Inspect Intermediate CA Certificate by $CA_FQDN")
+  OPTIONS=(root "Inspect Root CA Certificate by $CA_FQDN"
+    intermediate "Inspect Intermediate CA Certificate by $CA_FQDN")
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
