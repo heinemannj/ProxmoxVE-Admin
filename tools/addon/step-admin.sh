@@ -529,7 +529,7 @@ function x509_query() {
   CRT=""
   KEY=""
   #SERIAL CN TYPE FILE VALIDITY NotBefore NotAfter
-  CN="$(cat "$CERT_PATH/x509/x509Certs.txt" | grep "${SERIAL}" | awk '{print $2}')"
+  CN="$(cat "$CERT_PATH/x509/x509Certs.txt" | grep "${SERIAL}" | awk '{print $2}' | awk -F ',' '{print $1}' | awk -F 'CN=' '{print $2}')"
   TYPE="$(cat "$CERT_PATH/x509/x509Certs.txt" | grep "${SERIAL}" | awk '{print $3}')"
   FILE="$(cat "$CERT_PATH/x509/x509Certs.txt" | grep "${SERIAL}" | awk '{print $4}')"
   if [[ "$FILE" == "local" ]]; then
