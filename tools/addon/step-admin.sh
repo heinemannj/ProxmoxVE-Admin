@@ -111,7 +111,8 @@ function export_config_json() {
   "PROVISIONER_TYPE": "${PROVISIONER_TYPE}",
   "PROVISIONER_PWD_FILE": "${PROVISIONER_PWD_FILE}",
   "CERT_PATH": "${CERT_PATH}",
-  "KEY_PATH": "${KEY_PATH}"
+  "KEY_PATH": "${KEY_PATH}",
+  "LEAF_TEMPLATE": "${LEAF_TEMPLATE}"
 }
 EOF
 }
@@ -176,6 +177,7 @@ function init_app() {
     CA_DEFAULTS="$CA_PATH/config/defaults.json"
     CA_CONFIG="$CA_PATH/config/ca.json"
     CA_CRT_TEMPLATE="$CA_PATH/templates/ca/intermediate_ca.tpl"
+    LEAF_TEMPLATE="$CA_PATH/templates/x509/leaf.tpl"
     PROVISIONER_TYPE="JWK"
     PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_CONFIG")
     PROVISIONER="${PROVISIONER#\"}"
@@ -237,6 +239,7 @@ CA_URL_CRL=""
 CA_ROOT="${CERT_PATH}/root_ca.crt"
 CA_CRT=""
 CA_CRT_TEMPLATE=""
+LEAF_TEMPLATE=""
 PROVISIONER_PWD_FILE=""
 
 # Initialize all core functions (colors, formatting, icons, STD mode)
