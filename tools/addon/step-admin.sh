@@ -199,17 +199,17 @@ function init_app() {
   fi
 
   if [ -f "$CA_DEFAULTS" ]; then
-    CA_URL=$(grep '"ca-url"' "$CA_DEFAULTS" | awk -F'"ca-url": "' '{print $2}' | awk -F'"' '{print $1}')
-    [[ -n $CA_URL ]] && CA_FQDN=$(echo "$CA_URL" | awk -F'https://' '{print $2}' | awk -F':' '{print $1}') || CA_FQDN="step-ca.$(hostname -d)"
-    CA_FINGERPRINT=$(grep '"fingerprint"' "$CA_DEFAULTS" | awk -F'"fingerprint": "' '{print $2}' | awk -F'"' '{print $1}')
-    CA_ROOT=$(grep '"root"' "$CA_DEFAULTS" | awk -F'"root": "' '{print $2}' | awk -F'"' '{print $1}')
+    CA_URL=$(grep '"ca-url"' "$CA_DEFAULTS" | awk -F '"ca-url": "' '{print $2}' | awk -F '"' '{print $1}')
+    [[ -n $CA_URL ]] && CA_FQDN=$(echo "$CA_URL" | awk -F 'https://' '{print $2}' | awk -F ':' '{print $1}') || CA_FQDN="step-ca.$(hostname -d)"
+    CA_FINGERPRINT=$(grep '"fingerprint"' "$CA_DEFAULTS" | awk -F '"fingerprint": "' '{print $2}' | awk -F '"' '{print $1}')
+    CA_ROOT=$(grep '"root"' "$CA_DEFAULTS" | awk -F '"root": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_URL_ROOT="$CA_URL/roots.pem"
     CA_URL_CRT="$CA_URL/1.0/intermediates.pem"
     CA_URL_CRL="$CA_URL/1.0/crl"
   fi
 
   if [ -f "$CA_CONFIG" ]; then
-    CA_CRT=$(grep '"crt"' "$CA_CONFIG" | awk -F'"crt": "' '{print $2}' | awk -F'"' '{print $1}')
+    CA_CRT=$(grep '"crt"' "$CA_CONFIG" | awk -F '"crt": "' '{print $2}' | awk -F '"' '{print $1}')
   fi
 
   mkdir -p "$CERT_PATH/ssh/_archive/"
