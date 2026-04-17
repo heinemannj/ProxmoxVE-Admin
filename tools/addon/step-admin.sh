@@ -100,7 +100,9 @@ function export_config_json() {
   "CA_DEFAULTS": "${CA_DEFAULTS}",
   "CA_FQDN": "${CA_FQDN}",
   "CA_ROOT": "${CA_ROOT}",
+  "CA_ROOT_KEY": "${CA_ROOT_KEY}",
   "CA_CRT": "${CA_CRT}",
+  "CA_CRT_KEY": "${CA_CRT_KEY}",
   "CA_CRT_TEMPLATE": "${CA_CRT_TEMPLATE}",
   "CA_FINGERPRINT": "${CA_FINGERPRINT}",
   "CA_URL": "${CA_URL}",
@@ -176,7 +178,9 @@ function init_app() {
 
     CA_DEFAULTS="$CA_PATH/config/defaults.json"
     CA_CONFIG="$CA_PATH/config/ca.json"
+    CA_CRT_KEY=$(grep '"key": "' "$CA_CONFIG" | awk -F '"key": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_CRT_TEMPLATE="$CA_PATH/templates/ca/intermediate_ca.tpl"
+    CA_ROOT_KEY="$CA_PATH/secrets/root_ca_key"
     LEAF_TEMPLATE="$CA_PATH/templates/x509/leaf.tpl"
     PROVISIONER_TYPE="JWK"
     PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_CONFIG")
@@ -237,7 +241,9 @@ CA_URL_ROOT=""
 CA_URL_CRT=""
 CA_URL_CRL=""
 CA_ROOT="${CERT_PATH}/root_ca.crt"
+CA_ROOT_KEY=""
 CA_CRT=""
+CA_CRT_KEY=""
 CA_CRT_TEMPLATE=""
 LEAF_TEMPLATE=""
 PROVISIONER_PWD_FILE=""
