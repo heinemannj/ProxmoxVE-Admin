@@ -529,7 +529,7 @@ function x509_query() {
   CRT=""
   KEY=""
   #SERIAL CN TYPE FILE VALIDITY NotBefore NotAfter
-  CN="$(cat "$CERT_PATH/x509/x509Certs.txt" | grep "${SERIAL}" | awk '{print $2}' | awk -F ',' '{print $1}'))"
+  CN="$(cat "$CERT_PATH/x509/x509Certs.txt" | grep "${SERIAL}" | awk '{print $2}')"
   TYPE="$(cat "$CERT_PATH/x509/x509Certs.txt" | grep "${SERIAL}" | awk '{print $3}')"
   FILE="$(cat "$CERT_PATH/x509/x509Certs.txt" | grep "${SERIAL}" | awk '{print $4}')"
   if [[ "$FILE" == "local" ]]; then
@@ -550,8 +550,9 @@ function x509_view(){
     cp --recursive --force "$CA_PATH/certs/"* "$CONFIG_PATH/certs/ca/"
     if [[ $(step-badger x509Certs "$CONFIG_PATH/db-copy" 2>/dev/null) ]]; then
       DB_EXPORT=$(step-badger x509Certs "$CONFIG_PATH/db-copy" "${FLAGS[@]}" 2>/dev/null)
-      echo "$DB_EXPORT" | awk 'NR>1 {print $1 "|" $2 "|" $3 "|none|" $7 "|" $5 "|" $6}' | sed 's/CN=//g' >> "$CERT_PATH/x509/x509Certs.txt"
+      echo "$DB_EXPORT" | awk 'NR>1 {print $1 "|" $2 "|" $3 "|none|" $7 "|" $5 "|" $6}' >> "$CERT_PATH/x509/x509Certs.txt"
       while IFS='|' read -r SERIAL CN TYPE FILE VALIDITY NotBefore NotAfter; do
+        CN=$(echo "$CN" | awk -F 'CN=' '{print $2}')
         local CRT="$CERT_PATH/x509/$CN.crt"
         if [ -f "${CRT}" ] && step certificate inspect "${CRT}" | grep -q "${SERIAL}"; then
           sed -i "/${SERIAL}/s/none/local/g" "$CERT_PATH/x509/x509Certs.txt"
@@ -563,13 +564,12 @@ function x509_view(){
   else
     for ITEM in "${CERT_FILE_ARRAY[@]}"; do
       [ -f "${ITEM}" ] || break
-      SERIAL=$(step certificate inspect "${ITEM}" | grep "Serial Number:" | awk '{print $3}')
-      CN=$(step certificate inspect "${ITEM}" | grep "Subject:" | awk '{print $2}')
-      CN="${CN/CN=/}"
-      TYPE=$(step certificate inspect "${ITEM}" | grep "Type:" | awk '{print $2}')
+      SERIAL=$(step certificate inspect "${ITEM}" | grep "Serial Number: " | awk '{print $3}')
+      CN=$(step certificate inspect "${ITEM}" | grep "Subject: " | awk '{print $2}' | awk -F 'CN=' '{print $2}')
+      TYPE=$(step certificate inspect "${ITEM}" | grep "Type: " | awk '{print $2}')
       FILE="local"
-      NotBefore=$(step certificate inspect "${ITEM}" | grep "Not Before:" | awk -F 'Not Before: ' '{print $2}')
-      NotAfter=$(step certificate inspect "${ITEM}" | grep "Not After :" | awk -F 'Not After : ' '{print $2}')
+      NotBefore=$(step certificate inspect "${ITEM}" | grep "Not Before: " | awk -F 'Not Before: ' '{print $2}')
+      NotAfter=$(step certificate inspect "${ITEM}" | grep "Not After : " | awk -F 'Not After : ' '{print $2}')
       [ "$(date -d "${NotAfter}" +%s)" -gt "$(date +%s)" ] && [ "$(date -d "${NotBefore}" +%s)" -lt "$(date +%s)" ] && VALIDITY="Valid" || VALIDITY="Expired"
       echo "$SERIAL|$CN|$TYPE|$FILE|$VALIDITY|$NotBefore|$NotAfter" >> "$CERT_PATH/x509/x509Certs.txt"
       CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
