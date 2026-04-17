@@ -552,7 +552,7 @@ function x509_view(){
       DB_EXPORT=$(step-badger x509Certs "$CONFIG_PATH/db-copy" "${FLAGS[@]}" 2>/dev/null)
       echo "$DB_EXPORT" | awk 'NR>1 {print $1 "|" $2 "|" $3 "|none|" $7 "|" $5 "|" $6}' >> "$CERT_PATH/x509/x509Certs.txt"
       while IFS='|' read -r SERIAL CN TYPE FILE VALIDITY NotBefore NotAfter; do
-        CN=$(echo "$CN" | awk -F ',' '{print $1}'| awk -F 'CN=' '{print $2}')
+        CN=$(echo "$CN" | awk -F ',' '{print $1}' | awk -F 'CN=' '{print $2}')
         local CRT="$CERT_PATH/x509/$CN.crt"
         if [ -f "${CRT}" ] && step certificate inspect "${CRT}" | grep -q "${SERIAL}"; then
           sed -i "/${SERIAL}/s/none/local/g" "$CERT_PATH/x509/x509Certs.txt"
