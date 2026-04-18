@@ -98,6 +98,10 @@ function export_config_json() {
   "CA_PATH": "${CA_PATH}",
   "CA_CONFIG": "${CA_CONFIG}",
   "CA_DEFAULTS": "${CA_DEFAULTS}",
+  "CA_ORG": "${CA_ORG}",
+  "CA_CN"": "${CA_CN}",
+  "CA_ROOT_CN": "${CA_ROOT_CN}",
+  "CA_CRT_CN": "${CA_CRT_CN}",
   "CA_FQDN": "${CA_FQDN}",
   "CA_ROOT": "${CA_ROOT}",
   "CA_ROOT_KEY": "${CA_ROOT_KEY}",
@@ -181,6 +185,12 @@ function init_app() {
     CA_CRT_KEY=$(grep '"key": "' "$CA_CONFIG" | awk -F '"key": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_CRT_TEMPLATE="$CA_PATH/templates/ca/intermediate_ca.tpl"
     CA_ROOT_KEY="$CA_PATH/secrets/root_ca_key"
+
+    CA_ORG=""
+    CA_CN=""
+    CA_ROOT_CN=""
+    CA_CRT_CN=""
+
     LEAF_TEMPLATE="$CA_PATH/templates/x509/leaf.tpl"
     PROVISIONER_TYPE="JWK"
     PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_CONFIG")
@@ -234,6 +244,10 @@ CA_PATH="/etc/step-ca"
 CA_CONFIG=""
 CERT_PATH="${CONFIG_PATH}/certs"
 KEY_PATH="${CONFIG_PATH}/private"
+CA_ORG=""
+CA_CN=""
+CA_ROOT_CN=""
+CA_CRT_CN=""
 CA_FQDN=""
 CA_FINGERPRINT=""
 CA_URL=""
