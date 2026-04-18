@@ -187,7 +187,7 @@ function init_app() {
     CA_ROOT_KEY="$CA_PATH/secrets/root_ca_key"
 
     CA_ORG=""
-    CA_CN=""
+    CA_CN=$(grep '"commonName": "' "$CA_CONFIG" | awk -F '"commonName": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_ROOT_CN=""
     CA_CRT_CN=""
 
