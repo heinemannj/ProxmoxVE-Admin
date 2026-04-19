@@ -101,6 +101,8 @@ function export_config_json() {
   "CA_FINGERPRINT": "${CA_FINGERPRINT}",
   "CA_ORG": "${CA_ORG}",
   "CA_CN": "${CA_CN}",
+  "CA_CN_ROOT": "${CA_CN_ROOT}",
+  "CA_CN_CRT": "${CA_CN_CRT}",
   "CA_FQDN": "${CA_FQDN}",
   "CA_URL": "${CA_URL}",
   "CA_URL_ROOT": "${CA_URL_ROOT}",
@@ -108,10 +110,8 @@ function export_config_json() {
   "CA_URL_CRL": "${CA_URL_CRL}",
   "CA_ROOT": "${CA_ROOT}",
   "CA_ROOT_KEY": "${CA_ROOT_KEY}",
-  "CA_ROOT_CN": "${CA_ROOT_CN}",
   "CA_CRT": "${CA_CRT}",
   "CA_CRT_KEY": "${CA_CRT_KEY}",
-  "CA_CRT_CN": "${CA_CRT_CN}",
   "CA_CRT_TEMPLATE": "${CA_CRT_TEMPLATE}",
   "CA_LEAF_TEMPLATE": "${CA_LEAF_TEMPLATE}",
   "PROVISIONER": "${PROVISIONER}",
@@ -190,8 +190,8 @@ function init_app() {
 
     CA_ORG=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $1}' | awk -F '=' '{print $2}')
     CA_CN=$(grep '"commonName": "' "$CA_CONFIG" | awk -F '"commonName": "' '{print $2}' | awk -F '"' '{print $1}')
-    CA_ROOT_CN=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
-    CA_CRT_CN=$(step certificate inspect "${CA_CRT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
+    CA_CN_ROOT=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
+    CA_CN_CRT=$(step certificate inspect "${CA_CRT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
 
     CA_LEAF_TEMPLATE="$CA_PATH/templates/x509/leaf.tpl"
     PROVISIONER_TYPE="JWK"
@@ -248,8 +248,8 @@ CERT_PATH="${CONFIG_PATH}/certs"
 KEY_PATH="${CONFIG_PATH}/private"
 CA_ORG=""
 CA_CN=""
-CA_ROOT_CN=""
-CA_CRT_CN=""
+CA_CN_ROOT=""
+CA_CN_CRT=""
 CA_FQDN=""
 CA_FINGERPRINT=""
 CA_URL=""
