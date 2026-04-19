@@ -185,8 +185,6 @@ function init_app() {
     CA_CRT=$(grep '"crt": "' "$CA_CONFIG" | awk -F '"crt": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_CRT_KEY=$(grep '"key": "' "$CA_CONFIG" | awk -F '"key": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_ROOT_KEY="$CA_PATH/secrets/root_ca_key"
-    CA_CN=$(grep '"commonName": "' "$CA_CONFIG" | awk -F '"commonName": "' '{print $2}' | awk -F '"' '{print $1}')
-    CA_CN_CRT=$(step certificate inspect "${CA_CRT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
     CA_TEMPLATE_CRT="$CA_PATH/templates/ca/intermediate_ca.tpl"
     CA_TEMPLATE_X509="$CA_PATH/templates/x509/leaf.tpl"
     PROVISIONER_TYPE="JWK"
@@ -216,13 +214,15 @@ function init_app() {
   if [ -f "$CA_DEFAULTS" ]; then
     CA_URL=$(grep '"ca-url"' "$CA_DEFAULTS" | awk -F '"ca-url": "' '{print $2}' | awk -F '"' '{print $1}')
     [[ -n $CA_URL ]] && CA_FQDN=$(echo "$CA_URL" | awk -F 'https://' '{print $2}' | awk -F ':' '{print $1}') || CA_FQDN="step-ca.$(hostname -d)"
+    CA_URL_ROOT="$CA_URL/roots.pem"
+    CA_URL_CRT="$CA_URL/1.0/intermediates.pem"
+    CA_URL_CRL="$CA_URL/1.0/crl"
     CA_FINGERPRINT=$(grep '"fingerprint"' "$CA_DEFAULTS" | awk -F '"fingerprint": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_ROOT=$(grep '"root"' "$CA_DEFAULTS" | awk -F '"root": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_ORG=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $1}' | awk -F '=' '{print $2}')
     CA_CN_ROOT=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
-    CA_URL_ROOT="$CA_URL/roots.pem"
-    CA_URL_CRT="$CA_URL/1.0/intermediates.pem"
-    CA_URL_CRL="$CA_URL/1.0/crl"
+    CA_CN=$(step certificate inspect "${CA_URL_CRT}" --insecure | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
+    CA_CN_CRT=$(step certificate inspect "${CA_URL_CRT}" --insecure | grep 'Issuer: ' | awk -F 'Issuer: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
   fi
 
   mkdir -p "$CERT_PATH/ssh/_archive/"
