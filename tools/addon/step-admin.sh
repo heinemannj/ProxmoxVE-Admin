@@ -93,10 +93,10 @@ function export_config_json() {
   "APP_BACKTITLE": "${APP_BACKTITLE}",
   "BINARY_PATH": "${BINARY_PATH}",
   "CONFIG_PATH": "${CONFIG_PATH}",
-  "CERT_PATH": "${CERT_PATH}",
-  "KEY_PATH": "${KEY_PATH}"
   "STEPPATH": "${STEPPATH}",
   "STEPHOME": "${STEPHOME}",
+  "CERT_PATH": "${CERT_PATH}",
+  "KEY_PATH": "${KEY_PATH}",
   "CA_PATH": "${CA_PATH}",
   "CA_CONFIG": "${CA_CONFIG}",
   "CA_DEFAULTS": "${CA_DEFAULTS}",
