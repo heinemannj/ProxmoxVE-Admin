@@ -184,7 +184,6 @@ function init_app() {
     CA_CONFIG="$CA_PATH/config/ca.json"
     CA_CRT=$(grep '"crt": "' "$CA_CONFIG" | awk -F '"crt": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_CRT_KEY=$(grep '"key": "' "$CA_CONFIG" | awk -F '"key": "' '{print $2}' | awk -F '"' '{print $1}')
-    CA_ROOT=$(grep '"root"' "$CA_CONFIG" | awk -F '"root": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_ROOT_KEY="$CA_PATH/secrets/root_ca_key"
     CA_CN=$(grep '"commonName": "' "$CA_CONFIG" | awk -F '"commonName": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_CN_CRT=$(step certificate inspect "${CA_CRT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
