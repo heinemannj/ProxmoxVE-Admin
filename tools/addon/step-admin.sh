@@ -423,9 +423,11 @@ function x509_request() {
 
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || x509_request_menu
   msg_info "Requesting x509 Certificate for CN '$FQDN' by '$PROVISIONER'"
-  local FLAGS=(-f
+  local FLAGS=(--force
     --not-after="$VALID_TO"
-    --provisioner="$PROVISIONER")
+    --provisioner="$PROVISIONER"
+    --set issuingCertificateURL="$CA_URL_CRT"
+    --set crlDistributionPoints="$CA_URL_CRL")
   [ "$PROVISIONER_TYPE" = "JWK" ] && [ -f "$PROVISIONER_PWD_FILE" ] && FLAGS+=(--provisioner-password-file="$PROVISIONER_PWD_FILE")
   local SAN_ITEMS=("$FQDN" "$HOST" "$IP" "$SAN")
   for item in "${SAN_ITEMS[@]}"; do
