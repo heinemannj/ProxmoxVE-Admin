@@ -224,7 +224,7 @@ function init_app() {
     CA_CN=$(step certificate inspect "${CA_URL_CRT}" --insecure | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F '=' '{print $2}')
     CA_CN_CRT=$(step certificate inspect "${CA_URL_CRT}" --insecure | grep 'Issuer: ' | awk -F 'Issuer: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
     CA_VALIDITY_ROOT=$(step certificate inspect "${CA_ROOT}" | grep 'Not After : ' | awk -F 'Not After : ' '{print $2}')
-    CA_VALIDITY_CRT=$(step certificate inspect "${CA_URL_CRT}" | grep 'Not After : ' | awk -F 'Not After : ' '{print $2}')
+    CA_VALIDITY_CRT=$(step certificate inspect "${CA_URL_CRT}" --insecure | grep 'Not After : ' | tail -1 | awk -F 'Not After : ' '{print $2}')
   fi
 
   mkdir -p "$CERT_PATH/ssh/_archive/"
