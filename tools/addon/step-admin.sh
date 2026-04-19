@@ -108,6 +108,7 @@ function export_config_json() {
   "CA_CRT": "${CA_CRT}",
   "CA_CRT_KEY": "${CA_CRT_KEY}",
   "CA_CRT_TEMPLATE": "${CA_CRT_TEMPLATE}",
+  "CA_LEAF_TEMPLATE": "${CA_LEAF_TEMPLATE}",
   "CA_FINGERPRINT": "${CA_FINGERPRINT}",
   "CA_URL": "${CA_URL}",
   "CA_URL_ROOT": "${CA_URL_ROOT}",
@@ -117,8 +118,7 @@ function export_config_json() {
   "PROVISIONER_TYPE": "${PROVISIONER_TYPE}",
   "PROVISIONER_PWD_FILE": "${PROVISIONER_PWD_FILE}",
   "CERT_PATH": "${CERT_PATH}",
-  "KEY_PATH": "${KEY_PATH}",
-  "LEAF_TEMPLATE": "${LEAF_TEMPLATE}"
+  "KEY_PATH": "${KEY_PATH}"
 }
 EOF
 }
@@ -193,7 +193,7 @@ function init_app() {
     CA_ROOT_CN=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
     CA_CRT_CN=$(step certificate inspect "${CA_CRT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
 
-    LEAF_TEMPLATE="$CA_PATH/templates/x509/leaf.tpl"
+    CA_LEAF_TEMPLATE="$CA_PATH/templates/x509/leaf.tpl"
     PROVISIONER_TYPE="JWK"
     PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_CONFIG")
     PROVISIONER="${PROVISIONER#\"}"
@@ -261,7 +261,7 @@ CA_ROOT_KEY=""
 CA_CRT=""
 CA_CRT_KEY=""
 CA_CRT_TEMPLATE=""
-LEAF_TEMPLATE=""
+CA_LEAF_TEMPLATE=""
 PROVISIONER_PWD_FILE=""
 
 # Initialize all core functions (colors, formatting, icons, STD mode)
