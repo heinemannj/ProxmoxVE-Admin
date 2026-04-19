@@ -527,7 +527,7 @@ function x509_crl() {
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
-function ca_root() {
+function ca_inspect_root() {
   local BACK_TO_MENU="${1:-}"
   local CA_ROOT_CERT=""
   CA_ROOT_CERT=$(step certificate inspect "$CA_ROOT")
@@ -535,7 +535,7 @@ function ca_root() {
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
-function ca_intermediate() {
+function ca_inspect_intermediate() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRT_CERT=""
   CA_CRT_CERT=$(step certificate inspect "$CA_CRT" --roots "$CA_ROOT" --bundle)
@@ -543,7 +543,7 @@ function ca_intermediate() {
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
-function ca_intermediate_url() {
+function ca_inspect_intermediate_url() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRT_CERT=""
   CA_CRT_CERT=$(step certificate inspect "$CA_URL_CRT" --roots "$CA_ROOT" --bundle)
@@ -808,15 +808,17 @@ function ssh_maintenance_menu() {
 
 function ca_maintenance_menu() {
   local CHOICE
-  OPTIONS=("root" "Inspect Root CA Certificate ($CA_ROOT)"
-    "intermediate" "Inspect Intermediate CA Certificate ($CA_CRT)"
-    "intermediate-url" "Inspect Intermediate CA Certificate ($CA_URL_CRT)")
+  OPTIONS=("renew" "Renew CA Intermediate Certificate ($CA_CRT)"
+    "inspect-root" "Inspect CA Root Certificate ($CA_ROOT)"
+    "inspect-intermediate" "Inspect CA Intermediate Certificate ($CA_CRT)"
+    "inspect-intermediate-url" "Inspect CA Intermediate Certificate ($CA_URL_CRT)")
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
-    "root") ca_root "ca_maintenance_menu" ;;
-    "intermediate") ca_intermediate "ca_maintenance_menu" ;;
-    "intermediate-url") ca_intermediate_url "ca_maintenance_menu" ;;
+    "renew") ca_renew "ca_maintenance_menu" ;;
+    "inspect-root") ca_inspect_root "ca_maintenance_menu" ;;
+    "inspect-intermediate") ca_inspect_intermediate "ca_maintenance_menu" ;;
+    "inspect-intermediate-url") ca_inspect_intermediate_url "ca_maintenance_menu" ;;
     *) exit 0 ;;
   esac
 }
