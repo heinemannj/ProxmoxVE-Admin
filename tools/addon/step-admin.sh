@@ -105,6 +105,8 @@ function export_config_json() {
   "CA_CN": "${CA_CN}",
   "CA_CN_ROOT": "${CA_CN_ROOT}",
   "CA_CN_CRT": "${CA_CN_CRT}",
+  "CA_VALIDITY_ROOT": "${CA_VALIDITY_ROOT}",
+  "CA_VALIDITY_CRT": "${CA_VALIDITY_CRT}",
   "CA_FQDN": "${CA_FQDN}",
   "CA_URL": "${CA_URL}",
   "CA_URL_ROOT": "${CA_URL_ROOT}",
@@ -221,6 +223,8 @@ function init_app() {
     CA_CN_ROOT=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
     CA_CN=$(step certificate inspect "${CA_URL_CRT}" --insecure | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F '=' '{print $2}')
     CA_CN_CRT=$(step certificate inspect "${CA_URL_CRT}" --insecure | grep 'Issuer: ' | awk -F 'Issuer: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
+    CA_VALIDITY_ROOT=$(step certificate inspect "${CA_ROOT}" | grep 'Not After : ' | awk -F 'Not After : ' '{print $2}')
+    CA_VALIDITY_CRT=$(step certificate inspect "${CA_URL_CRT}" | grep 'Not After : ' | awk -F 'Not After : ' '{print $2}')
   fi
 
   mkdir -p "$CERT_PATH/ssh/_archive/"
@@ -245,6 +249,8 @@ CA_ORG=""
 CA_CN=""
 CA_CN_ROOT=""
 CA_CN_CRT=""
+CA_VALIDITY_ROOT=""
+CA_VALIDITY_CRT=""
 CA_FQDN=""
 CA_URL=""
 CA_URL_ROOT=""
