@@ -171,7 +171,6 @@ EOF
 function init_app() {
   if [ -d "$CA_PATH" ]; then
     APP_TITLE="step-ca Admin"
-    APP_BACKTITLE="Proxmox VE Helper Scripts"
     export STEPPATH="${CA_PATH}"
     grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CA_PATH}" >> /etc/profile
     sed -i "/export STEPPATH=/c\export STEPPATH=${CA_PATH}" /etc/profile
@@ -197,7 +196,6 @@ function init_app() {
     mkdir -p "$CERT_PATH/ca/_archive/"
   else
     APP_TITLE="step ACME Client"
-    APP_BACKTITLE="Proxmox VE Helper Scripts"
     export STEPPATH="${CONFIG_PATH}"
     grep -q "export STEPPATH=" /etc/profile || echo "export STEPPATH=${CONFIG_PATH}" >> /etc/profile
     sed -i "/export STEPPATH=/c\export STEPPATH=${CONFIG_PATH}" /etc/profile
@@ -233,18 +231,19 @@ function init_app() {
 # GLOBAL CONFIGURATION VARIABLES
 APP="step-cli"
 APP_TYPE="addon"
+APP_TITLE=""
+APP_BACKTITLE="Proxmox VE Helper Scripts"
 BINARY_PATH="/usr/bin/step"
 CONFIG_PATH="/etc/step"
 CA_PATH="/etc/step-ca"
 CA_CONFIG=""
-CERT_PATH="${CONFIG_PATH}/certs"
-KEY_PATH="${CONFIG_PATH}/private"
+CA_DEFAULTS=""
+CA_FINGERPRINT=""
 CA_ORG=""
 CA_CN=""
 CA_CN_ROOT=""
 CA_CN_CRT=""
 CA_FQDN=""
-CA_FINGERPRINT=""
 CA_URL=""
 CA_URL_ROOT=""
 CA_URL_CRT=""
@@ -255,7 +254,11 @@ CA_CRT=""
 CA_CRT_KEY=""
 CA_TEMPLATE_CRT=""
 CA_TEMPLATE_X509=""
+PROVISIONER=""
+PROVISIONER_TYPE=""
 PROVISIONER_PWD_FILE=""
+CERT_PATH="${CONFIG_PATH}/certs"
+KEY_PATH="${CONFIG_PATH}/private"
 
 # Initialize all core functions (colors, formatting, icons, STD mode)
 load_functions
