@@ -551,7 +551,7 @@ function ca_inspect_intermediate() {
 function ca_inspect_intermediate_url() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRT_CERT=""
-  CA_CRT_CERT=$(step certificate inspect "$CA_URL_CRT" --roots "$CA_ROOT" --bundle)
+  CA_CRT_CERT=$(step certificate inspect "$CA_URL_CRT" --roots "$CA_ROOT" --insecure --bundle)
   whiptail_msgbox "Intermediate CA Certificate ($CA_URL_CRT)" "$CA_CRT_CERT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
