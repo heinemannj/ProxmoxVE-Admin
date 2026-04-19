@@ -188,10 +188,10 @@ function init_app() {
     CA_ROOT=$(grep '"root"' "$CA_CONFIG" | awk -F '"root": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_ROOT_KEY="$CA_PATH/secrets/root_ca_key"
 
-    CA_ORG=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $1}')
+    CA_ORG=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $1}' | awk -F '=' '{print $2}')
     CA_CN=$(grep '"commonName": "' "$CA_CONFIG" | awk -F '"commonName": "' '{print $2}' | awk -F '"' '{print $1}')
-    CA_ROOT_CN=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}')
-    CA_CRT_CN=$(step certificate inspect "${CA_CRT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}')
+    CA_ROOT_CN=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
+    CA_CRT_CN=$(step certificate inspect "${CA_CRT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
 
     LEAF_TEMPLATE="$CA_PATH/templates/x509/leaf.tpl"
     PROVISIONER_TYPE="JWK"
