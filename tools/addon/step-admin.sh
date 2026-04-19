@@ -186,10 +186,10 @@ function init_app() {
     CA_CRT_TEMPLATE="$CA_PATH/templates/ca/intermediate_ca.tpl"
     CA_ROOT_KEY="$CA_PATH/secrets/root_ca_key"
 
-    CA_ORG=""
+    CA_ORG=$(step certificate inspect "${CA_ROOT}" | grep -q 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $1}')
     CA_CN=$(grep '"commonName": "' "$CA_CONFIG" | awk -F '"commonName": "' '{print $2}' | awk -F '"' '{print $1}')
-    CA_ROOT_CN=""
-    CA_CRT_CN=""
+    CA_ROOT_CN=$(step certificate inspect "${CA_ROOT}" | grep -q 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}')
+    CA_CRT_CN=$(step certificate inspect "${CA_CRT}" | grep -q 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}')
 
     LEAF_TEMPLATE="$CA_PATH/templates/x509/leaf.tpl"
     PROVISIONER_TYPE="JWK"
