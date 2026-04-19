@@ -527,6 +527,11 @@ function x509_crl() {
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
+function ca_renew_intermediate() {
+  local BACK_TO_MENU="${1:-}"
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
+}
+
 function ca_inspect_root() {
   local BACK_TO_MENU="${1:-}"
   local CA_ROOT_CERT=""
@@ -815,7 +820,7 @@ function ca_maintenance_menu() {
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
-    "renew") ca_renew "ca_maintenance_menu" ;;
+    "renew") ca_renew_intermediate "ca_maintenance_menu" ;;
     "inspect-root") ca_inspect_root "ca_maintenance_menu" ;;
     "inspect-intermediate") ca_inspect_intermediate "ca_maintenance_menu" ;;
     "inspect-intermediate-url") ca_inspect_intermediate_url "ca_maintenance_menu" ;;
