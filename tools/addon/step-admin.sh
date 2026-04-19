@@ -226,10 +226,6 @@ function init_app() {
     CA_URL_CRL="$CA_URL/1.0/crl"
   fi
 
-  if [ -f "$CA_CONFIG" ]; then
-    CA_CRT=$(grep '"crt"' "$CA_CONFIG" | awk -F '"crt": "' '{print $2}' | awk -F '"' '{print $1}')
-  fi
-
   mkdir -p "$CERT_PATH/ssh/_archive/"
   mkdir -p "$CERT_PATH/x509/_archive/"
   mkdir -p "$KEY_PATH/_archive/"
