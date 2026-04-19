@@ -114,9 +114,9 @@ function export_config_json() {
   "CA_CRT_KEY": "${CA_CRT_KEY}",
   "CA_TEMPLATE_CRT": "${CA_TEMPLATE_CRT}",
   "CA_TEMPLATE_X509": "${CA_TEMPLATE_X509}",
-  "PROVISIONER": "${PROVISIONER}",
-  "PROVISIONER_TYPE": "${PROVISIONER_TYPE}",
-  "PROVISIONER_PWD_FILE": "${PROVISIONER_PWD_FILE}",
+  "CA_PROVISIONER": "${CA_PROVISIONER}",
+  "CA_PROVISIONER_TYPE": "${CA_PROVISIONER_TYPE}",
+  "CA_PROVISIONER_PWD_FILE": "${CA_PROVISIONER_PWD_FILE}",
   "CERT_PATH": "${CERT_PATH}",
   "KEY_PATH": "${KEY_PATH}"
 }
@@ -186,11 +186,11 @@ function init_app() {
     CA_ROOT_KEY="$CA_PATH/secrets/root_ca_key"
     CA_TEMPLATE_CRT="$CA_PATH/templates/ca/intermediate_ca.tpl"
     CA_TEMPLATE_X509="$CA_PATH/templates/x509/leaf.tpl"
-    PROVISIONER_TYPE="JWK"
-    PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_CONFIG")
-    PROVISIONER="${PROVISIONER#\"}"
-    PROVISIONER="${PROVISIONER%\"}"
-    PROVISIONER_PWD_FILE="$CA_PATH/encryption/provisioner.pwd"
+    CA_PROVISIONER_TYPE="JWK"
+    CA_PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_CONFIG")
+    CA_PROVISIONER="${CA_PROVISIONER#\"}"
+    CA_PROVISIONER="${CA_PROVISIONER%\"}"
+    CA_PROVISIONER_PWD_FILE="$CA_PATH/encryption/provisioner.pwd"
 
     mkdir -p "$CONFIG_PATH/db-copy/"
     mkdir -p "$CERT_PATH/ca/_archive/"
@@ -205,8 +205,8 @@ function init_app() {
     sed -i "/export STEPHOME=/c\export STEPHOME=${CONFIG_PATH}" /etc/profile
 
     CA_DEFAULTS="$CONFIG_PATH/config/defaults.json"
-    PROVISIONER_TYPE="ACME"
-    PROVISIONER="acme@$(hostname -d)"
+    CA_PROVISIONER_TYPE="ACME"
+    CA_PROVISIONER="acme@$(hostname -d)"
   fi
 
   if [ -f "$CA_DEFAULTS" ]; then
@@ -254,9 +254,9 @@ CA_CRT=""
 CA_CRT_KEY=""
 CA_TEMPLATE_CRT=""
 CA_TEMPLATE_X509=""
-PROVISIONER=""
-PROVISIONER_TYPE=""
-PROVISIONER_PWD_FILE=""
+CA_PROVISIONER=""
+CA_PROVISIONER_TYPE=""
+CA_PROVISIONER_PWD_FILE=""
 CERT_PATH="${CONFIG_PATH}/certs"
 KEY_PATH="${CONFIG_PATH}/private"
 
@@ -420,13 +420,13 @@ function x509_request() {
   VALID_TO="168h" # Default validity of 7 days (168 hours)
 
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || x509_request_menu
-  msg_info "Requesting x509 Certificate for CN '$FQDN' by '$PROVISIONER'"
+  msg_info "Requesting x509 Certificate for CN '$FQDN' by '$CA_PROVISIONER'"
   local FLAGS=(--force
     --not-after="$VALID_TO"
-    --provisioner="$PROVISIONER"
+    --provisioner="$CA_PROVISIONER"
     --set issuingCertificateURL="$CA_URL_CRT"
     --set crlDistributionPoints="$CA_URL_CRL")
-  [ "$PROVISIONER_TYPE" = "JWK" ] && [ -f "$PROVISIONER_PWD_FILE" ] && FLAGS+=(--provisioner-password-file="$PROVISIONER_PWD_FILE")
+  [ "$CA_PROVISIONER_TYPE" = "JWK" ] && [ -f "$CA_PROVISIONER_PWD_FILE" ] && FLAGS+=(--provisioner-password-file="$CA_PROVISIONER_PWD_FILE")
   local SAN_ITEMS=("$FQDN" "$HOST" "$IP" "$SAN")
   for item in "${SAN_ITEMS[@]}"; do
     FLAGS+=(--san "$item")
@@ -436,10 +436,10 @@ function x509_request() {
   $STD step ca certificate "$FQDN" \
     "${CERT_PATH}"/x509/"$FQDN".crt \
     "${KEY_PATH}"/"$FQDN".key \
-    "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $PROVISIONER failed!"
-  msg_ok "Requested x509 Certificate for CN '$FQDN' by '$PROVISIONER'"
+    "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $CA_PROVISIONER failed!"
+  msg_ok "Requested x509 Certificate for CN '$FQDN' by '$CA_PROVISIONER'"
 
-  if [ "$PROVISIONER_TYPE" = "ACME" ]; then
+  if [ "$CA_PROVISIONER_TYPE" = "ACME" ]; then
     msg_info "Installing Daemon for Renewal of x509 Certificate for CN '$FQDN'"
     $STD systemctl enable --now cert-renewer@"${FQDN}".timer
     $STD systemctl list-units cert-renewer@\*.timer
@@ -481,9 +481,9 @@ function x509_revoke() {
       $STD step ca revoke --cert "${CRT}" --key "${KEY}"
       rm -f "${CRT}" || die "Failed to delete ${CRT}!"
       rm -f "${KEY}" || die "Failed to delete ${KEY}!"
-    elif [[ "$PROVISIONER_TYPE" == "JWK" ]] && [ -f "$PROVISIONER_PWD_FILE" ]; then
+    elif [[ "$CA_PROVISIONER_TYPE" == "JWK" ]] && [ -f "$CA_PROVISIONER_PWD_FILE" ]; then
       $STD echo
-      TOKEN=$(step ca token --provisioner="$PROVISIONER" --provisioner-password-file="$PROVISIONER_PWD_FILE" --revoke "${SERIAL}")
+      TOKEN=$(step ca token --provisioner="$CA_PROVISIONER" --provisioner-password-file="$CA_PROVISIONER_PWD_FILE" --revoke "${SERIAL}")
       $STD echo
       $STD step ca revoke --token "$TOKEN" "${SERIAL}" || die "Failed to revoke certificate!"
     else
@@ -662,10 +662,10 @@ function x509_maintenance_menu() {
   local CHOICE
   OPTIONS=()
   [ -d "$CA_PATH/config" ] || OPTIONS+=(Bootstrap "Install step-ca Root Certificate")
-  OPTIONS+=(Request "Certificate Signing Request (CSR) by $PROVISIONER_TYPE"
-    Renew "Renew Certificate by $PROVISIONER_TYPE"
-    Revoke "Revoke Certificate by $PROVISIONER_TYPE"
-    Inspect "Inspect Certificate by $PROVISIONER_TYPE"
+  OPTIONS+=(Request "Certificate Signing Request (CSR) by $CA_PROVISIONER_TYPE"
+    Renew "Renew Certificate by $CA_PROVISIONER_TYPE"
+    Revoke "Revoke Certificate by $CA_PROVISIONER_TYPE"
+    Inspect "Inspect Certificate by $CA_PROVISIONER_TYPE"
     List "List Certificates"
     CRL "Certificate Revocation List")
 
@@ -740,10 +740,10 @@ function x509_request_menu() {
     "IP Address" "$IP"
     "Subject Alternative Name(s) (SANs)" "$SAN"
     "Validity" "$VALID_TO"
-    "Provisioner" "$PROVISIONER"
+    "Provisioner" "$CA_PROVISIONER"
     " " " "
-    "<Continue>" "Request Certificate by $PROVISIONER")
-  local TITLE="Certificate Signing Request (CSR) by $PROVISIONER_TYPE"
+    "<Continue>" "Request Certificate by $CA_PROVISIONER")
+  local TITLE="Certificate Signing Request (CSR) by $CA_PROVISIONER_TYPE"
 
   CHOICE=$(whiptail_menu "$TITLE")
   case "$CHOICE" in
@@ -770,7 +770,7 @@ function x509_request_menu() {
       x509_request_menu
       ;;
     "Provisioner")
-      PROVISIONER=$(whiptail_inputbox "$TITLE" "Provisioner (e.g. $PROVISIONER)" "$PROVISIONER")
+      CA_PROVISIONER=$(whiptail_inputbox "$TITLE" "Provisioner (e.g. $CA_PROVISIONER)" "$CA_PROVISIONER")
       x509_request_menu
       ;;
     " ")
