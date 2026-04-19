@@ -221,7 +221,7 @@ function init_app() {
     CA_ROOT=$(grep '"root"' "$CA_DEFAULTS" | awk -F '"root": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_ORG=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $1}' | awk -F '=' '{print $2}')
     CA_CN_ROOT=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
-    CA_CN=$(step certificate inspect "${CA_URL_CRT}" --insecure | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
+    CA_CN=$(step certificate inspect "${CA_URL_CRT}" --insecure | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F '=' '{print $2}')
     CA_CN_CRT=$(step certificate inspect "${CA_URL_CRT}" --insecure | grep 'Issuer: ' | awk -F 'Issuer: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
   fi
 
