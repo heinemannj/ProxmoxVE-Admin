@@ -112,8 +112,8 @@ function export_config_json() {
   "CA_ROOT_KEY": "${CA_ROOT_KEY}",
   "CA_CRT": "${CA_CRT}",
   "CA_CRT_KEY": "${CA_CRT_KEY}",
-  "CA_CRT_TEMPLATE": "${CA_CRT_TEMPLATE}",
-  "CA_LEAF_TEMPLATE": "${CA_LEAF_TEMPLATE}",
+  "CA_TEMPLATE_CRT": "${CA_TEMPLATE_CRT}",
+  "CA_TEMPLATE_LEAF": "${CA_TEMPLATE_LEAF}",
   "PROVISIONER": "${PROVISIONER}",
   "PROVISIONER_TYPE": "${PROVISIONER_TYPE}",
   "PROVISIONER_PWD_FILE": "${PROVISIONER_PWD_FILE}",
@@ -184,7 +184,7 @@ function init_app() {
     CA_CONFIG="$CA_PATH/config/ca.json"
     CA_CRT=$(grep '"crt": "' "$CA_CONFIG" | awk -F '"crt": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_CRT_KEY=$(grep '"key": "' "$CA_CONFIG" | awk -F '"key": "' '{print $2}' | awk -F '"' '{print $1}')
-    CA_CRT_TEMPLATE="$CA_PATH/templates/ca/intermediate_ca.tpl"
+    CA_TEMPLATE_CRT="$CA_PATH/templates/ca/intermediate_ca.tpl"
     CA_ROOT=$(grep '"root"' "$CA_CONFIG" | awk -F '"root": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_ROOT_KEY="$CA_PATH/secrets/root_ca_key"
 
@@ -193,7 +193,7 @@ function init_app() {
     CA_CN_ROOT=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
     CA_CN_CRT=$(step certificate inspect "${CA_CRT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
 
-    CA_LEAF_TEMPLATE="$CA_PATH/templates/x509/leaf.tpl"
+    CA_TEMPLATE_LEAF="$CA_PATH/templates/x509/leaf.tpl"
     PROVISIONER_TYPE="JWK"
     PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_CONFIG")
     PROVISIONER="${PROVISIONER#\"}"
@@ -260,8 +260,8 @@ CA_ROOT="${CERT_PATH}/root_ca.crt"
 CA_ROOT_KEY=""
 CA_CRT=""
 CA_CRT_KEY=""
-CA_CRT_TEMPLATE=""
-CA_LEAF_TEMPLATE=""
+CA_TEMPLATE_CRT=""
+CA_TEMPLATE_LEAF=""
 PROVISIONER_PWD_FILE=""
 
 # Initialize all core functions (colors, formatting, icons, STD mode)
