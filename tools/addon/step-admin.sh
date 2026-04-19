@@ -93,6 +93,8 @@ function export_config_json() {
   "APP_BACKTITLE": "${APP_BACKTITLE}",
   "BINARY_PATH": "${BINARY_PATH}",
   "CONFIG_PATH": "${CONFIG_PATH}",
+  "CERT_PATH": "${CERT_PATH}",
+  "KEY_PATH": "${KEY_PATH}"
   "STEPPATH": "${STEPPATH}",
   "STEPHOME": "${STEPHOME}",
   "CA_PATH": "${CA_PATH}",
@@ -116,9 +118,7 @@ function export_config_json() {
   "CA_TEMPLATE_X509": "${CA_TEMPLATE_X509}",
   "CA_PROVISIONER": "${CA_PROVISIONER}",
   "CA_PROVISIONER_TYPE": "${CA_PROVISIONER_TYPE}",
-  "CA_PROVISIONER_PWD_FILE": "${CA_PROVISIONER_PWD_FILE}",
-  "CERT_PATH": "${CERT_PATH}",
-  "KEY_PATH": "${KEY_PATH}"
+  "CA_PROVISIONER_PWD_FILE": "${CA_PROVISIONER_PWD_FILE}"
 }
 EOF
 }
@@ -235,6 +235,8 @@ APP_TITLE=""
 APP_BACKTITLE="Proxmox VE Helper Scripts"
 BINARY_PATH="/usr/bin/step"
 CONFIG_PATH="/etc/step"
+CERT_PATH="${CONFIG_PATH}/certs"
+KEY_PATH="${CONFIG_PATH}/private"
 CA_PATH="/etc/step-ca"
 CA_CONFIG=""
 CA_DEFAULTS=""
@@ -257,8 +259,6 @@ CA_TEMPLATE_X509=""
 CA_PROVISIONER=""
 CA_PROVISIONER_TYPE=""
 CA_PROVISIONER_PWD_FILE=""
-CERT_PATH="${CONFIG_PATH}/certs"
-KEY_PATH="${CONFIG_PATH}/private"
 
 # Initialize all core functions (colors, formatting, icons, STD mode)
 load_functions
