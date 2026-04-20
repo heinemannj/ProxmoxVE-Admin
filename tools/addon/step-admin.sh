@@ -508,10 +508,10 @@ function x509_inspect() {
     x509_query
     if [ -f "${CRT}" ]; then
       if [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
-        CERT_VALIDITY=$(step certificate verify "${CRT}" --verbose)
+        CERT_VALIDITY=$(step certificate verify "${CRT}" --verify-crl --verbose)
         CERT_INSPECT="${CERT_VALIDITY}\n\n"
         CERT_INSPECT+=$(step certificate inspect "${CRT}" --bundle || die "Failed to inspect certificate!")
-        whiptail_msgbox "x509 Certificate Validity: ${CERT_VALIDITY}" "$CERT_INSPECT"
+        whiptail_msgbox "x509 ${CERT_VALIDITY}" "$CERT_INSPECT"
       else
         die "Serial Number ${SERIAL} mismatch!"
       fi
