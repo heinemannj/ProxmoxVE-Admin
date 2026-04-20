@@ -182,9 +182,9 @@ function init_app() {
     sed -i "/export STEPHOME=/c\export STEPHOME=${CONFIG_PATH}" /etc/profile
 
     CA_DEFAULTS="$CA_PATH/config/defaults.json"
-    CA_CONFIG="$CA_PATH/config/ca.json"
-    CA_CRT=$(grep '"crt": "' "$CA_CONFIG" | awk -F '"crt": "' '{print $2}' | awk -F '"' '{print $1}')
-    CA_CRT_KEY=$(grep '"key": "' "$CA_CONFIG" | awk -F '"key": "' '{print $2}' | awk -F '"' '{print $1}')
+    CA_CONFIG=$(jq -r .ca-config "$CA_DEFAULTS")
+    CA_CRT=$(jq -r .crt "$CA_CONFIG")
+    CA_CRT_KEY=$(jq -r .key "$CA_CONFIG")
     CA_ROOT_KEY="$CA_PATH/secrets/root_ca_key"
     CA_TEMPLATE_CRT="$CA_PATH/templates/ca/intermediate_ca.tpl"
     CA_TEMPLATE_X509="$CA_PATH/templates/x509/leaf.tpl"
