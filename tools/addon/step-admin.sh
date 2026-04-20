@@ -530,8 +530,12 @@ function x509_list() {
 function x509_crl() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRL=""
-  CA_CRL=$(step crl inspect --ca "$CA_ROOT" "$CA_URL_CRL")
-  whiptail_msgbox "Certificate Revocation List by $CA_FQDN" "$CA_CRL"
+  if [ -f "${CA_ROOT}" ]; then
+    CA_CRL=$(step crl inspect --ca "$CA_ROOT" "$CA_URL_CRL")
+    whiptail_msgbox "Certificate Revocation List by $CA_FQDN" "$CA_CRL"
+  else
+    whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate ($CA_ROOT) not found on localhost."
+  fi
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
@@ -543,23 +547,31 @@ function ca_renew_intermediate() {
 function ca_inspect_root() {
   local BACK_TO_MENU="${1:-}"
   local CA_ROOT_CERT=""
-  CA_ROOT_CERT=$(step certificate inspect "$CA_ROOT")
-  whiptail_msgbox "Root CA Certificate ($CA_ROOT)" "$CA_ROOT_CERT"
+  if [ -f "${CA_ROOT}" ]; then
+    CA_ROOT_CERT=$(step certificate inspect "$CA_ROOT")
+    whiptail_msgbox "Root CA Certificate ($CA_ROOT)" "$CA_ROOT_CERT"
+  else
+    whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate ($CA_ROOT) not found on localhost."
+  fi
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
 function ca_inspect_intermediate() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRT_CERT=""
-  CA_CRT_CERT=$(step certificate inspect "$CA_CRT" --roots "$CA_ROOT" --bundle)
-  whiptail_msgbox "Intermediate CA Certificate ($CA_CRT)" "$CA_CRT_CERT"
+  if [ -f "${CA_CRT}" ]; then
+    CA_CRT_CERT=$(step certificate inspect "$CA_CRT" --roots="$CA_ROOT" --bundle)
+    whiptail_msgbox "Intermediate CA Certificate ($CA_CRT)" "$CA_CRT_CERT"
+  else
+    whiptail_msgbox "Certificates Issued by $CA_FQDN" "Intermediate CA Certificate ($CA_CRT) not found on localhost."
+  fi
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
 function ca_inspect_intermediate_url() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRT_CERT=""
-  CA_CRT_CERT=$(step certificate inspect "$CA_URL_CRT" --roots "$CA_ROOT" --insecure --bundle)
+  CA_CRT_CERT=$(step certificate inspect "$CA_URL_CRT" --roots="$CA_ROOT" --insecure --bundle)
   whiptail_msgbox "Intermediate CA Certificate ($CA_URL_CRT)" "$CA_CRT_CERT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
