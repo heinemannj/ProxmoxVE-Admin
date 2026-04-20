@@ -583,23 +583,25 @@ function x509_view(){
   CERT_LIST=()
   local CERT_FILE_ARRAY=("$CERT_PATH/x509/"*.crt)
   local FLAGS=("--provisioner")
+  local FILE="none"
 
   echo "Serial Number|CN|Type|File|Validity|Not Before|Not After" > "$CERT_PATH/x509/x509Certs.txt"
   if [ -d "$CA_PATH/db" ]; then
     cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
     cp --recursive --force "$CA_PATH/certs/"* "$CONFIG_PATH/certs/ca/"
     if [[ $(step-badger x509Certs "$CONFIG_PATH/db-copy" 2>/dev/null) ]]; then
-      DB_EXPORT=$(step-badger x509Certs "$CONFIG_PATH/db-copy" "${FLAGS[@]}" 2>/dev/null)
-      echo "${DB_EXPORT//CN=/}" | awk 'NR>1 {print $1 "|" $2 "|" $3 "|none|" $7 "|" $5 "|" $6}' >> "$CERT_PATH/x509/x509Certs.txt"
-      while IFS='|' read -r SERIAL CN TYPE FILE VALIDITY NotBefore NotAfter; do
-        #CN=$(echo "$CN" | awk -F 'CN=' '{print $2}')
+      DB_EXPORT=$(step-badger x509Certs "$CONFIG_PATH/db-copy" "${FLAGS[@]}" 2>/dev/null | sed '1d')
+#      echo "${DB_EXPORT}" | awk 'NR>1 {print $1 "|" $2 "|" $3 "|none|" $7 "|" $5 "|" $6}' >> "$CERT_PATH/x509/x509Certs.txt"
+      while read -r SERIAL SUBJECT TYPE PROVISIONER NotBefore NotAfter VALIDITY; do
+        CN=$(echo "$SUBJECT" | awk -F 'CN=' '{print $2}') | awk -F ',' '{print $1}')
         local CRT="$CERT_PATH/x509/$CN.crt"
         if [ -f "${CRT}" ] && step certificate inspect "${CRT}" | grep -q "${SERIAL}"; then
           sed -i "/${SERIAL}/s/none/local/g" "$CERT_PATH/x509/x509Certs.txt"
           FILE="local"
         fi
+        echo "$SERIAL|$CN|$TYPE|$FILE|$VALIDITY|$NotBefore|$NotAfter" >> "$CERT_PATH/x509/x509Certs.txt"
         CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
-      done < <(sed '1d' "$CERT_PATH/x509/x509Certs.txt")
+      done <<< "$DB_EXPORT"
     fi
   else
     for ITEM in "${CERT_FILE_ARRAY[@]}"; do
