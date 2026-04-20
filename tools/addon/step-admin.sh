@@ -504,7 +504,7 @@ function x509_revoke() {
 function x509_inspect() {
   local BACK_TO_MENU="${1:-}"
   x509_certs_menu "Inspect"
-  msg_info "Inspecting Certificate(s)"
+  #msg_info "Inspecting Certificate(s)"
   for SERIAL in "${CERT_ARRAY[@]}"; do
     x509_query
     msg_info "Inspect x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'\n"
