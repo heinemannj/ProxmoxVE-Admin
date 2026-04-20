@@ -189,9 +189,7 @@ function init_app() {
     CA_TEMPLATE_CRT="$CA_PATH/templates/ca/intermediate_ca.tpl"
     CA_TEMPLATE_X509="$CA_PATH/templates/x509/leaf.tpl"
     CA_PROVISIONER_TYPE="JWK"
-    CA_PROVISIONER=$(jq '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_CONFIG")
-    CA_PROVISIONER="${CA_PROVISIONER#\"}"
-    CA_PROVISIONER="${CA_PROVISIONER%\"}"
+    CA_PROVISIONER=$(jq -r '.authority.provisioners.[] | select(.type=="JWK") | .name' "$CA_CONFIG")
     CA_PROVISIONER_PWD_FILE="$CA_PATH/encryption/provisioner.pwd"
 
     mkdir -p "$CONFIG_PATH/db-copy/"
