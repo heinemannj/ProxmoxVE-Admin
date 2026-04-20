@@ -210,7 +210,7 @@ function init_app() {
   fi
 
   if [ -f "$CA_DEFAULTS" ]; then
-    CA_URL=$(jq -r .ca-url "$CA_DEFAULTS")
+    CA_URL=$(jq -r ."ca-url" "$CA_DEFAULTS")
     [[ -n $CA_URL ]] && CA_FQDN=$(echo "$CA_URL" | awk -F 'https://' '{print $2}' | awk -F ':' '{print $1}') || CA_FQDN="step-ca.$(hostname -d)"
     CA_URL_ROOT="$CA_URL/roots.pem"
     CA_URL_CRT="$CA_URL/1.0/intermediates.pem"
