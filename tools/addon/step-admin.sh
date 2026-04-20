@@ -436,7 +436,7 @@ function x509_request() {
     --set locality="Schermbeck"
     --set province="NRW"
 #    --set streetAddress="Schetterstr. 54B"
-    --set postalCode="46514"
+#    --set postalCode="46514"
     --set issuingCertificateURL="$CA_URL_CRT"
     --set crlDistributionPoints="$CA_URL_CRL")
   [ "$CA_PROVISIONER_TYPE" = "JWK" ] && [ -f "$CA_PROVISIONER_PWD_FILE" ] && FLAGS+=(--provisioner-password-file="$CA_PROVISIONER_PWD_FILE")
