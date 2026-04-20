@@ -223,7 +223,7 @@ function init_app() {
     CA_CN_ROOT=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
     CA_CN=$(step certificate inspect "${CA_URL_CRT}" --insecure | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F '=' '{print $2}')
     CA_CN_CRT=$(step certificate inspect "${CA_URL_CRT}" --insecure | grep 'Issuer: ' | awk -F 'Issuer: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
-    CA_VALIDITY_ROOT=$(step certificate inspect "${CA_ROOT}" | grep 'Not After : ' | awk -F 'Not After : ' '{print $2}')
+    CA_VALIDITY_ROOT=$(step certificate inspect "${CA_ROOT}" --format=json | jq -r .validity.end)
     CA_VALIDITY_CRT=$(step certificate inspect "${CA_URL_CRT}" --insecure --bundle | grep 'Not After : ' | tail -1 | awk -F 'Not After : ' '{print $2}')
   fi
 
@@ -579,10 +579,8 @@ function x509_query() {
 }
 
 function x509_view(){
-  DB_EXPORT=""
   CERT_LIST=()
   local CERT_FILE_ARRAY=("$CERT_PATH/x509/"*.crt)
-  local FLAGS=("--provisioner")
   local FILE="none"
 
   echo "Serial Number|CN|Type|File|Validity|Not Before|Not After" > "$CERT_PATH/x509/x509Certs.txt"
@@ -590,6 +588,8 @@ function x509_view(){
     cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
     cp --recursive --force "$CA_PATH/certs/"* "$CONFIG_PATH/certs/ca/"
     if [[ $(step-badger x509Certs "$CONFIG_PATH/db-copy" 2>/dev/null) ]]; then
+      local DB_EXPORT=""
+      local FLAGS=("--provisioner")
       DB_EXPORT=$(step-badger x509Certs "$CONFIG_PATH/db-copy" "${FLAGS[@]}" 2>/dev/null | sed '1d')
       while read -r SERIAL SUBJECT TYPE REQUESTER NotBefore NotAfter VALIDITY; do
         CN=$(echo "$SUBJECT" | awk -F 'CN=' '{print $2}' | awk -F ',' '{print $1}')
@@ -604,12 +604,12 @@ function x509_view(){
   else
     for ITEM in "${CERT_FILE_ARRAY[@]}"; do
       [ -f "${ITEM}" ] || break
-      SERIAL=$(step certificate inspect "${ITEM}" | grep "Serial Number: " | awk '{print $3}')
+      SERIAL=$(step certificate inspect "${ITEM}" --format=json | jq -r .serial_number)
       CN=$(step certificate inspect "${ITEM}" --format=json | jq -r .subject.common_name.[])
-      TYPE=$(step certificate inspect "${ITEM}" | grep "Type: " | awk '{print $2}')
+      TYPE=$(step certificate inspect "${ITEM}" --format=json | jq -r .extensions.step_provisioner.type)
       FILE="local"
-      NotBefore=$(step certificate inspect "${ITEM}" | grep "Not Before: " | awk -F 'Not Before: ' '{print $2}')
-      NotAfter=$(step certificate inspect "${ITEM}" | grep "Not After : " | awk -F 'Not After : ' '{print $2}')
+      NotBefore=$(step certificate inspect "${ITEM}" --format=json | jq -r .validity.start)
+      NotAfter=$(step certificate inspect "${ITEM}" --format=json | jq -r .validity.end)
       [ "$(date -d "${NotAfter}" +%s)" -gt "$(date +%s)" ] && [ "$(date -d "${NotBefore}" +%s)" -lt "$(date +%s)" ] && VALIDITY="Valid" || VALIDITY="Expired"
       echo "$SERIAL|$CN|$TYPE|$FILE|$VALIDITY|$NotBefore|$NotAfter" >> "$CERT_PATH/x509/x509Certs.txt"
       CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
