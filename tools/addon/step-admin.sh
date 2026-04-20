@@ -219,10 +219,10 @@ function init_app() {
     CA_URL_CRL="$CA_URL/1.0/crl"
     CA_FINGERPRINT=$(grep '"fingerprint"' "$CA_DEFAULTS" | awk -F '"fingerprint": "' '{print $2}' | awk -F '"' '{print $1}')
     CA_ROOT=$(grep '"root"' "$CA_DEFAULTS" | awk -F '"root": "' '{print $2}' | awk -F '"' '{print $1}')
-    CA_ORG=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $1}' | awk -F '=' '{print $2}')
-    CA_CN_ROOT=$(step certificate inspect "${CA_ROOT}" | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
-    CA_CN=$(step certificate inspect "${CA_URL_CRT}" --insecure | grep 'Subject: ' | awk -F 'Subject: ' '{print $2}' | awk -F '=' '{print $2}')
-    CA_CN_CRT=$(step certificate inspect "${CA_URL_CRT}" --insecure | grep 'Issuer: ' | awk -F 'Issuer: ' '{print $2}' | awk -F ',' '{print $2}' | awk -F '=' '{print $2}')
+    CA_ORG=$(step certificate inspect "${CA_ROOT}" --format=json | jq -r .subject.organization.[])
+    CA_CN_ROOT=$(step certificate inspect "${CA_ROOT}" --format=json | jq -r .subject.common_name.[])
+    CA_CN=$(step certificate inspect "${CA_URL_CRT}" --insecure --format=json | jq -r .subject.common_name.[])
+    CA_CN_CRT=$(step certificate inspect "${CA_URL_CRT}" --insecure --format=json | jq -r .issuer.common_name.[])
     CA_VALIDITY_ROOT=$(step certificate inspect "${CA_ROOT}" --format=json | jq -r .validity.end)
     CA_VALIDITY_CRT=$(step certificate inspect "${CA_URL_CRT}" --insecure --bundle | grep 'Not After : ' | tail -1 | awk -F 'Not After : ' '{print $2}')
   fi
