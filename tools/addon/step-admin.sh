@@ -534,7 +534,7 @@ function x509_crl() {
     CA_CRL=$(step crl inspect --ca "$CA_ROOT" "$CA_URL_CRL")
     whiptail_msgbox "Certificate Revocation List by $CA_FQDN" "$CA_CRL"
   else
-    whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate ($CA_ROOT) not found on localhost."
+    whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate not found on localhost."
   fi
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
@@ -551,7 +551,7 @@ function ca_inspect_root() {
     CA_ROOT_CERT=$(step certificate inspect "$CA_ROOT")
     whiptail_msgbox "Root CA Certificate ($CA_ROOT)" "$CA_ROOT_CERT"
   else
-    whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate ($CA_ROOT) not found on localhost."
+    whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate not found on localhost."
   fi
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
@@ -563,7 +563,7 @@ function ca_inspect_intermediate() {
     CA_CRT_CERT=$(step certificate inspect "$CA_CRT" --roots="$CA_ROOT" --bundle)
     whiptail_msgbox "Intermediate CA Certificate ($CA_CRT)" "$CA_CRT_CERT"
   else
-    whiptail_msgbox "Certificates Issued by $CA_FQDN" "Intermediate CA Certificate ($CA_CRT) not found on localhost."
+    whiptail_msgbox "Certificates Issued by $CA_FQDN" "Intermediate CA Certificate not found on localhost."
   fi
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
