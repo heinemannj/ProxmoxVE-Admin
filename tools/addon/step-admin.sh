@@ -605,7 +605,7 @@ function x509_view(){
     for ITEM in "${CERT_FILE_ARRAY[@]}"; do
       [ -f "${ITEM}" ] || break
       SERIAL=$(step certificate inspect "${ITEM}" | grep "Serial Number: " | awk '{print $3}')
-      CN=$(step certificate inspect "${ITEM}" | grep "Subject: " | awk -F 'CN=' '{print $2}')
+      CN=$(step certificate inspect "${ITEM}" --format=json | jq -r .subject.common_name.[])
       TYPE=$(step certificate inspect "${ITEM}" | grep "Type: " | awk '{print $2}')
       FILE="local"
       NotBefore=$(step certificate inspect "${ITEM}" | grep "Not Before: " | awk -F 'Not Before: ' '{print $2}')
