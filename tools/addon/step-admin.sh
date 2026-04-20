@@ -507,8 +507,6 @@ function x509_inspect() {
   #msg_info "Inspecting Certificate(s)"
   for SERIAL in "${CERT_ARRAY[@]}"; do
     x509_query
-    #msg_info "Inspect x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}')\n"
-    #msg_info "Inspect x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}')\n"
     msg_info "Inspect x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}')\n"
     if [ -f "${CRT}" ]; then
       step certificate inspect "${CRT}" | grep -q "${SERIAL}" || die "Serial Number ${SERIAL} mismatch!"
@@ -518,7 +516,7 @@ function x509_inspect() {
       echo -e "${BL}[Info]${GN} Private Key${CL}"
       cat "${KEY}"
     else
-      die "'${CRT}' not available on localhost!"
+      die "Certificate not available on localhost!"
     fi
     msg_ok "Inspected x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'"
   done
