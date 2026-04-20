@@ -504,10 +504,9 @@ function x509_revoke() {
 function x509_inspect() {
   local BACK_TO_MENU="${1:-}"
   x509_certs_menu "Inspect"
-  #msg_info "Inspecting Certificate(s)"
   for SERIAL in "${CERT_ARRAY[@]}"; do
     x509_query
-    msg_info "Inspect x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}')\n"
+    msg_info "Inspect x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'\n"
     if [ -f "${CRT}" ]; then
       step certificate inspect "${CRT}" | grep -q "${SERIAL}" || die "Serial Number ${SERIAL} mismatch!"
       step certificate inspect "${CRT}" --bundle || die "Failed to inspect certificate!"
@@ -515,6 +514,9 @@ function x509_inspect() {
       cat "${CRT}"
       echo -e "${BL}[Info]${GN} Private Key${CL}"
       cat "${KEY}"
+      local LOCAL_CERT=""
+      LOCAL_CERT=$(step certificate inspect "$CA_ROOT")
+      whiptail_msgbox "x509 Certificate for CN '${CN}' with Serial Number '${SERIAL}'" "$LOCAL_CERT"
     else
       die "Certificate not available on localhost!"
     fi
