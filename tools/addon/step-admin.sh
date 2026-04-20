@@ -182,7 +182,7 @@ function init_app() {
     sed -i "/export STEPHOME=/c\export STEPHOME=${CONFIG_PATH}" /etc/profile
 
     CA_DEFAULTS="$CA_PATH/config/defaults.json"
-    CA_CONFIG=$(jq -r .ca-config "$CA_DEFAULTS")
+    CA_CONFIG="$CA_PATH/config/ca.json"
     CA_CRT=$(jq -r .crt "$CA_CONFIG")
     CA_CRT_KEY=$(jq -r .key "$CA_CONFIG")
     CA_ROOT_KEY="$CA_PATH/secrets/root_ca_key"
@@ -210,13 +210,13 @@ function init_app() {
   fi
 
   if [ -f "$CA_DEFAULTS" ]; then
-    CA_URL=$(grep '"ca-url"' "$CA_DEFAULTS" | awk -F '"ca-url": "' '{print $2}' | awk -F '"' '{print $1}')
+    CA_URL=$(jq -r .ca-url "$CA_DEFAULTS")
     [[ -n $CA_URL ]] && CA_FQDN=$(echo "$CA_URL" | awk -F 'https://' '{print $2}' | awk -F ':' '{print $1}') || CA_FQDN="step-ca.$(hostname -d)"
     CA_URL_ROOT="$CA_URL/roots.pem"
     CA_URL_CRT="$CA_URL/1.0/intermediates.pem"
     CA_URL_CRL="$CA_URL/1.0/crl"
-    CA_FINGERPRINT=$(grep '"fingerprint"' "$CA_DEFAULTS" | awk -F '"fingerprint": "' '{print $2}' | awk -F '"' '{print $1}')
-    CA_ROOT=$(grep '"root"' "$CA_DEFAULTS" | awk -F '"root": "' '{print $2}' | awk -F '"' '{print $1}')
+    CA_FINGERPRINT=$(jq -r .fingerprint "$CA_DEFAULTS")
+    CA_ROOT=$(jq -r .root "$CA_DEFAULTS")
     CA_ORG=$(step certificate inspect "${CA_ROOT}" --format=json | jq -r .subject.organization.[])
     CA_CN_ROOT=$(step certificate inspect "${CA_ROOT}" --format=json | jq -r .subject.common_name.[])
     CA_CN=$(step certificate inspect "${CA_URL_CRT}" --insecure --format=json | jq -r .subject.common_name.[])
