@@ -432,8 +432,8 @@ function x509_request() {
     --provisioner="$CA_PROVISIONER"
     --set country="DE"
     --set organization="$CA_ORG"
-    --set organizationalUnit=["MyHomeLab"]
-#    --set locality="Schermbeck"
+    --set organizationalUnit="MyHomeLab"
+    --set locality="Schermbeck"
 #    --set province="NRW"
 #    --set streetAddress="Schetterstr. 54B"
 #    --set postalCode="46514"
