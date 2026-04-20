@@ -431,6 +431,8 @@ function x509_request() {
     --not-after="$VALID_TO"
     --provisioner="$CA_PROVISIONER"
     --set organization="$CA_ORG"
+    --set organizationalUnit="MyHomeLab"
+    --set country="DE"
     --set issuingCertificateURL="$CA_URL_CRT"
     --set crlDistributionPoints="$CA_URL_CRL")
   [ "$CA_PROVISIONER_TYPE" = "JWK" ] && [ -f "$CA_PROVISIONER_PWD_FILE" ] && FLAGS+=(--provisioner-password-file="$CA_PROVISIONER_PWD_FILE")
