@@ -603,6 +603,8 @@ function x509_view(){
         CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
         #############CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
         #############CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
+        #############CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
+        #############CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
       done <<< "$DB_EXPORT"
     fi
   else
