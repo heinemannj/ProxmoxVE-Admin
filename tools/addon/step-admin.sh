@@ -509,7 +509,7 @@ function x509_inspect() {
     if [ -f "${CRT}" ]; then
       if [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
         LOCAL_CERT=$(step certificate inspect "${CRT}" --bundle || die "Failed to inspect certificate!")
-        whiptail_msgbox "Certificates Issued by $CA_FQDN" "$LOCAL_CERT"
+        whiptail_msgbox "x509 Certificate (${CRT})" "$LOCAL_CERT"
       else
         die "Serial Number ${SERIAL} mismatch!"
       fi
