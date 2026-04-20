@@ -591,20 +591,14 @@ function x509_view(){
     cp --recursive --force "$CA_PATH/certs/"* "$CONFIG_PATH/certs/ca/"
     if [[ $(step-badger x509Certs "$CONFIG_PATH/db-copy" 2>/dev/null) ]]; then
       DB_EXPORT=$(step-badger x509Certs "$CONFIG_PATH/db-copy" "${FLAGS[@]}" 2>/dev/null | sed '1d')
-#      echo "${DB_EXPORT}" | awk 'NR>1 {print $1 "|" $2 "|" $3 "|none|" $7 "|" $5 "|" $6}' >> "$CERT_PATH/x509/x509Certs.txt"
-      while read -r SERIAL SUBJECT TYPE PROVISIONER NotBefore NotAfter VALIDITY; do
+      while read -r SERIAL SUBJECT TYPE REQUESTER NotBefore NotAfter VALIDITY; do
         CN=$(echo "$SUBJECT" | awk -F 'CN=' '{print $2}' | awk -F ',' '{print $1}')
         local CRT="$CERT_PATH/x509/$CN.crt"
         if [ -f "${CRT}" ] && step certificate inspect "${CRT}" | grep -q "${SERIAL}"; then
-          sed -i "/${SERIAL}/s/none/local/g" "$CERT_PATH/x509/x509Certs.txt"
           FILE="local"
         fi
         echo "$SERIAL|$CN|$TYPE|$FILE|$VALIDITY|$NotBefore|$NotAfter" >> "$CERT_PATH/x509/x509Certs.txt"
         CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
-        #############CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
-        #############CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
-        #############CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
-        #############CERT_LIST+=("$SERIAL" "$CN|$TYPE|$FILE|$VALIDITY|$NotAfter")
       done <<< "$DB_EXPORT"
     fi
   else
