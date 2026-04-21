@@ -506,6 +506,58 @@ function x509_revoke() {
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
+function x509_list() {
+  local BACK_TO_MENU="${1:-}"
+  x509_view
+  whiptail_textbox "Certificates Issued by $CA_FQDN" "$CERT_PATH/x509/x509Certs.txt"
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
+}
+
+function x509_crl() {
+  local BACK_TO_MENU="${1:-}"
+  local CA_CRL=""
+  if [ -f "${CA_ROOT}" ]; then
+    CA_CRL=$(step crl inspect --ca "$CA_ROOT" "$CA_URL_CRL")
+    whiptail_msgbox "Certificate Revocation List by $CA_FQDN" "$CA_CRL"
+  else
+    whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate not found on localhost."
+  fi
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
+}
+
+function ca_renew_intermediate() {
+  local BACK_TO_MENU="${1:-}"
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
+}
+
+function x509_inspect_uri() {
+  local CERT_URI="$1"
+  local CERT_SERIAL="$2"
+  local ISSUING_CA="$3"
+  local CRL_ENDPOINT="$4"
+  local ROOTS="$5"
+  local CERT_VALIDITY=""
+  local CERT_VALIDATION=""
+
+  local FLAGS=(--verbose --verify-crl)
+  [ -z "$ISSUING_CA" ] && FLAGS+=(--issuing-ca="$ISSUING_CA")
+  [ -z "$CRL_ENDPOINT" ] && FLAGS+=(--crl-endpoint="$CRL_ENDPOINT")
+  CERT_VALIDITY=$(step certificate verify "${FLAGS[@]}" "$CERT_URI")
+
+  while read -r LINE; do
+    CERT_VALIDATION+="${TAB}${TAB}- $LINE\n"
+  done <<< "$CERT_VALIDITY"
+  local CERT_INSPECT="Certificate Path Validation:\n"
+  CERT_INSPECT+="${TAB}Location: $CA_URL_CRT\n"
+  CERT_INSPECT+="$CERT_VALIDATION\n"
+
+  local FLAGS=(--insecure --bundle)
+  [ -z "$ROOTS" ] && FLAGS+=(--roots="$ROOTS")
+  CERT_INSPECT+=$(step certificate inspect "${FLAGS[@]}" "$CERT_URI")
+
+  whiptail_msgbox "Intermediate CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
+}
+
 function x509_inspect() {
   local BACK_TO_MENU="${1:-}"
   x509_certs_menu "Inspect"
@@ -531,30 +583,6 @@ function x509_inspect() {
       whiptail_msgbox "Certificates Issued by $CA_FQDN" "x509 Certificate for CN '${CN}' not found on localhost."
     fi
   done
-  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
-}
-
-function x509_list() {
-  local BACK_TO_MENU="${1:-}"
-  x509_view
-  whiptail_textbox "Certificates Issued by $CA_FQDN" "$CERT_PATH/x509/x509Certs.txt"
-  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
-}
-
-function x509_crl() {
-  local BACK_TO_MENU="${1:-}"
-  local CA_CRL=""
-  if [ -f "${CA_ROOT}" ]; then
-    CA_CRL=$(step crl inspect --ca "$CA_ROOT" "$CA_URL_CRL")
-    whiptail_msgbox "Certificate Revocation List by $CA_FQDN" "$CA_CRL"
-  else
-    whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate not found on localhost."
-  fi
-  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
-}
-
-function ca_renew_intermediate() {
-  local BACK_TO_MENU="${1:-}"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
@@ -600,17 +628,19 @@ function ca_inspect_intermediate() {
 
 function ca_inspect_intermediate_url() {
   local BACK_TO_MENU="${1:-}"
-  local CERT_VALIDITY=""
-  local CERT_VALIDATION=""
-  CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_URL_CRT")
-  while read -r LINE; do
-    CERT_VALIDATION+="${TAB}${TAB}- $LINE\n"
-  done <<< "$CERT_VALIDITY"
-  local CERT_INSPECT="Certificate Path Validation:\n"
-  CERT_INSPECT+="${TAB}Location: $CA_URL_CRT\n"
-  CERT_INSPECT+="$CERT_VALIDATION\n"
-  CERT_INSPECT+=$(step certificate inspect "$CA_URL_CRT" --roots="$CA_ROOT" --insecure --bundle)
-  whiptail_msgbox "Intermediate CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
+  #local CERT_VALIDITY=""
+  #local CERT_VALIDATION=""
+  #CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_URL_CRT")
+  #while read -r LINE; do
+  #  CERT_VALIDATION+="${TAB}${TAB}- $LINE\n"
+  #done <<< "$CERT_VALIDITY"
+  #local CERT_INSPECT="Certificate Path Validation:\n"
+  #CERT_INSPECT+="${TAB}Location: $CA_URL_CRT\n"
+  #CERT_INSPECT+="$CERT_VALIDATION\n"
+  #CERT_INSPECT+=$(step certificate inspect "$CA_URL_CRT" --roots="$CA_ROOT" --insecure --bundle)
+  #whiptail_msgbox "Intermediate CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
+
+  x509_inspect_uri "$CA_URL_CRT" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
