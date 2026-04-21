@@ -518,7 +518,7 @@ function x509_inspect() {
         CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CRT")
         while read -r LINE; do
           CERT_VALIDATION=+="${TAB}$LINE"
-        done <<< "CERT_VALIDITY"
+        done <<< "$CERT_VALIDITY"
         local CERT_INSPECT="Certificate Path Validation:\n"
         CERT_INSPECT+="${TAB}Location: $CRT\n\n"
         CERT_INSPECT+="${TAB}$CERT_VALIDATION\n\n"
