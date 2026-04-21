@@ -233,9 +233,6 @@ function init_app() {
   if [[ ! -f "$CA_CRT" ]]; then
     curl -s --output "$CA_CRT" "$CA_URL_CRT"
   fi
-  #[ ! -f "$CA_CRT" ] && curl -s --output "$CA_CRT" "$CA_URL_CRT"
-  #[ ! -f "$CA_CRT" ] && curl -s --output "$CA_CRT" "$CA_URL_CRT"
-  #[ ! -f "$CA_CRT" ] && curl -s --output "$CA_CRT" "$CA_URL_CRT"
 }
 
 # GLOBAL CONFIGURATION VARIABLES
