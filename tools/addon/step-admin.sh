@@ -231,6 +231,9 @@ function init_app() {
   mkdir -p "$KEY_PATH/_archive/"
 
   #[ ! -f "$CA_CRT" ] && curl -s --output "$CA_CRT" "$CA_URL_CRT"
+  #[ ! -f "$CA_CRT" ] && curl -s --output "$CA_CRT" "$CA_URL_CRT"
+  #[ ! -f "$CA_CRT" ] && curl -s --output "$CA_CRT" "$CA_URL_CRT"
+  #[ ! -f "$CA_CRT" ] && curl -s --output "$CA_CRT" "$CA_URL_CRT"
 }
 
 # GLOBAL CONFIGURATION VARIABLES
