@@ -555,12 +555,12 @@ function ca_renew_intermediate() {
 
 function ca_inspect_root() {
   local BACK_TO_MENU="${1:-}"
-  local CERT_VALIDITY=""
-  local CERT_INSPECT=""
   if [ -f "${CA_ROOT}" ]; then
-    CERT_VALIDITY=$(step certificate verify --verbose "$CA_ROOT")
-    CERT_INSPECT="Certificate path validation:\n\n${CERT_VALIDITY}\n\n"
-    CERT_INSPECT+=$(step certificate inspect "$CA_ROOT")
+    local CERT_INSPECT="Certificate:\n"
+    CERT_INSPECT+="$CA_ROOT\n\n"
+    CERT_INSPECT+="Certificate Path Validation:\n"
+    CERT_INSPECT+="$(step certificate verify --verbose "$CA_ROOT")\n\n"
+    CERT_INSPECT+="$(step certificate inspect "$CA_ROOT")"
     whiptail_msgbox "Root CA Certificate ($CA_ROOT)" "$CERT_INSPECT"
   else
     whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate not found on localhost."
