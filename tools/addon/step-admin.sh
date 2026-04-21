@@ -230,7 +230,9 @@ function init_app() {
   mkdir -p "$CERT_PATH/x509/_archive/"
   mkdir -p "$KEY_PATH/_archive/"
 
-  #[ ! -f "$CA_CRT" ] && curl -s --output "$CA_CRT" "$CA_URL_CRT"
+  if [[ ! -f "$CA_CRT" ]]; then
+    curl -s --output "$CA_CRT" "$CA_URL_CRT"
+  fi
   #[ ! -f "$CA_CRT" ] && curl -s --output "$CA_CRT" "$CA_URL_CRT"
   #[ ! -f "$CA_CRT" ] && curl -s --output "$CA_CRT" "$CA_URL_CRT"
   #[ ! -f "$CA_CRT" ] && curl -s --output "$CA_CRT" "$CA_URL_CRT"
