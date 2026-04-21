@@ -508,6 +508,8 @@ function x509_revoke() {
 
 function x509_inspect() {
   local BACK_TO_MENU="${1:-}"
+  local CERT_VALIDITY=""
+  local CERT_INSPECT=""
   x509_certs_menu "Inspect"
   for SERIAL in "${CERT_ARRAY[@]}"; do
     x509_query
@@ -565,10 +567,14 @@ function ca_inspect_root() {
 
 function ca_inspect_intermediate() {
   local BACK_TO_MENU="${1:-}"
-  local CA_CRT_CERT=""
+  local CERT_VALIDITY=""
+  local CERT_INSPECT=""
+
   if [ -f "${CA_CRT}" ]; then
-    CA_CRT_CERT=$(step certificate inspect "$CA_CRT" --roots="$CA_ROOT" --bundle)
-    whiptail_msgbox "Intermediate CA Certificate ($CA_CRT)" "$CA_CRT_CERT"
+    CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_CRT")
+    CERT_INSPECT="${CERT_VALIDITY}\n\n"
+    CERT_INSPECT+=$(step certificate inspect "$CA_CRT" --roots="$CA_ROOT" --bundle)
+    whiptail_msgbox "Intermediate CA Certificate ($CA_CRT)" "$CERT_INSPECT"
   else
     whiptail_msgbox "Certificates Issued by $CA_FQDN" "Intermediate CA Certificate not found on localhost."
   fi
@@ -577,9 +583,12 @@ function ca_inspect_intermediate() {
 
 function ca_inspect_intermediate_url() {
   local BACK_TO_MENU="${1:-}"
-  local CA_CRT_CERT=""
-  CA_CRT_CERT=$(step certificate inspect "$CA_URL_CRT" --roots="$CA_ROOT" --insecure --bundle)
-  whiptail_msgbox "Intermediate CA Certificate ($CA_URL_CRT)" "$CA_CRT_CERT"
+  local CERT_VALIDITY=""
+  local CERT_INSPECT=""
+  CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_URL_CRT")
+  CERT_INSPECT="${CERT_VALIDITY}\n\n"
+  CERT_INSPECT+=$(step certificate inspect "$CA_URL_CRT" --roots="$CA_ROOT" --insecure --bundle)
+  whiptail_msgbox "Intermediate CA Certificate ($CA_URL_CRT)" "$CERT_INSPECT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
