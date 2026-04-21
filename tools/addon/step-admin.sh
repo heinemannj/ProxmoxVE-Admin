@@ -519,7 +519,7 @@ function x509_inspect() {
         CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "${CRT}")
         CERT_INSPECT="${CERT_VALIDITY}\n\n"
         CERT_INSPECT+=$(step certificate inspect "${CRT}" --bundle || die "Failed to inspect certificate!")
-        whiptail_msgbox "x509 ${CERT_VALIDITY}" "$CERT_INSPECT"
+        whiptail_msgbox "x509 $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
       else
         die "Serial Number ${SERIAL} mismatch!"
       fi
