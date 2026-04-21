@@ -516,7 +516,7 @@ function x509_inspect() {
     if [ -f "${CRT}" ]; then
       if [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
         CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "${CRT}")
-        CERT_INSPECT="${CERT_VALIDITY}\n\n"
+        CERT_INSPECT="Certificate path validation:\n\n${CERT_VALIDITY}\n\n"
         CERT_INSPECT+=$(step certificate inspect "${CRT}" --bundle || die "Failed to inspect certificate!")
         whiptail_msgbox "x509 $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
       else
@@ -559,7 +559,7 @@ function ca_inspect_root() {
   local CERT_INSPECT=""
   if [ -f "${CA_ROOT}" ]; then
     CERT_VALIDITY=$(step certificate verify --verbose "$CA_ROOT")
-    CERT_INSPECT="${CERT_VALIDITY}\n\n"
+    CERT_INSPECT="Certificate path validation:\n\n${CERT_VALIDITY}\n\n"
     CERT_INSPECT+=$(step certificate inspect "$CA_ROOT")
     whiptail_msgbox "Root CA Certificate ($CA_ROOT)" "$CERT_INSPECT"
   else
@@ -574,7 +574,7 @@ function ca_inspect_intermediate() {
   local CERT_INSPECT=""
   if [ -f "${CA_CRT}" ]; then
     CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_CRT")
-    CERT_INSPECT="${CERT_VALIDITY}\n\n"
+    CERT_INSPECT="Certificate path validation:\n\n${CERT_VALIDITY}\n\n"
     CERT_INSPECT+=$(step certificate inspect "$CA_CRT" --roots="$CA_ROOT" --bundle)
     whiptail_msgbox "Intermediate CA Certificate ($CA_CRT)" "$CERT_INSPECT"
   else
@@ -588,7 +588,7 @@ function ca_inspect_intermediate_url() {
   local CERT_VALIDITY=""
   local CERT_INSPECT=""
   CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_URL_CRT")
-  CERT_INSPECT="${CERT_VALIDITY}\n\n"
+  CERT_INSPECT="Certificate path validation:\n\n${CERT_VALIDITY}\n\n"
   CERT_INSPECT+=$(step certificate inspect "$CA_URL_CRT" --roots="$CA_ROOT" --insecure --bundle)
   whiptail_msgbox "Intermediate CA Certificate ($CA_URL_CRT)" "$CERT_INSPECT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
