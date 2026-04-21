@@ -507,9 +507,6 @@ function x509_revoke() {
 }
 
 function x509_inspect() {
-  #local BACK_TO_MENU="${1:-}"
-  #local BACK_TO_MENU="${1:-}"
-  #local BACK_TO_MENU="${1:-}"
   local BACK_TO_MENU="${1:-}"
   x509_certs_menu "Inspect"
   for SERIAL in "${CERT_ARRAY[@]}"; do
