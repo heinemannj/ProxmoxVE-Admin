@@ -518,10 +518,10 @@ function x509_inspect() {
         CERT_INSPECT+=$(step certificate inspect "${CRT}" --bundle || die "Failed to inspect certificate!")
         whiptail_msgbox "x509 $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
       else
-        die "Serial Number ${SERIAL} mismatch!"
+        die "x509 Certificate Serial Number ${SERIAL} mismatch for CN '${CN}'!"
       fi
     else
-      whiptail_msgbox "Certificates Issued by $CA_FQDN" "Certificate not found on localhost."
+      whiptail_msgbox "Certificates Issued by $CA_FQDN" "x509 Certificate for CN '${CN}' not found on localhost."
     fi
   done
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
