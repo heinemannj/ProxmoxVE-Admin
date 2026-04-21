@@ -207,6 +207,7 @@ function init_app() {
     CA_DEFAULTS="$CONFIG_PATH/config/defaults.json"
     CA_PROVISIONER_TYPE="ACME"
     CA_PROVISIONER="acme@$(hostname -d)"
+    CA_CRT="$CERT_PATH/intermediate_ca.crt"
   fi
 
   if [ -f "$CA_DEFAULTS" ]; then
@@ -217,7 +218,6 @@ function init_app() {
     CA_URL_CRL="$CA_URL/1.0/crl"
     CA_FINGERPRINT=$(jq -r .fingerprint "$CA_DEFAULTS")
     CA_ROOT=$(jq -r .root "$CA_DEFAULTS")
-    CA_CRT="$CERT_PATH//intermediate_ca.crt"
     CA_ORG=$(step certificate inspect "${CA_ROOT}" --format=json | jq -r .subject.organization.[])
     CA_CN_ROOT=$(step certificate inspect "${CA_ROOT}" --format=json | jq -r .subject.common_name.[])
     CA_CN=$(step certificate inspect "${CA_URL_CRT}" --insecure --format=json | jq -r .subject.common_name.[])
@@ -229,6 +229,8 @@ function init_app() {
   mkdir -p "$CERT_PATH/ssh/_archive/"
   mkdir -p "$CERT_PATH/x509/_archive/"
   mkdir -p "$KEY_PATH/_archive/"
+
+  [ ! -f $CA_CRT ] && curl -s --output "$CA_CRT" "$CA_URL_CRT"
 }
 
 # GLOBAL CONFIGURATION VARIABLES
@@ -509,7 +511,6 @@ function x509_inspect() {
     x509_query
     if [ -f "${CRT}" ]; then
       if [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
-        curl -s --output "$CA_CRT" "$CA_URL_CRT"
         CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "${CRT}")
         CERT_INSPECT="${CERT_VALIDITY}\n\n"
         CERT_INSPECT+=$(step certificate inspect "${CRT}" --bundle || die "Failed to inspect certificate!")
