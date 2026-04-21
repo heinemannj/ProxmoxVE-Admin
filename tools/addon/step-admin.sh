@@ -555,10 +555,13 @@ function ca_renew_intermediate() {
 
 function ca_inspect_root() {
   local BACK_TO_MENU="${1:-}"
-  local CA_ROOT_CERT=""
+  local CERT_VALIDITY=""
+  local CERT_INSPECT=""
   if [ -f "${CA_ROOT}" ]; then
-    CA_ROOT_CERT=$(step certificate inspect "$CA_ROOT")
-    whiptail_msgbox "Root CA Certificate ($CA_ROOT)" "$CA_ROOT_CERT"
+    CERT_VALIDITY=$(step certificate verify --verbose "$CA_ROOT")
+    CERT_INSPECT="${CERT_VALIDITY}\n\n"
+    CERT_INSPECT+=$(step certificate inspect "$CA_ROOT")
+    whiptail_msgbox "Root CA Certificate ($CA_ROOT)" "$CERT_INSPECT"
   else
     whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate not found on localhost."
   fi
@@ -569,7 +572,6 @@ function ca_inspect_intermediate() {
   local BACK_TO_MENU="${1:-}"
   local CERT_VALIDITY=""
   local CERT_INSPECT=""
-
   if [ -f "${CA_CRT}" ]; then
     CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_CRT")
     CERT_INSPECT="${CERT_VALIDITY}\n\n"
