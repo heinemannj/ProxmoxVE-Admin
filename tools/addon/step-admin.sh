@@ -571,9 +571,9 @@ function ca_inspect_root() {
     CERT_INSPECT+="${TAB}Location: $CA_ROOT\n"
     CERT_INSPECT+="$CERT_VALIDATION\n"
     CERT_INSPECT+="$(step certificate inspect "$CA_ROOT")"
-    whiptail_msgbox "Root CA Certificate ($CA_ROOT)" "$CERT_INSPECT"
+    whiptail_msgbox "Root CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
   else
-    whiptail_msgbox "x509 $(echo "${CERT_VALIDITY}" | tail -n1)" "Root CA Certificate not found on localhost."
+    whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate not found on localhost."
   fi
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
@@ -586,7 +586,7 @@ function ca_inspect_intermediate() {
     CERT_INSPECT+="Certificate Path Validation:\n"
     CERT_INSPECT+="$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_CRT")\n\n"
     CERT_INSPECT+=$(step certificate inspect "$CA_CRT" --roots="$CA_ROOT" --bundle)
-    whiptail_msgbox "Intermediate CA Certificate ($CA_CRT)" "$CERT_INSPECT"
+    whiptail_msgbox "Intermediate CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
   else
     whiptail_msgbox "Certificates Issued by $CA_FQDN" "Intermediate CA Certificate not found on localhost."
   fi
@@ -600,7 +600,7 @@ function ca_inspect_intermediate_url() {
   CERT_INSPECT+="Certificate Path Validation:\n"
   CERT_INSPECT+="$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_URL_CRT")\n\n"
   CERT_INSPECT+=$(step certificate inspect "$CA_URL_CRT" --roots="$CA_ROOT" --insecure --bundle)
-  whiptail_msgbox "Intermediate CA Certificate ($CA_URL_CRT)" "$CERT_INSPECT"
+  whiptail_msgbox "Intermediate CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
