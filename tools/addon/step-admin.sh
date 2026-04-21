@@ -556,9 +556,9 @@ function ca_renew_intermediate() {
 function ca_inspect_root() {
   local BACK_TO_MENU="${1:-}"
   if [ -f "${CA_ROOT}" ]; then
-    local CERT_INSPECT="Certificate:\n"
+    local CERT_INSPECT="Certificate Location:\n\n"
     CERT_INSPECT+="$CA_ROOT\n\n"
-    CERT_INSPECT+="Certificate Path Validation:\n"
+    CERT_INSPECT+="Certificate Path Validation:\n\n"
     CERT_INSPECT+="$(step certificate verify --verbose "$CA_ROOT")\n\n"
     CERT_INSPECT+="$(step certificate inspect "$CA_ROOT")"
     whiptail_msgbox "Root CA Certificate ($CA_ROOT)" "$CERT_INSPECT"
