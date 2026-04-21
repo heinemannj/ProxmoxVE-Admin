@@ -514,10 +514,14 @@ function x509_inspect() {
     if [ -f "$CRT" ]; then
       if [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
         local CERT_VALIDITY=""
+        local CERT_VALIDATION=""
         CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CRT")
+        while read -r LINE; do
+          CERT_VALIDATION=+="${TAB}$LINE"
+        done <<< "CERT_VALIDITY"
         local CERT_INSPECT="Certificate Path Validation:\n"
         CERT_INSPECT+="${TAB}Location: $CRT\n\n"
-        CERT_INSPECT+="${TAB}$CERT_VALIDITY\n\n"
+        CERT_INSPECT+="${TAB}$CERT_VALIDATION\n\n"
         CERT_INSPECT+="$(step certificate inspect "$CRT" --bundle || die "Failed to inspect certificate!")"
         whiptail_msgbox "x509 $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
       else
