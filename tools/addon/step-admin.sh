@@ -570,11 +570,11 @@ function ca_inspect_root() {
 
 function ca_inspect_intermediate() {
   local BACK_TO_MENU="${1:-}"
-  local CERT_VALIDITY=""
-  local CERT_INSPECT=""
   if [ -f "${CA_CRT}" ]; then
-    CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_CRT")
-    CERT_INSPECT="Certificate path validation:\n\n${CERT_VALIDITY}\n\n"
+    local CERT_INSPECT="Certificate Location:\n\n"
+    CERT_INSPECT+="$CA_CRT\n\n"
+    CERT_INSPECT+="Certificate Path Validation:\n\n"
+    CERT_INSPECT+="$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_CRT")\n\n"
     CERT_INSPECT+=$(step certificate inspect "$CA_CRT" --roots="$CA_ROOT" --bundle)
     whiptail_msgbox "Intermediate CA Certificate ($CA_CRT)" "$CERT_INSPECT"
   else
