@@ -508,16 +508,16 @@ function x509_revoke() {
 
 function x509_inspect() {
   local BACK_TO_MENU="${1:-}"
-  local CERT_VALIDITY=""
-  local CERT_INSPECT=""
   x509_certs_menu "Inspect"
   for SERIAL in "${CERT_ARRAY[@]}"; do
     x509_query
-    if [ -f "${CRT}" ]; then
+    if [ -f "$CRT" ]; then
       if [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
-        CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "${CRT}")
-        CERT_INSPECT="Certificate path validation:\n\n${CERT_VALIDITY}\n\n"
-        CERT_INSPECT+=$(step certificate inspect "${CRT}" --bundle || die "Failed to inspect certificate!")
+        local CERT_INSPECT="Certificate Location:\n"
+        CERT_INSPECT+="$CRT\n\n"
+        CERT_INSPECT+="Certificate Path Validation:\n"
+        CERT_INSPECT+="$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CRT")\n\n"
+        CERT_INSPECT+="$(step certificate inspect "$CRT" --bundle || die "Failed to inspect certificate!")"
         whiptail_msgbox "x509 $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
       else
         die "x509 Certificate Serial Number ${SERIAL} mismatch for CN '${CN}'!"
