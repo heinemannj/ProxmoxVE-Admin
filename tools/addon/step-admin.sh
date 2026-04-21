@@ -600,10 +600,15 @@ function ca_inspect_intermediate() {
 
 function ca_inspect_intermediate_url() {
   local BACK_TO_MENU="${1:-}"
-  local CERT_INSPECT="Certificate Location:\n"
-  CERT_INSPECT+="$CA_URL_CRT\n\n"
-  CERT_INSPECT+="Certificate Path Validation:\n"
-  CERT_INSPECT+="$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_URL_CRT")\n\n"
+  local CERT_VALIDITY=""
+  local CERT_VALIDATION=""
+  CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_URL_CRT")
+  while read -r LINE; do
+    CERT_VALIDATION+="${TAB}${TAB}- $LINE\n"
+  done <<< "$CERT_VALIDITY"
+  local CERT_INSPECT="Certificate Path Validation:\n"
+  CERT_INSPECT+="${TAB}Location: $CA_URL_CRT\n"
+  CERT_INSPECT+="$CERT_VALIDATION\n"
   CERT_INSPECT+=$(step certificate inspect "$CA_URL_CRT" --roots="$CA_ROOT" --insecure --bundle)
   whiptail_msgbox "Intermediate CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
