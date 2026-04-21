@@ -217,6 +217,7 @@ function init_app() {
     CA_URL_CRL="$CA_URL/1.0/crl"
     CA_FINGERPRINT=$(jq -r .fingerprint "$CA_DEFAULTS")
     CA_ROOT=$(jq -r .root "$CA_DEFAULTS")
+    CA_CRT="$CERT_PATH//intermediate_ca.crt"
     CA_ORG=$(step certificate inspect "${CA_ROOT}" --format=json | jq -r .subject.organization.[])
     CA_CN_ROOT=$(step certificate inspect "${CA_ROOT}" --format=json | jq -r .subject.common_name.[])
     CA_CN=$(step certificate inspect "${CA_URL_CRT}" --insecure --format=json | jq -r .subject.common_name.[])
@@ -508,7 +509,8 @@ function x509_inspect() {
     x509_query
     if [ -f "${CRT}" ]; then
       if [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
-        CERT_VALIDITY=$(step certificate verify "${CRT}" --verify-crl --verbose)
+        curl -s --output "$CA_CRT" "$CA_URL_CRT"
+        CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "${CRT}")
         CERT_INSPECT="${CERT_VALIDITY}\n\n"
         CERT_INSPECT+=$(step certificate inspect "${CRT}" --bundle || die "Failed to inspect certificate!")
         whiptail_msgbox "x509 ${CERT_VALIDITY}" "$CERT_INSPECT"
