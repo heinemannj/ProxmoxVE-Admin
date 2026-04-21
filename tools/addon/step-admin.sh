@@ -556,9 +556,9 @@ function ca_renew_intermediate() {
 function ca_inspect_root() {
   local BACK_TO_MENU="${1:-}"
   if [ -f "${CA_ROOT}" ]; then
-    local CERT_INSPECT="Certificate Location:\n\n"
+    local CERT_INSPECT="Certificate Location:\n"
     CERT_INSPECT+="$CA_ROOT\n\n"
-    CERT_INSPECT+="Certificate Path Validation:\n\n"
+    CERT_INSPECT+="Certificate Path Validation:\n"
     CERT_INSPECT+="$(step certificate verify --verbose "$CA_ROOT")\n\n"
     CERT_INSPECT+="$(step certificate inspect "$CA_ROOT")"
     whiptail_msgbox "Root CA Certificate ($CA_ROOT)" "$CERT_INSPECT"
@@ -571,9 +571,9 @@ function ca_inspect_root() {
 function ca_inspect_intermediate() {
   local BACK_TO_MENU="${1:-}"
   if [ -f "${CA_CRT}" ]; then
-    local CERT_INSPECT="Certificate Location:\n\n"
+    local CERT_INSPECT="Certificate Location:\n"
     CERT_INSPECT+="$CA_CRT\n\n"
-    CERT_INSPECT+="Certificate Path Validation:\n\n"
+    CERT_INSPECT+="Certificate Path Validation:\n"
     CERT_INSPECT+="$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_CRT")\n\n"
     CERT_INSPECT+=$(step certificate inspect "$CA_CRT" --roots="$CA_ROOT" --bundle)
     whiptail_msgbox "Intermediate CA Certificate ($CA_CRT)" "$CERT_INSPECT"
@@ -585,9 +585,9 @@ function ca_inspect_intermediate() {
 
 function ca_inspect_intermediate_url() {
   local BACK_TO_MENU="${1:-}"
-  local CERT_INSPECT="Certificate Location:\n\n"
+  local CERT_INSPECT="Certificate Location:\n"
   CERT_INSPECT+="$CA_URL_CRT\n\n"
-  CERT_INSPECT+="Certificate Path Validation:\n\n"
+  CERT_INSPECT+="Certificate Path Validation:\n"
   CERT_INSPECT+="$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_URL_CRT")\n\n"
   CERT_INSPECT+=$(step certificate inspect "$CA_URL_CRT" --roots="$CA_ROOT" --insecure --bundle)
   whiptail_msgbox "Intermediate CA Certificate ($CA_URL_CRT)" "$CERT_INSPECT"
