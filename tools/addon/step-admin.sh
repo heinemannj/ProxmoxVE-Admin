@@ -546,7 +546,7 @@ function ca_renew_intermediate() {
 
 
   $STD echo
-  $STD step certificate create "${CA_CN_CRT}" \
+  $STD step certificate create "${CA_CN_CRT//\"/}" \
     "${CA_CRT}" \
     "${CA_CRT_KEY}" \
     "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $CA_PROVISIONER failed!"
