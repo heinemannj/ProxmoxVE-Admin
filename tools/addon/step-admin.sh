@@ -444,8 +444,14 @@ function x509_request() {
     FLAGS+=(--san "$item")
   done
 
+  #$STD echo
+  #$STD step ca certificate "$FQDN" \
+  #  "${CERT_PATH}"/x509/"$FQDN".crt \
+  #  "${KEY_PATH}"/"$FQDN".key \
+  #  "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $CA_PROVISIONER failed!"
+
   $STD echo
-  $STD step ca certificate "$FQDN" \
+  $STD step certificate create "$FQDN" \
     "${CERT_PATH}"/x509/"$FQDN".crt \
     "${KEY_PATH}"/"$FQDN".key \
     "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $CA_PROVISIONER failed!"
