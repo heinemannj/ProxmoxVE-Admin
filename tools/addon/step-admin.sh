@@ -598,7 +598,7 @@ function x509_inspect_crl() {
   local BACK_TO_MENU="${1:-}"
   local CA_CRL=""
   if [ -f "${CA_ROOT}" ]; then
-    CA_CRL=$(step crl inspect --ca "$CA_ROOT" "$CA_URL_CRL")
+    CA_CRL=$(step crl inspect --ca="$CA_CERT" "$CA_URL_CRL")
     whiptail_msgbox "Certificate Revocation List by $CA_FQDN" "$CA_CRL"
   else
     whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate not found on localhost."
