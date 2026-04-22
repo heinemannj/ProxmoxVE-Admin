@@ -441,7 +441,7 @@ function x509_request() {
   [ "$CA_PROVISIONER_TYPE" = "JWK" ] && [ -f "$CA_PROVISIONER_PWD_FILE" ] && FLAGS+=(--provisioner-password-file="$CA_PROVISIONER_PWD_FILE")
   local SAN_ITEMS=("$FQDN" "$HOST" "$IP" "$SAN")
   for item in "${SAN_ITEMS[@]}"; do
-    FLAGS+=(--san "$item")
+    [ $item ] && FLAGS+=(--san "$item")
   done
 
   #$STD echo
