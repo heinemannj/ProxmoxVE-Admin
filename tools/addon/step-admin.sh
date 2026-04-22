@@ -541,6 +541,10 @@ function ca_renew_intermediate() {
     [ ! -z $item ] && FLAGS+=(--san "$item")
   done
 
+#echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
+#echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
+#echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
+#echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
 
   echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
 
