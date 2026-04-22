@@ -230,9 +230,7 @@ function init_app() {
   mkdir -p "$CERT_PATH/x509/_archive/"
   mkdir -p "$KEY_PATH/_archive/"
 
-  if [[ ! -f "$CA_CRT" ]]; then
-    curl -s --output "$CA_CRT" "$CA_URL_CRT"
-  fi
+  [[ -d "$CA_PATH" ]] || curl -s --output "$CA_CRT" "$CA_URL_CRT"
 }
 
 # GLOBAL CONFIGURATION VARIABLES
@@ -570,7 +568,7 @@ function x509_inspect_uri() {
   CERT_INSPECT+="${TAB}Location: $CERT_URI\n"
   CERT_INSPECT+="$CERT_VALIDATION\n"
 
-  local FLAGS=(--insecure --bundle)
+  local FLAGS=(--bundle)
   [ "$ROOTS" ] && FLAGS+=(--roots="$ROOTS")
   CERT_INSPECT+=$(step certificate inspect "${FLAGS[@]}" "$CERT_URI" 2>&1 || true)
 
