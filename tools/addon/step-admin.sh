@@ -554,7 +554,7 @@ function x509_inspect_uri() {
   if [[ $(step certificate verify "${FLAGS[@]}" "$CERT_URI") ]]; then
     CERT_VALIDITY=$(step certificate verify "${FLAGS[@]}" "$CERT_URI")
   else
-    CERT_VALIDITY="$(step certificate verify "${FLAGS[@]}" "$CERT_URI" 2>/dev/null || true)"
+    $(step certificate verify "${FLAGS[@]}" "$CERT_URI" 2>/dev/null || CERT_VALIDITY="$?")
   fi
 
   while read -r LINE; do
