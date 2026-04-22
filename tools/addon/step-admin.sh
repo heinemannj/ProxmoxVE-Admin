@@ -538,44 +538,22 @@ function x509_inspect_uri() {
   local ROOTS="$5"
   local CERT_VALIDITY=""
   local CERT_VALIDATION=""
-  
-  #local CERT_URI="$1"
-  #local CERT_SERIAL="$2"
-  #local ISSUING_CA="$3"
-  #local CRL_ENDPOINT="$4"
-  #local ROOTS="$5"
-  #local CERT_VALIDITY=""
-  #local CERT_VALIDATION=""
-  
-  #local CERT_URI="$1"
-  #local CERT_SERIAL="$2"
-  #local ISSUING_CA="$3"
-  #local CRL_ENDPOINT="$4"
-  #local ROOTS="$5"
-  #local CERT_VALIDITY=""
-  #local CERT_VALIDATION=""
 
   local FLAGS=(--verbose --verify-crl)
   [ "$ISSUING_CA" ] && FLAGS+=(--issuing-ca="$ISSUING_CA")
   [ "$CRL_ENDPOINT" ] && FLAGS+=(--crl-endpoint="$CRL_ENDPOINT")
-  echo "step certificate verify ${FLAGS[@]} $CERT_URI"
-  if [[ $(step certificate verify "${FLAGS[@]}" "$CERT_URI") ]]; then
-    CERT_VALIDITY=$(step certificate verify "${FLAGS[@]}" "$CERT_URI")
-  else
-    $(step certificate verify "${FLAGS[@]}" "$CERT_URI" 2>/dev/null || CERT_VALIDITY="$?")
-  fi
+  CERT_VALIDITY=$(step certificate verify "${FLAGS[@]}" "$CERT_URI" 2>&1 || true)
 
   while read -r LINE; do
     CERT_VALIDATION+="${TAB}${TAB}- $LINE\n"
   done <<< "$CERT_VALIDITY"
   local CERT_INSPECT="Certificate Path Validation:\n"
-  CERT_INSPECT+="${TAB}Location: $CA_URL_CRT\n"
+  CERT_INSPECT+="${TAB}Location: $CERT_URI\n"
   CERT_INSPECT+="$CERT_VALIDATION\n"
 
   local FLAGS=(--insecure --bundle)
   [ "$ROOTS" ] && FLAGS+=(--roots="$ROOTS")
-  echo "step certificate inspect ${FLAGS[@]} $CERT_URI"
-  CERT_INSPECT+=$(step certificate inspect "${FLAGS[@]}" "$CERT_URI")
+  CERT_INSPECT+=$(step certificate inspect "${FLAGS[@]}" "$CERT_URI" 2>&1 || true)
 
   whiptail_msgbox "Intermediate CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
 }
@@ -587,17 +565,8 @@ function x509_inspect() {
     x509_query
     if [ -f "$CRT" ]; then
       if [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
-        local CERT_VALIDITY=""
-        local CERT_VALIDATION=""
-        CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CRT")
-        while read -r LINE; do
-          CERT_VALIDATION+="${TAB}${TAB}- $LINE\n"
-        done <<< "$CERT_VALIDITY"
-        local CERT_INSPECT="Certificate Path Validation:\n"
-        CERT_INSPECT+="${TAB}Location: $CRT\n"
-        CERT_INSPECT+="$CERT_VALIDATION\n"
-        CERT_INSPECT+="$(step certificate inspect "$CRT" --bundle || die "Failed to inspect certificate!")"
-        whiptail_msgbox "x509 $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
+        #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
+        x509_inspect_uri "$CRT" "" "$CA_CRT" "" ""
       else
         die "x509 Certificate Serial Number ${SERIAL} mismatch for CN '${CN}'!"
       fi
@@ -611,20 +580,8 @@ function x509_inspect() {
 function ca_inspect_root() {
   local BACK_TO_MENU="${1:-}"
   if [ -f "${CA_ROOT}" ]; then
-    #local CERT_VALIDITY=""
-    #local CERT_VALIDATION=""
-    #CERT_VALIDITY=$(step certificate verify --verbose "$CA_ROOT")
-    #while read -r LINE; do
-    #  CERT_VALIDATION+="${TAB}${TAB}- $LINE\n"
-    #done <<< "$CERT_VALIDITY"
-    #local CERT_INSPECT="Certificate Path Validation:\n"
-    #CERT_INSPECT+="${TAB}Location: $CA_ROOT\n"
-    #CERT_INSPECT+="$CERT_VALIDATION\n"
-    #CERT_INSPECT+="$(step certificate inspect "$CA_ROOT")"
-    #whiptail_msgbox "Root CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
-	
     #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
-    x509_inspect_uri "$CA_ROOT" "" "" "" ""
+    x509_inspect_uri "$CA_ROOT" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
   else
     whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate not found on localhost."
   fi
@@ -676,6 +633,7 @@ function x509_view(){
       local FLAGS=("--provisioner")
       DB_EXPORT=$(step-badger x509Certs "$CONFIG_PATH/db-copy" "${FLAGS[@]}" 2>/dev/null | sed '1d')
       while read -r SERIAL SUBJECT TYPE REQUESTER NotBefore NotAfter VALIDITY; do
+        FILE="none"
         CN=$(echo "$SUBJECT" | awk -F 'CN=' '{print $2}' | awk -F ',' '{print $1}')
         local CRT="$CERT_PATH/x509/$CN.crt"
         if [ -f "${CRT}" ] && step certificate inspect "${CRT}" | grep -q "${SERIAL}"; then
@@ -687,6 +645,7 @@ function x509_view(){
     fi
   else
     for ITEM in "${CERT_FILE_ARRAY[@]}"; do
+      FILE="none"
       [ -f "${ITEM}" ] || break
       SERIAL=$(step certificate inspect "${ITEM}" --format=json | jq -r .serial_number)
       CN=$(step certificate inspect "${ITEM}" --format=json | jq -r .subject.common_name.[])
