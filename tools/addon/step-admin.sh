@@ -555,7 +555,7 @@ function x509_inspect_uri() {
   [ "$ROOTS" ] && FLAGS+=(--roots="$ROOTS")
   CERT_INSPECT+=$(step certificate inspect "${FLAGS[@]}" "$CERT_URI" 2>&1 || true)
 
-  whiptail_msgbox "Intermediate CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
+  whiptail_msgbox "Certificate Path Validation: $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
 }
 
 function x509_inspect() {
