@@ -542,7 +542,7 @@ function x509_inspect_uri() {
   local FLAGS=(--verbose --verify-crl)
   [ -z "$ISSUING_CA" ] && FLAGS+=(--issuing-ca="$ISSUING_CA")
   [ -z "$CRL_ENDPOINT" ] && FLAGS+=(--crl-endpoint="$CRL_ENDPOINT")
-  echo "step certificate verify "${FLAGS[@]} $CERT_URI"
+  echo "step certificate verify ${FLAGS[@]} $CERT_URI"
   CERT_VALIDITY=$(step certificate verify "${FLAGS[@]}" "$CERT_URI")
 
   while read -r LINE; do
@@ -554,6 +554,7 @@ function x509_inspect_uri() {
 
   local FLAGS=(--insecure --bundle)
   [ -z "$ROOTS" ] && FLAGS+=(--roots="$ROOTS")
+  echo "step certificate inspect ${FLAGS[@]} $CERT_URI"
   CERT_INSPECT+=$(step certificate inspect "${FLAGS[@]}" "$CERT_URI")
 
   whiptail_msgbox "Intermediate CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
