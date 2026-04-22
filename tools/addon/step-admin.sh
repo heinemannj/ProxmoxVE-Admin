@@ -535,6 +535,16 @@ function ca_renew_intermediate() {
     --set issuingCertificateURL="$CA_URL_ROOT"
     --set crlDistributionPoints="$CA_URL_CRL")
 
+    #--ca-password-file="/etc/step-ca/encryption/ca.pwd"
+    #--password-file="/etc/step-ca/encryption/ca.pwd"
+    #--bundle
+    #--set country="DE"
+    #--set organization="$CA_ORG"
+    #--set organizationalUnit="MyHomeLab"
+    #--set issuingCertificateURL="$CA_URL_ROOT"
+    #--set crlDistributionPoints="$CA_URL_CRL")
+
+
   $STD echo
   $STD step certificate create "${CA_CN_CRT}" \
     "${CA_CRT}" \
