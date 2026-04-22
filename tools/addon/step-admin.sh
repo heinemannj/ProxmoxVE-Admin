@@ -513,18 +513,6 @@ function x509_list() {
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
-function x509_crl() {
-  local BACK_TO_MENU="${1:-}"
-  local CA_CRL=""
-  if [ -f "${CA_ROOT}" ]; then
-    CA_CRL=$(step crl inspect --ca "$CA_ROOT" "$CA_URL_CRL")
-    whiptail_msgbox "Certificate Revocation List by $CA_FQDN" "$CA_CRL"
-  else
-    whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate not found on localhost."
-  fi
-  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
-}
-
 function ca_renew_intermediate() {
   local BACK_TO_MENU="${1:-}"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
@@ -603,6 +591,18 @@ function ca_inspect_intermediate_url() {
   local BACK_TO_MENU="${1:-}"
   #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
   x509_inspect_uri "$CA_URL_CRT" "" "$CA_ROOT" "$CA_URL_CRL" "$CA_ROOT"
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
+}
+
+function x509_inspect_crl() {
+  local BACK_TO_MENU="${1:-}"
+  local CA_CRL=""
+  if [ -f "${CA_ROOT}" ]; then
+    CA_CRL=$(step crl inspect --ca "$CA_ROOT" "$CA_URL_CRL")
+    whiptail_msgbox "Certificate Revocation List by $CA_FQDN" "$CA_CRL"
+  else
+    whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate not found on localhost."
+  fi
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
@@ -734,7 +734,7 @@ function x509_maintenance_menu() {
     Revoke) x509_revoke "x509_maintenance_menu" ;;
     Inspect) x509_inspect "x509_maintenance_menu" ;;
     List) x509_list "x509_maintenance_menu" ;;
-    CRL) x509_crl "x509_maintenance_menu" ;;
+    CRL) x509_inspect_crl "x509_maintenance_menu" ;;
     *) exit 0 ;;
   esac
 }
@@ -912,7 +912,7 @@ case "$var_x509_action" in
     exit 0
     ;;
   crl)
-    x509_crl
+    x509_inspect_crl
     exit 0
     ;;
 esac
