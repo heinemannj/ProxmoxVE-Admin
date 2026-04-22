@@ -595,17 +595,20 @@ function x509_inspect() {
 function ca_inspect_root() {
   local BACK_TO_MENU="${1:-}"
   if [ -f "${CA_ROOT}" ]; then
-    local CERT_VALIDITY=""
-    local CERT_VALIDATION=""
-    CERT_VALIDITY=$(step certificate verify --verbose "$CA_ROOT")
-    while read -r LINE; do
-      CERT_VALIDATION+="${TAB}${TAB}- $LINE\n"
-    done <<< "$CERT_VALIDITY"
-    local CERT_INSPECT="Certificate Path Validation:\n"
-    CERT_INSPECT+="${TAB}Location: $CA_ROOT\n"
-    CERT_INSPECT+="$CERT_VALIDATION\n"
-    CERT_INSPECT+="$(step certificate inspect "$CA_ROOT")"
-    whiptail_msgbox "Root CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
+    #local CERT_VALIDITY=""
+    #local CERT_VALIDATION=""
+    #CERT_VALIDITY=$(step certificate verify --verbose "$CA_ROOT")
+    #while read -r LINE; do
+    #  CERT_VALIDATION+="${TAB}${TAB}- $LINE\n"
+    #done <<< "$CERT_VALIDITY"
+    #local CERT_INSPECT="Certificate Path Validation:\n"
+    #CERT_INSPECT+="${TAB}Location: $CA_ROOT\n"
+    #CERT_INSPECT+="$CERT_VALIDATION\n"
+    #CERT_INSPECT+="$(step certificate inspect "$CA_ROOT")"
+    #whiptail_msgbox "Root CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
+	
+    #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
+    x509_inspect_uri "$CA_ROOT" "" "" "" ""
   else
     whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate not found on localhost."
   fi
