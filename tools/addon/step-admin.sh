@@ -546,6 +546,14 @@ function x509_inspect_uri() {
   #local ROOTS="$5"
   #local CERT_VALIDITY=""
   #local CERT_VALIDATION=""
+  
+  #local CERT_URI="$1"
+  #local CERT_SERIAL="$2"
+  #local ISSUING_CA="$3"
+  #local CRL_ENDPOINT="$4"
+  #local ROOTS="$5"
+  #local CERT_VALIDITY=""
+  #local CERT_VALIDATION=""
 
   local FLAGS=(--verbose --verify-crl)
   [ "$ISSUING_CA" ] && FLAGS+=(--issuing-ca="$ISSUING_CA")
