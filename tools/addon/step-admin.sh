@@ -548,10 +548,7 @@ function ca_renew_intermediate() {
   echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
 
   $STD echo
-  $STD step certificate create "\'${CA_CN_CRT}\'" \
-    "${CA_CRT}" \
-    "${CA_CRT_KEY}" \
-    "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $CA_PROVISIONER failed!"
+  $STD step certificate create "\'${CA_CN_CRT}\'" "${CA_CRT}" "${CA_CRT_KEY}" "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $CA_PROVISIONER failed!"
 
   chown -R step /etc/step-ca
   chgrp -R step /etc/step-ca
