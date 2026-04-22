@@ -533,7 +533,7 @@ function ca_renew_intermediate() {
     --set country="DE"
     --set organization="$CA_ORG"
     --set organizationalUnit="MyHomeLab"
-    --set issuingCertificateURL="$CA_URL_CRT"
+    --set issuingCertificateURL="$CA_URL_ROOT"
     --set crlDistributionPoints="$CA_URL_CRL")
 
   $STD echo
