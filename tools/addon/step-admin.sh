@@ -557,7 +557,7 @@ function x509_inspect_uri() {
   local CERT_VALIDITY=""
   local CERT_VALIDATION=""
 
-  local FLAGS=(--verbose --verify-crl)
+  local FLAGS=(--verbose --insecure --verify-crl)
   [ "$ISSUING_CA" ] && FLAGS+=(--issuing-ca="$ISSUING_CA")
   [ "$CRL_ENDPOINT" ] && FLAGS+=(--crl-endpoint="$CRL_ENDPOINT")
   CERT_VALIDITY=$(step certificate verify "${FLAGS[@]}" "$CERT_URI" 2>&1 || true)
