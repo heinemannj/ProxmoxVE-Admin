@@ -548,8 +548,8 @@ function x509_inspect_uri() {
   #local CERT_VALIDATION=""
 
   local FLAGS=(--verbose --verify-crl)
-  [ -z "$ISSUING_CA" ] && FLAGS+=(--issuing-ca="$ISSUING_CA")
-  [ -z "$CRL_ENDPOINT" ] && FLAGS+=(--crl-endpoint="$CRL_ENDPOINT")
+  [ "$ISSUING_CA" ] && FLAGS+=(--issuing-ca="$ISSUING_CA")
+  [ "$CRL_ENDPOINT" ] && FLAGS+=(--crl-endpoint="$CRL_ENDPOINT")
   echo "step certificate verify ${FLAGS[@]} $CERT_URI"
   CERT_VALIDITY=$(step certificate verify "${FLAGS[@]}" "$CERT_URI")
 
@@ -561,7 +561,7 @@ function x509_inspect_uri() {
   CERT_INSPECT+="$CERT_VALIDATION\n"
 
   local FLAGS=(--insecure --bundle)
-  [ -z "$ROOTS" ] && FLAGS+=(--roots="$ROOTS")
+  [ "$ROOTS" ] && FLAGS+=(--roots="$ROOTS")
   echo "step certificate inspect ${FLAGS[@]} $CERT_URI"
   CERT_INSPECT+=$(step certificate inspect "${FLAGS[@]}" "$CERT_URI")
 
