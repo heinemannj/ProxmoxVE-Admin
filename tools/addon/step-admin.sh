@@ -515,6 +515,40 @@ function x509_list() {
 
 function ca_renew_intermediate() {
   local BACK_TO_MENU="${1:-}"
+  FQDN="$(hostname -f)"
+  HOST="$(hostname)"
+  IP=$(resolve_ip "${FQDN}") || die "Resolution failed for ${FQDN}!"
+  SAN=""
+  VALID_TO="87600h" # Default validity of 10 years (87600 hours)
+
+  [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || x509_request_menu
+  msg_info "Renewing CA Intermediate Certificate ($CA_CRT)"
+  local FLAGS=(--force
+    --ca="$CA_ROOT"
+    --ca-key"$CA_ROOT_KEY"
+    --ca-password-file="/etc/step-ca/encryption/ca.pwd"
+    --password-file="/etc/step-ca/encryption/ca.pwd"
+    --template="$CA_TEMPLATE_CRT"
+    --not-after="$VALID_TO"
+    --set country="DE"
+    --set organization="$CA_ORG"
+    --set organizationalUnit="MyHomeLab"
+    --set issuingCertificateURL="$CA_URL_CRT"
+    --set crlDistributionPoints="$CA_URL_CRL")
+  local SAN_ITEMS=("$FQDN" "$HOST" "$IP" "$SAN")
+  for item in "${SAN_ITEMS[@]}"; do
+    [ ! -z $item ] && FLAGS+=(--san "$item")
+  done
+
+  $STD echo
+  $STD step certificate create "$CA_CN_CRT" \
+    "${CA_CRT}" \
+    "${CA_CRT_KEY}" \
+    "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $CA_PROVISIONER failed!"
+
+  chown -R step /etc/step-ca
+  chgrp -R step /etc/step-ca
+  msg_ok "Renewed CA Intermediate Certificate ($CA_CRT)"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
