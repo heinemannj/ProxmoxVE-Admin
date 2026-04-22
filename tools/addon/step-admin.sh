@@ -539,19 +539,15 @@ function x509_inspect_uri() {
   local CERT_VALIDITY=""
   local CERT_VALIDATION=""
 
-  #local CERT_URI="$1"
-  #local CERT_SERIAL="$2"
-  #local ISSUING_CA="$3"
-  #local CRL_ENDPOINT="$4"
-  #local ROOTS="$5"
-  #local CERT_VALIDITY=""
-  #local CERT_VALIDATION=""
-
   local FLAGS=(--verbose --verify-crl)
   [ "$ISSUING_CA" ] && FLAGS+=(--issuing-ca="$ISSUING_CA")
   [ "$CRL_ENDPOINT" ] && FLAGS+=(--crl-endpoint="$CRL_ENDPOINT")
   echo "step certificate verify ${FLAGS[@]} $CERT_URI"
-  CERT_VALIDITY=$(step certificate verify "${FLAGS[@]}" "$CERT_URI")
+  if [[ $(step certificate verify "${FLAGS[@]}" "$CERT_URI") ]]; then
+    CERT_VALIDITY=$(step certificate verify "${FLAGS[@]}" "$CERT_URI")
+  else
+    CERT_VALIDITY="Validation failed"
+  fi
 
   while read -r LINE; do
     CERT_VALIDATION+="${TAB}${TAB}- $LINE\n"
@@ -619,17 +615,8 @@ function ca_inspect_root() {
 function ca_inspect_intermediate() {
   local BACK_TO_MENU="${1:-}"
   if [ -f "${CA_CRT}" ]; then
-    local CERT_VALIDITY=""
-    local CERT_VALIDATION=""
-    CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_CRT")
-    while read -r LINE; do
-      CERT_VALIDATION+="${TAB}${TAB}- $LINE\n"
-    done <<< "$CERT_VALIDITY"
-    local CERT_INSPECT="Certificate Path Validation:\n"
-    CERT_INSPECT+="${TAB}Location: $CA_CRT\n"
-    CERT_INSPECT+="$CERT_VALIDATION\n"
-    CERT_INSPECT+=$(step certificate inspect "$CA_CRT" --roots="$CA_ROOT" --bundle)
-    whiptail_msgbox "Intermediate CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
+    #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
+    x509_inspect_uri "$CA_CRT" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
   else
     whiptail_msgbox "Certificates Issued by $CA_FQDN" "Intermediate CA Certificate not found on localhost."
   fi
@@ -638,18 +625,7 @@ function ca_inspect_intermediate() {
 
 function ca_inspect_intermediate_url() {
   local BACK_TO_MENU="${1:-}"
-  #local CERT_VALIDITY=""
-  #local CERT_VALIDATION=""
-  #CERT_VALIDITY=$(step certificate verify --verbose --issuing-ca="$CA_CRT" --crl-endpoint="$CA_URL_CRL" --verify-crl "$CA_URL_CRT")
-  #while read -r LINE; do
-  #  CERT_VALIDATION+="${TAB}${TAB}- $LINE\n"
-  #done <<< "$CERT_VALIDITY"
-  #local CERT_INSPECT="Certificate Path Validation:\n"
-  #CERT_INSPECT+="${TAB}Location: $CA_URL_CRT\n"
-  #CERT_INSPECT+="$CERT_VALIDATION\n"
-  #CERT_INSPECT+=$(step certificate inspect "$CA_URL_CRT" --roots="$CA_ROOT" --insecure --bundle)
-  #whiptail_msgbox "Intermediate CA $(echo "${CERT_VALIDITY}" | tail -n1)" "$CERT_INSPECT"
-
+  #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
   x509_inspect_uri "$CA_URL_CRT" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
