@@ -542,12 +542,10 @@ function ca_renew_intermediate() {
 
 
 #step certificate create "MyHomePKI Intermediate CA" /etc/step-ca/certs/intermediate_ca.crt /etc/step-ca/secrets/intermediate_ca_key --force --template=/etc/step-ca/templates/ca/intermediate_ca.tpl --ca=/etc/step-ca/certs/root_ca.crt --ca-key=/etc/step-ca/secrets/root_ca_key --not-after=87600h --ca-password-file=/etc/step-ca/encryption/ca.pwd --password-file=/etc/step-ca/encryption/ca.pwd --set country=DE --set organization=MyHomePKI --set organizationalUnit=MyHomeLab --set issuingCertificateURL=https://step-ca-1.fritz.box/1.0/intermediates.pem --set crlDistributionPoints=https://step-ca-1.fritz.box/1.0/crl
+#step certificate create "MyHomePKI Intermediate CA" /etc/step-ca/certs/intermediate_ca.crt /etc/step-ca/secrets/intermediate_ca_key --force --template=/etc/step-ca/templates/ca/intermediate_ca.tpl --ca=/etc/step-ca/certs/root_ca.crt --ca-key=/etc/step-ca/secrets/root_ca_key --not-after=87600h --ca-password-file=/etc/step-ca/encryption/ca.pwd --password-file=/etc/step-ca/encryption/ca.pwd --set country=DE --set organization=MyHomePKI --set organizationalUnit=MyHomeLab --set issuingCertificateURL=https://step-ca-1.fritz.box/1.0/intermediates.pem --set crlDistributionPoints=https://step-ca-1.fritz.box/1.0/crl
+#step certificate create "MyHomePKI Intermediate CA" /etc/step-ca/certs/intermediate_ca.crt /etc/step-ca/secrets/intermediate_ca_key --force --template=/etc/step-ca/templates/ca/intermediate_ca.tpl --ca=/etc/step-ca/certs/root_ca.crt --ca-key=/etc/step-ca/secrets/root_ca_key --not-after=87600h --ca-password-file=/etc/step-ca/encryption/ca.pwd --password-file=/etc/step-ca/encryption/ca.pwd --set country=DE --set organization=MyHomePKI --set organizationalUnit=MyHomeLab --set issuingCertificateURL=https://step-ca-1.fritz.box/1.0/intermediates.pem --set crlDistributionPoints=https://step-ca-1.fritz.box/1.0/crl
+#step certificate create "MyHomePKI Intermediate CA" /etc/step-ca/certs/intermediate_ca.crt /etc/step-ca/secrets/intermediate_ca_key --force --template=/etc/step-ca/templates/ca/intermediate_ca.tpl --ca=/etc/step-ca/certs/root_ca.crt --ca-key=/etc/step-ca/secrets/root_ca_key --not-after=87600h --ca-password-file=/etc/step-ca/encryption/ca.pwd --password-file=/etc/step-ca/encryption/ca.pwd --set country=DE --set organization=MyHomePKI --set organizationalUnit=MyHomeLab --set issuingCertificateURL=https://step-ca-1.fritz.box/1.0/intermediates.pem --set crlDistributionPoints=https://step-ca-1.fritz.box/1.0/crl
 
-
-#echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
-#echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
-#echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
-#echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
 
   echo "step certificate create \"${CA_CN_CRT}\" ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
 
