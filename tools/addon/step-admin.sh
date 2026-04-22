@@ -535,10 +535,10 @@ function ca_renew_intermediate() {
     --set organizationalUnit="MyHomeLab"
     --set issuingCertificateURL="$CA_URL_CRT"
     --set crlDistributionPoints="$CA_URL_CRL")
-  #local SAN_ITEMS=("$FQDN" "$HOST" "$IP" "$SAN")
-  #for item in "${SAN_ITEMS[@]}"; do
-  #  [ ! -z $item ] && FLAGS+=(--san "$item")
-  #done
+  local SAN_ITEMS=("$FQDN" "$HOST" "$IP" "$SAN")
+  for item in "${SAN_ITEMS[@]}"; do
+    [ ! -z $item ] && FLAGS+=(--san "$item")
+  done
 
 
 #step certificate create "MyHomePKI Intermediate CA" /etc/step-ca/certs/intermediate_ca.crt /etc/step-ca/secrets/intermediate_ca_key --force --template=/etc/step-ca/templates/ca/intermediate_ca.tpl --ca=/etc/step-ca/certs/root_ca.crt --ca-key=/etc/step-ca/secrets/root_ca_key --not-after=87600h --ca-password-file=/etc/step-ca/encryption/ca.pwd --password-file=/etc/step-ca/encryption/ca.pwd --set country=DE --set organization=MyHomePKI --set organizationalUnit=MyHomeLab --set issuingCertificateURL=https://step-ca-1.fritz.box/1.0/intermediates.pem --set crlDistributionPoints=https://step-ca-1.fritz.box/1.0/crl
