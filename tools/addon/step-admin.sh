@@ -592,7 +592,7 @@ function ca_inspect_intermediate() {
   local BACK_TO_MENU="${1:-}"
   if [ -f "${CA_CRT}" ]; then
     #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
-    x509_inspect_uri "$CA_CRT" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
+    x509_inspect_uri "$CA_CRT" "" "$CA_ROOT" "$CA_URL_CRL" "$CA_ROOT"
   else
     whiptail_msgbox "Certificates Issued by $CA_FQDN" "Intermediate CA Certificate not found on localhost."
   fi
