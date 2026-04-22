@@ -542,6 +542,7 @@ function x509_inspect_uri() {
   local FLAGS=(--verbose --verify-crl)
   [ -z "$ISSUING_CA" ] && FLAGS+=(--issuing-ca="$ISSUING_CA")
   [ -z "$CRL_ENDPOINT" ] && FLAGS+=(--crl-endpoint="$CRL_ENDPOINT")
+  echo "step certificate verify "${FLAGS[@]} $CERT_URI"
   CERT_VALIDITY=$(step certificate verify "${FLAGS[@]}" "$CERT_URI")
 
   while read -r LINE; do
