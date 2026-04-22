@@ -520,6 +520,7 @@ function ca_renew_intermediate() {
   IP=$(resolve_ip "${FQDN}") || die "Resolution failed for ${FQDN}!"
   SAN=""
   VALID_TO="87600h" # Default validity of 10 years (87600 hours)
+  
 
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || x509_request_menu
   msg_info "Renewing CA Intermediate Certificate ($CA_CRT)"
@@ -544,7 +545,7 @@ function ca_renew_intermediate() {
   echo "step certificate create ${CA_CN_CRT} ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
 
   $STD echo
-  $STD step certificate create "\"${CA_CN_CRT}\"" \
+  $STD step certificate create "\'${CA_CN_CRT}\'" \
     "${CA_CRT}" \
     "${CA_CRT_KEY}" \
     "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $CA_PROVISIONER failed!"
