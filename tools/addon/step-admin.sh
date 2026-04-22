@@ -554,7 +554,7 @@ function x509_inspect() {
     if [ -f "$CRT" ]; then
       if [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
         #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
-        x509_inspect_uri "$CRT" "$SERIAL" "$CA_CRT" "" ""
+        x509_inspect_uri "$CRT" "$SERIAL" "$CA_CRT" "$CA_URL_CRL" ""
       else
         die "x509 Certificate Serial Number ${SERIAL} mismatch for CN '${CN}'!"
       fi
