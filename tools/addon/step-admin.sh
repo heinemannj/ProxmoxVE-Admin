@@ -602,7 +602,7 @@ function ca_inspect_intermediate() {
 function ca_inspect_intermediate_url() {
   local BACK_TO_MENU="${1:-}"
   #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
-  x509_inspect_uri "$CA_URL_CRT" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
+  x509_inspect_uri "$CA_URL_CRT" "" "$CA_ROOT" "$CA_URL_CRL" "$CA_ROOT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
