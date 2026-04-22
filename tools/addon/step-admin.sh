@@ -542,7 +542,7 @@ function ca_renew_intermediate() {
   done
 
 
-  echo "step certificate create ${CA_CN_CRT} ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
+  echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
 
   $STD echo
   $STD step certificate create "\'${CA_CN_CRT}\'" \
