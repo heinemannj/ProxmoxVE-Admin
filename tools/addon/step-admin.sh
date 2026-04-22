@@ -524,12 +524,12 @@ function ca_renew_intermediate() {
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || x509_request_menu
   msg_info "Renewing CA Intermediate Certificate ($CA_CRT)"
   local FLAGS=(--force
+    --template="$CA_TEMPLATE_CRT"
     --ca="$CA_ROOT"
     --ca-key"$CA_ROOT_KEY"
+    --not-after="$VALID_TO"
     --ca-password-file="/etc/step-ca/encryption/ca.pwd"
     --password-file="/etc/step-ca/encryption/ca.pwd"
-    --template="$CA_TEMPLATE_CRT"
-    --not-after="$VALID_TO"
     --set country="DE"
     --set organization="$CA_ORG"
     --set organizationalUnit="MyHomeLab"
@@ -540,15 +540,19 @@ function ca_renew_intermediate() {
     [ ! -z $item ] && FLAGS+=(--san "$item")
   done
 
+
+#step certificate create "MyHomePKI Intermediate CA" /etc/step-ca/certs/intermediate_ca.crt /etc/step-ca/secrets/intermediate_ca_key --force --template=/etc/step-ca/templates/ca/intermediate_ca.tpl --ca=/etc/step-ca/certs/root_ca.crt --ca-key=/etc/step-ca/secrets/root_ca_key --not-after=87600h --ca-password-file=/etc/step-ca/encryption/ca.pwd --password-file=/etc/step-ca/encryption/ca.pwd --set country=DE --set organization=MyHomePKI --set organizationalUnit=MyHomeLab --set issuingCertificateURL=https://step-ca-1.fritz.box/1.0/intermediates.pem --set crlDistributionPoints=https://step-ca-1.fritz.box/1.0/crl
+
+
 #echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
 #echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
 #echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
 #echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
 
-  echo "step certificate create \'${CA_CN_CRT}\' ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
+  echo "step certificate create \"${CA_CN_CRT}\" ${CA_CRT} ${CA_CRT_KEY} ${FLAGS[@]}"
 
   $STD echo
-  $STD step certificate create "\'${CA_CN_CRT}\'" "${CA_CRT}" "${CA_CRT_KEY}" "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $CA_PROVISIONER failed!"
+  $STD step certificate create "\"${CA_CN_CRT}\"" "${CA_CRT}" "${CA_CRT_KEY}" "${FLAGS[@]}" || die "Certificate Signing Request (CSR) by $CA_PROVISIONER failed!"
 
   chown -R step /etc/step-ca
   chgrp -R step /etc/step-ca
