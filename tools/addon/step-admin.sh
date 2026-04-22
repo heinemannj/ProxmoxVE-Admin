@@ -524,7 +524,6 @@ function ca_renew_intermediate() {
   [[ $var_unattended == "yes" ]] && [[ -f $CA_DEFAULTS ]] || x509_request_menu
   msg_info "Renewing CA Intermediate Certificate ($CA_CRT)"
   local FLAGS=(--force
-    --profile="intermediate-ca"
     --template="$CA_TEMPLATE_CRT"
     --ca="$CA_ROOT"
     --ca-key="$CA_ROOT_KEY"
