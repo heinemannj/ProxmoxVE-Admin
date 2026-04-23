@@ -230,7 +230,7 @@ function init_app() {
   mkdir -p "$CERT_PATH/x509/_archive/"
   mkdir -p "$KEY_PATH/_archive/"
 
-  [[ -d "$CA_PATH" ]] || curl -s --output "$CA_CRT" "$CA_URL_CRT"
+  #[[ -d "$CA_PATH" ]] || curl -s --output "$CA_CRT" "$CA_URL_CRT"
 }
 
 # GLOBAL CONFIGURATION VARIABLES
