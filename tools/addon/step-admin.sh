@@ -623,7 +623,7 @@ function ca_inspect_intermediate_url() {
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
-function ca_inspect_ca_url() {
+function ca_inspect_api_url() {
   local BACK_TO_MENU="${1:-}"
   #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
   x509_inspect_uri "$CA_URL" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
@@ -913,7 +913,7 @@ function ca_maintenance_menu() {
     "inspect-root") ca_inspect_root "ca_maintenance_menu" ;;
     "inspect-intermediate") ca_inspect_intermediate "ca_maintenance_menu" ;;
     "inspect-intermediate-url") ca_inspect_intermediate_url "ca_maintenance_menu" ;;
-    "inspect-ca-url") ca_inspect_ca_url "ca_maintenance_menu" ;;
+    "inspect-ca-url") ca_inspect_api_url "ca_maintenance_menu" ;;
     *) exit 0 ;;
   esac
 }
