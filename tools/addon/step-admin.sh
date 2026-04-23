@@ -596,6 +596,14 @@ function x509_inspect() {
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
+function ca_download_intermediate() {
+  step certificate inspect --bundle --format pem "${CA_URL}" > "$CERT_PATH/intermediate_ca.crt"
+  awk -v path="$CERT_PATH" '/BEGIN CERTIFICATE/{n++} {print >(path "/cert-" n ".pem")}' "$CERT_PATH/intermediate_ca.crt"
+  [ -f "$CERT_PATH/cert-1.pem" ] && rm "$CERT_PATH/cert-1.pem"
+  [ -f "$CERT_PATH/cert-2.pem" ] && mv "$CERT_PATH/cert-2.pem" "$CERT_PATH/intermediate_ca.crt"
+  [ -f "$CERT_PATH/cert-3.pem" ] && cat "$CERT_PATH/cert-3.pem" >> "$CERT_PATH/intermediate_ca.crt"; rm "$CERT_PATH/cert-3.pem"
+}
+
 function ca_inspect_root() {
   local BACK_TO_MENU="${1:-}"
   if [ -f "${CA_ROOT}" ]; then
@@ -711,14 +719,6 @@ function x509_view(){
   echo -e "\n\nTotal Certificates  : ${TOTAL_CERTS}\nValid Certificates  : ${VALID_CERTS}\nExpired Certificates: ${EXPIRED_CERTS}" >> "$CERT_PATH/x509/x509Certs.txt"
 }
 
-function ca_download_intermediate() {
-  step certificate inspect --bundle --format pem "${CA_URL}" > "$CERT_PATH/intermediate_ca.crt"
-  awk -v path="$CERT_PATH" '/BEGIN CERTIFICATE/{n++} {print >(path "/cert-" n ".pem")}' "$CERT_PATH/intermediate_ca.crt"
-  [ -f "$CERT_PATH/cert-1.pem" ] && rm "$CERT_PATH/cert-1.pem"
-  [ -f "$CERT_PATH/cert-2.pem" ] && mv "$CERT_PATH/cert-2.pem" "$CERT_PATH/intermediate_ca.crt"
-  [ -f "$CERT_PATH/cert-3.pem" ] && cat "$CERT_PATH/cert-3.pem" >> "$CERT_PATH/intermediate_ca.crt"; rm "$CERT_PATH/cert-3.pem"
-}
-
 #function ssh_badger_list() {
 #  CERT_LIST=""
 #  cp --recursive --force "$CA_PATH/db/"* "$CONFIG_PATH/db-copy/"
@@ -827,12 +827,12 @@ function bootstrap_menu() {
 function bootstrap_fqdn_check() {
   if [[ -z $CA_FQDN ]]; then
     CA_FQDN="Please change!"
-    return 1
+    return 0
   else
     CA_IP=$(resolve_ip "${CA_FQDN}")
     if [[ -z $CA_IP ]]; then
       CA_FQDN="DNS Resolution failed - Please change!"
-      return 1
+      return 0
     fi
   fi
 }
@@ -840,7 +840,7 @@ function bootstrap_fqdn_check() {
 function bootstrap_fingerprint_check() {
   if [[ -z $CA_FINGERPRINT ]]; then
     CA_FINGERPRINT="Please change!"
-    return 1
+    return 0
   fi
 }
 
