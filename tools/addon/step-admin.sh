@@ -827,12 +827,10 @@ function bootstrap_menu() {
 function bootstrap_fqdn_check() {
   if [[ -z $CA_FQDN ]]; then
     CA_FQDN="Please change!"
-    return 0
   else
     CA_IP=$(resolve_ip "${CA_FQDN}")
     if [[ -z $CA_IP ]]; then
       CA_FQDN="DNS Resolution failed - Please change!"
-      return 0
     fi
   fi
 }
@@ -840,7 +838,6 @@ function bootstrap_fqdn_check() {
 function bootstrap_fingerprint_check() {
   if [[ -z $CA_FINGERPRINT ]]; then
     CA_FINGERPRINT="Please change!"
-    return 0
   fi
 }
 
