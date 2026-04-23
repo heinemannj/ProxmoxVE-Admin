@@ -605,6 +605,13 @@ function ca_inspect_root() {
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
+function ca_inspect_root_url() {
+  local BACK_TO_MENU="${1:-}"
+  #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
+  x509_inspect_uri "$CA_URL_ROOT" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
+}
+
 function ca_inspect_intermediate() {
   local BACK_TO_MENU="${1:-}"
   if [ -f "${CA_CRT}" ]; then
@@ -903,6 +910,7 @@ function ca_maintain_menu() {
   local CHOICE
   OPTIONS=("renew" "Renew CA Intermediate Certificate ($CA_CRT)"
     "inspect-root" "Inspect CA Root Certificate ($CA_ROOT)"
+    "inspect-root-url" "Inspect CA Root Certificate ($CA_URL_ROOT)"
     "inspect-intermediate" "Inspect CA Intermediate Certificate ($CA_CRT)"
     "inspect-intermediate-url" "Inspect CA Intermediate Certificate ($CA_URL_CRT)"
     "inspect-service-url" "Inspect CA Service Certificate ($CA_URL)")
@@ -911,6 +919,7 @@ function ca_maintain_menu() {
   case "$CHOICE" in
     "renew") ca_renew_intermediate "ca_maintain_menu" ;;
     "inspect-root") ca_inspect_root "ca_maintain_menu" ;;
+    "inspect-root-url") ca_inspect_root_url "ca_maintain_menu" ;;
     "inspect-intermediate") ca_inspect_intermediate "ca_maintain_menu" ;;
     "inspect-intermediate-url") ca_inspect_intermediate_url "ca_maintain_menu" ;;
     "inspect-service-url") ca_inspect_service_url "ca_maintain_menu" ;;
