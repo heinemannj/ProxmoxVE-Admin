@@ -382,8 +382,10 @@ function update() {
   [[ ! -e $BINARY_PATH ]] && die "$APP is not installed!"
   msg_info "Updating $APP"
   detect_os
-  $STD "$PKG_UPDATE"
-  $STD "$PKG_UPGRADE" $APP
+  # shellcheck disable=SC2086
+  $STD $PKG_UPDATE
+  # shellcheck disable=SC2086
+  $STD $PKG_UPGRADE $APP
   rm -f "${BINARY_PATH}"
   cp -f /usr/bin/step-cli "${BINARY_PATH}"
   msg_ok "Updated $APP successfully"
@@ -404,8 +406,10 @@ function uninstall() {
     [ -f /etc/systemd/system/cert-renewer@.service ] && $STD systemctl -f disable cert-renewer@.service
     $STD systemctl -f stop cert-renewer@*.timer
     $STD systemctl -f stop cert-renewer@*.service
-    $STD "$PKG_UNINSTALL" $APP
-    $STD "$PKG_AUTOREMOVE"
+    # shellcheck disable=SC2086
+    $STD $PKG_UNINSTALL $APP
+    # shellcheck disable=SC2086
+    $STD $PKG_AUTOREMOVE
     rm -f "${BINARY_PATH}"
     rm -rf "${CONFIG_PATH}"
     rm -f "/etc/apt/sources.list.d/smallstep.sources"
