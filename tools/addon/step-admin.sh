@@ -97,6 +97,7 @@ function export_config_json() {
   "STEPPATH": "${STEPPATH}",
   "CERT_PATH": "${CERT_PATH}",
   "KEY_PATH": "${KEY_PATH}",
+  "SYS_CA_PATH": "${SYS_CA_PATH}",
   "CA_PATH": "${CA_PATH}",
   "CA_CONFIG": "${CA_CONFIG}",
   "CA_DEFAULTS": "${CA_DEFAULTS}",
@@ -107,6 +108,8 @@ function export_config_json() {
   "CA_CN_CRT": "${CA_CN_CRT}",
   "CA_VALIDITY_ROOT": "${CA_VALIDITY_ROOT}",
   "CA_VALIDITY_CRT": "${CA_VALIDITY_CRT}",
+  "CA_SERIAL_ROOT": "${CA_SERIAL_ROOT}",
+  "CA_SERIAL_CRT": "${CA_SERIAL_CRT}",
   "CA_FQDN": "${CA_FQDN}",
   "CA_URL": "${CA_URL}",
   "CA_URL_ROOT": "${CA_URL_ROOT}",
@@ -224,6 +227,8 @@ function init_app() {
     CA_CN_CRT=$(step certificate inspect "${CA_URL_CRT}" --insecure --format=json | jq -r .issuer.common_name.[])
     CA_VALIDITY_ROOT=$(step certificate inspect "${CA_ROOT}" --format=json | jq -r .validity.end)
     CA_VALIDITY_CRT=$(step certificate inspect "${CA_URL_CRT}" --insecure --bundle --format=json | jq -r .[1].validity.end)
+    CA_SERIAL_ROOT=$(step certificate inspect "${CA_ROOT}" --format=json | jq -r .serial_number)
+    CA_SERIAL_CRT=$(step certificate inspect "${CA_URL_CRT}" --insecure --bundle --format=json | jq -r .[1].serial_number)
   fi
 
   mkdir -p "$CERT_PATH/ssh/_archive/"
@@ -244,6 +249,7 @@ BINARY_PATH="/usr/bin/step"
 CONFIG_PATH="/etc/step"
 CERT_PATH="${CONFIG_PATH}/certs"
 KEY_PATH="${CONFIG_PATH}/private"
+SYS_CA_PATH="/usr/local/share/ca-certificates"
 CA_PATH="/etc/step-ca"
 CA_CONFIG=""
 CA_DEFAULTS=""
@@ -254,6 +260,8 @@ CA_CN_ROOT=""
 CA_CN_CRT=""
 CA_VALIDITY_ROOT=""
 CA_VALIDITY_CRT=""
+CA_SERIAL_ROOT=""
+CA_SERIAL_CRT=""
 CA_FQDN=""
 CA_URL=""
 CA_URL_ROOT=""
@@ -414,7 +422,6 @@ function bootstrap() {
   $STD step ca bootstrap -f --ca-url "$CA_URL" --install --fingerprint "$CA_FINGERPRINT" || die "step-ca Bootstrapping failed!"
   init_app
   $STD step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
-  $STD step certificate install --all "$CA_CRT" || die "Installation of step-ca Intermediate Certificate failed!"
   $STD update-ca-certificates || die "Update of System CA Certificates failed!"
   $STD step certificate inspect "$CA_URL" || die "Inspection of step-ca Root Certificate failed!"
   msg_ok "Installed Root Certificate by Certificate Authority '$CA_FQDN'"
@@ -603,6 +610,9 @@ function ca_download_intermediate() {
   [ -f "$CERT_PATH/cert-1.pem" ] && rm "$CERT_PATH/cert-1.pem"
   [ -f "$CERT_PATH/cert-2.pem" ] && mv "$CERT_PATH/cert-2.pem" "$CERT_PATH/intermediate_ca.crt"
   [ -f "$CERT_PATH/cert-3.pem" ] && cat "$CERT_PATH/cert-3.pem" >> "$CERT_PATH/intermediate_ca.crt"; rm "$CERT_PATH/cert-3.pem"
+  local SYS_CA_CRT="$SYS_CA_PATH/MyHomePKI_Intermediate_CA_xxx.crt"
+  cp -f "$CA_CRT" "$SYS_CA_CRT" || die "Installation of step-ca Intermediate Certificate failed!"
+  $STD update-ca-certificates || die "Update of System CA Certificates failed!"
 }
 
 function ca_inspect_root() {
