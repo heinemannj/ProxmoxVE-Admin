@@ -623,7 +623,7 @@ function ca_inspect_intermediate_url() {
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
-function ca_inspect_api_url() {
+function ca_inspect_service_url() {
   local BACK_TO_MENU="${1:-}"
   #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
   x509_inspect_uri "$CA_URL" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
@@ -905,7 +905,7 @@ function ca_maintenance_menu() {
     "inspect-root" "Inspect CA Root Certificate ($CA_ROOT)"
     "inspect-intermediate" "Inspect CA Intermediate Certificate ($CA_CRT)"
     "inspect-intermediate-url" "Inspect CA Intermediate Certificate ($CA_URL_CRT)"
-    "inspect-ca-url" "Inspect CA Server Certificate ($CA_URL)")
+    "inspect-service-url" "Inspect CA Service Certificate ($CA_URL)")
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
@@ -913,7 +913,7 @@ function ca_maintenance_menu() {
     "inspect-root") ca_inspect_root "ca_maintenance_menu" ;;
     "inspect-intermediate") ca_inspect_intermediate "ca_maintenance_menu" ;;
     "inspect-intermediate-url") ca_inspect_intermediate_url "ca_maintenance_menu" ;;
-    "inspect-ca-url") ca_inspect_api_url "ca_maintenance_menu" ;;
+    "inspect-service-url") ca_inspect_service_url "ca_maintenance_menu" ;;
     *) exit 0 ;;
   esac
 }
