@@ -407,8 +407,8 @@ function uninstall() {
     rm -f "/etc/systemd/system/cert-renewer@.service"
     rm -f "/etc/systemd/system/cert-renewer@.timer"
 
-    local SYS_CA_CRT="${SYS_CA_PATH}/${CA_CN_CRT// /_}_${CA_SERIAL_CRT}.crt"
-    local SYS_CA_ROOT="${SYS_CA_PATH}/${CA_CN_ROOT// /_}_${CA_SERIAL_ROOT}.crt"
+    local SYS_CA_CRT="${SYS_CA_PATH}/${CA_CN_CRT// /_}_*.crt"
+    local SYS_CA_ROOT="${SYS_CA_PATH}/${CA_CN_ROOT// /_}_*.crt"
     rm -f "$SYS_CA_CRT"
     rm -f "$SYS_CA_ROOT"
     $STD update-ca-certificates || die "Update of System CA Certificates failed!"
