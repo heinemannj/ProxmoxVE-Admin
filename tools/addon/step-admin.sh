@@ -720,7 +720,7 @@ function main_menu() {
   OPTIONS=(Install "Install $APP"
     Update "Update $APP"
     Uninstall "Uninstall $APP"
-    Maintenance "Maintain Certificates"
+    Maintain "Maintain Certificates"
     Config "Export current Configuration as JSON")
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
@@ -728,13 +728,13 @@ function main_menu() {
     Install) install ;;
     Update) update ;;
     Uninstall) uninstall ;;
-    Maintenance) maintenance_menu ;;
+    Maintain) maintain_menu ;;
     Config) export_config_json ;;
     *) exit 0 ;;
   esac
 }
 
-function maintenance_menu() {
+function maintain_menu() {
   [[ ! -e $BINARY_PATH ]] && die "$APP is not installed!"
 
   local CHOICE
@@ -744,14 +744,14 @@ function maintenance_menu() {
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
-    x509) x509_maintenance_menu ;;
-    ssh) ssh_maintenance_menu ;;
-    ca) ca_maintenance_menu ;;
+    x509) x509_maintain_menu ;;
+    ssh) ssh_maintain_menu ;;
+    ca) ca_maintain_menu ;;
     *) exit 0 ;;
   esac
 }
 
-function x509_maintenance_menu() {
+function x509_maintain_menu() {
   local CHOICE
   OPTIONS=()
   [ -d "$CA_PATH/config" ] || OPTIONS+=(Bootstrap "Install step-ca Root Certificate")
@@ -764,13 +764,13 @@ function x509_maintenance_menu() {
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
-    Bootstrap) bootstrap "x509_maintenance_menu" ;;
-    Request) x509_request "x509_maintenance_menu" ;;
-    Renew) x509_renew "x509_maintenance_menu" ;;
-    Revoke) x509_revoke "x509_maintenance_menu" ;;
-    Inspect) x509_inspect "x509_maintenance_menu" ;;
-    List) x509_list "x509_maintenance_menu" ;;
-    CRL) x509_inspect_crl "x509_maintenance_menu" ;;
+    Bootstrap) bootstrap "x509_maintain_menu" ;;
+    Request) x509_request "x509_maintain_menu" ;;
+    Renew) x509_renew "x509_maintain_menu" ;;
+    Revoke) x509_revoke "x509_maintain_menu" ;;
+    Inspect) x509_inspect "x509_maintain_menu" ;;
+    List) x509_list "x509_maintain_menu" ;;
+    CRL) x509_inspect_crl "x509_maintain_menu" ;;
     *) exit 0 ;;
   esac
 }
@@ -802,7 +802,7 @@ function bootstrap_menu() {
     "<Continue>")
       bootstrap_fqdn_check || bootstrap_menu
       ;;
-    *) x509_maintenance_menu ;;
+    *) x509_maintain_menu ;;
   esac
 }
 
@@ -870,7 +870,7 @@ function x509_request_menu() {
       x509_request_menu
       ;;
     "<Continue>") ;;
-    *) x509_maintenance_menu ;;
+    *) x509_maintain_menu ;;
   esac
 }
 
@@ -887,7 +887,7 @@ function x509_certs_menu() {
   CERT_ARRAY=(${CHOICE})
   if [ ${#CERT_ARRAY[@]} -eq 0 ]; then
     if [ -z "$var_x509_action" ]; then
-      x509_maintenance_menu
+      x509_maintain_menu
     else
       msg_warn "No certificate(s) selected or found on localhost."
       exit 1
@@ -895,11 +895,11 @@ function x509_certs_menu() {
   fi
 }
 
-function ssh_maintenance_menu() {
+function ssh_maintain_menu() {
   die "Maintain ssh Certificate - To be implemented in future"
 }
 
-function ca_maintenance_menu() {
+function ca_maintain_menu() {
   local CHOICE
   OPTIONS=("renew" "Renew CA Intermediate Certificate ($CA_CRT)"
     "inspect-root" "Inspect CA Root Certificate ($CA_ROOT)"
@@ -909,11 +909,11 @@ function ca_maintenance_menu() {
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
-    "renew") ca_renew_intermediate "ca_maintenance_menu" ;;
-    "inspect-root") ca_inspect_root "ca_maintenance_menu" ;;
-    "inspect-intermediate") ca_inspect_intermediate "ca_maintenance_menu" ;;
-    "inspect-intermediate-url") ca_inspect_intermediate_url "ca_maintenance_menu" ;;
-    "inspect-service-url") ca_inspect_service_url "ca_maintenance_menu" ;;
+    "renew") ca_renew_intermediate "ca_maintain_menu" ;;
+    "inspect-root") ca_inspect_root "ca_maintain_menu" ;;
+    "inspect-intermediate") ca_inspect_intermediate "ca_maintain_menu" ;;
+    "inspect-intermediate-url") ca_inspect_intermediate_url "ca_maintain_menu" ;;
+    "inspect-service-url") ca_inspect_service_url "ca_maintain_menu" ;;
     *) exit 0 ;;
   esac
 }
@@ -956,9 +956,9 @@ case "$var_x509_action" in
 esac
 
 case "$var_cert_type" in
-  x509) x509_maintenance_menu ;;
-  ssh) ssh_maintenance_menu ;;
-  ca) ca_maintenance_menu ;;
+  x509) x509_maintain_menu ;;
+  ssh) ssh_maintain_menu ;;
+  ca) ca_maintain_menu ;;
 esac
 
 #
@@ -968,7 +968,7 @@ case "$var_action" in
   install) install ;;
   update) update ;;
   uninstall) uninstall ;;
-  maintain) maintenance_menu ;;
+  maintain) maintain_menu ;;
   export-config) export_config_json ;;
   *) main_menu ;;
 esac
