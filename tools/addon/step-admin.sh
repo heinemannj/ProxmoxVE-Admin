@@ -395,7 +395,7 @@ function uninstall() {
   else
     detect_os
     echo "rm -f ${SYS_CA_PATH}/${CA_ORG}*.crt"
-    rm -f "${SYS_CA_PATH}/${CA_ORG}*.crt"
+    rm -f "${SYS_CA_PATH}"/"${CA_ORG}"*.crt
     $STD update-ca-certificates || die "Update of System CA Certificates failed!"
     [ -f /etc/systemd/system/cert-renewer@.timer ] && $STD systemctl -f disable cert-renewer@.timer
     [ -f /etc/systemd/system/cert-renewer@.service ] && $STD systemctl -f disable cert-renewer@.service
