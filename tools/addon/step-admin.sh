@@ -5,6 +5,7 @@
 # License: MIT | https://github.com/heinemannj/step-admin/raw/main/LICENSE
 # Source: https://raw.githubusercontent.com/heinemannj/step-admin/main/step-admin.sh
 
+# shellcheck disable=SC1090
 source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/core.func)
 source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/tools.func)
 source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/error_handler.func)
@@ -301,12 +302,12 @@ esac
 function install() {
   msg_info "Installing dependencies"
   detect_os
-  $STD $PKG_UPDATE
-  $STD $PKG_INSTALL curl whiptail dnsutils jq
+  $STD "$PKG_UPDATE"
+  $STD "$PKG_INSTALL" curl whiptail dnsutils jq
   msg_ok "Installed dependencies"
 
   msg_info "Installing $APP"
-  $STD $PKG_INSTALL $APP
+  $STD "$PKG_INSTALL" $APP
   rm -f "${BINARY_PATH}"
   cp -f /usr/bin/step-cli "${BINARY_PATH}"
   mkdir -p "$CONFIG_PATH"/certs
@@ -378,8 +379,8 @@ function update() {
   [[ ! -e $BINARY_PATH ]] && die "$APP is not installed!"
   msg_info "Updating $APP"
   detect_os
-  $STD $PKG_UPDATE
-  $STD $PKG_UPGRADE $APP
+  $STD "$PKG_UPDATE"
+  $STD "$PKG_UPGRADE" $APP
   rm -f "${BINARY_PATH}"
   cp -f /usr/bin/step-cli "${BINARY_PATH}"
   msg_ok "Updated $APP successfully"
@@ -400,8 +401,8 @@ function uninstall() {
     [ -f /etc/systemd/system/cert-renewer@.service ] && $STD systemctl -f disable cert-renewer@.service
     $STD systemctl -f stop cert-renewer@*.timer
     $STD systemctl -f stop cert-renewer@*.service
-    $STD $PKG_UNINSTALL $APP
-    $STD $PKG_AUTOREMOVE
+    $STD "$PKG_UNINSTALL" $APP
+    $STD "$PKG_AUTOREMOVE"
     rm -f "${BINARY_PATH}"
     rm -rf "${CONFIG_PATH}"
     rm -f "/etc/apt/sources.list.d/smallstep.sources"
@@ -451,7 +452,7 @@ function x509_request() {
   [ "$CA_PROVISIONER_TYPE" = "JWK" ] && [ -f "$CA_PROVISIONER_PWD_FILE" ] && FLAGS+=(--provisioner-password-file="$CA_PROVISIONER_PWD_FILE")
   local SAN_ITEMS=("$FQDN" "$HOST" "$IP" "$SAN")
   for item in "${SAN_ITEMS[@]}"; do
-    [ ! -z $item ] && FLAGS+=(--san "$item")
+    [ ! -z "$item" ] && FLAGS+=(--san "$item")
   done
 
   $STD echo
@@ -561,10 +562,9 @@ function ca_renew_intermediate() {
 
 function x509_inspect_uri() {
   local CERT_URI="$1"
-  local CERT_SERIAL="$2"
-  local ISSUING_CA="$3"
-  local CRL_ENDPOINT="$4"
-  local ROOTS="$5"
+  local ISSUING_CA="$2"
+  local CRL_ENDPOINT="$3"
+  local ROOTS="$4"
   local CERT_VALIDITY=""
   local CERT_VALIDATION=""
 
@@ -593,9 +593,10 @@ function x509_inspect() {
   for SERIAL in "${CERT_ARRAY[@]}"; do
     x509_query
     if [ -f "$CRT" ]; then
+      # shellcheck disable=SC2143
       if [[ $(step certificate inspect "${CRT}" | grep "${SERIAL}") ]]; then
-        #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
-        x509_inspect_uri "$CRT" "$SERIAL" "$CA_CRT" "$CA_URL_CRL" ""
+        #x509_inspect_uri CERT_URI ISSUING_CA CRL_ENDPOINT ROOTS"
+        x509_inspect_uri "$CRT" "$CA_CRT" "$CA_URL_CRL" ""
       else
         die "x509 Certificate Serial Number ${SERIAL} mismatch for CN '${CN}'!"
       fi
@@ -620,8 +621,8 @@ function ca_download_intermediate() {
 function ca_inspect_root() {
   local BACK_TO_MENU="${1:-}"
   if [ -f "${CA_ROOT}" ]; then
-    #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
-    x509_inspect_uri "$CA_ROOT" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
+    #x509_inspect_uri CERT_URI ISSUING_CA CRL_ENDPOINT ROOTS"
+    x509_inspect_uri "$CA_ROOT" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
   else
     whiptail_msgbox "Certificates Issued by $CA_FQDN" "Root CA Certificate not found on localhost."
   fi
@@ -630,16 +631,16 @@ function ca_inspect_root() {
 
 function ca_inspect_root_url() {
   local BACK_TO_MENU="${1:-}"
-  #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
-  x509_inspect_uri "$CA_URL_ROOT" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
+  #x509_inspect_uri CERT_URI ISSUING_CA CRL_ENDPOINT ROOTS"
+  x509_inspect_uri "$CA_URL_ROOT" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
 function ca_inspect_intermediate() {
   local BACK_TO_MENU="${1:-}"
   if [ -f "${CA_CRT}" ]; then
-    #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
-    x509_inspect_uri "$CA_CRT" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
+    #x509_inspect_uri CERT_URI ISSUING_CA CRL_ENDPOINT ROOTS"
+    x509_inspect_uri "$CA_CRT" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
   else
     whiptail_msgbox "Certificates Issued by $CA_FQDN" "Intermediate CA Certificate not found on localhost."
   fi
@@ -648,15 +649,15 @@ function ca_inspect_intermediate() {
 
 function ca_inspect_intermediate_url() {
   local BACK_TO_MENU="${1:-}"
-  #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
-  x509_inspect_uri "$CA_URL_CRT" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
+  #x509_inspect_uri CERT_URI ISSUING_CA CRL_ENDPOINT ROOTS"
+  x509_inspect_uri "$CA_URL_CRT" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
 function ca_inspect_service_url() {
   local BACK_TO_MENU="${1:-}"
-  #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
-  x509_inspect_uri "$CA_URL" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
+  #x509_inspect_uri CERT_URI ISSUING_CA CRL_ENDPOINT ROOTS"
+  x509_inspect_uri "$CA_URL" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
@@ -698,6 +699,7 @@ function x509_view(){
       local DB_EXPORT=""
       local FLAGS=("--provisioner")
       DB_EXPORT=$(step-badger x509Certs "$CONFIG_PATH/db-copy" "${FLAGS[@]}" 2>/dev/null | sed '1d')
+      # shellcheck disable=SC2034
       while read -r SERIAL SUBJECT TYPE REQUESTER NotBefore NotAfter VALIDITY; do
         FILE="none"
         CN=$(echo "$SUBJECT" | awk -F 'CN=' '{print $2}' | awk -F ',' '{print $1}')
