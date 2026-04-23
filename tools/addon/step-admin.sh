@@ -901,6 +901,9 @@ function ssh_maintenance_menu() {
 
 function ca_maintenance_menu() {
   local CHOICE
+  #local CHOICE
+  #local CHOICE
+  #local CHOICE
   OPTIONS=("renew" "Renew CA Intermediate Certificate ($CA_CRT)"
     "inspect-root" "Inspect CA Root Certificate ($CA_ROOT)"
     "inspect-intermediate" "Inspect CA Intermediate Certificate ($CA_CRT)"
