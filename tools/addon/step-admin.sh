@@ -716,7 +716,7 @@ function ca_download_intermediate() {
   awk '/BEGIN CERTIFICATE/{n++} {print >("cert-" n ".pem")}' "$CERT_PATH/intermediate_ca.crt"
   [ -f "$CERT_PATH/cert-1.pem" ] && rm "$CERT_PATH/cert-1.pem"
   [ -f "$CERT_PATH/cert-2.pem" ] && mv "$CERT_PATH/cert-2.pem" "$CERT_PATH/intermediate_ca.crt"
-  [ -f "$CERT_PATH/cert-3.pem" ] && cat "$CERT_PATH/cert-3.pem" >> "$CERT_PATH/intermediate_ca.crt"
+  [ -f "$CERT_PATH/cert-3.pem" ] && cat "$CERT_PATH/cert-3.pem" >> "$CERT_PATH/intermediate_ca.crt"; rm "$CERT_PATH/cert-3.pem"
 }
 
 #function ssh_badger_list() {
