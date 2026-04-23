@@ -412,10 +412,11 @@ function bootstrap() {
   msg_info "Installing Root Certificate by Certificate Authority '$CA_FQDN'"
   $STD echo
   $STD step ca bootstrap -f --ca-url "$CA_URL" --install --fingerprint "$CA_FINGERPRINT" || die "step-ca Bootstrapping failed!"
+  init_app
   $STD step certificate install --all "$CA_ROOT" || die "Installation of step-ca Root Certificate failed!"
+  $STD step certificate install --all "$CA_CRT" || die "Installation of step-ca Intermediate Certificate failed!"
   $STD update-ca-certificates || die "Update of System CA Certificates failed!"
   $STD step certificate inspect "$CA_URL" || die "Inspection of step-ca Root Certificate failed!"
-  init_app
   msg_ok "Installed Root Certificate by Certificate Authority '$CA_FQDN'"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
