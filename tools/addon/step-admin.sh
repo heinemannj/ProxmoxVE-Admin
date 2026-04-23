@@ -230,7 +230,9 @@ function init_app() {
   mkdir -p "$CERT_PATH/x509/_archive/"
   mkdir -p "$KEY_PATH/_archive/"
 
-  #[[ -d "$CA_PATH" ]] || curl -s --output "$CA_CRT" "$CA_URL_CRT"
+  if [[ ! -d "$CA_PATH" ]] && [[ -f "$CA_DEFAULTS" ]]; then
+    ca_download_intermediate
+  fi
 }
 
 # GLOBAL CONFIGURATION VARIABLES
@@ -707,6 +709,10 @@ function x509_view(){
   VALID_CERTS=$(( $(grep -c "Valid" "$CERT_PATH/x509/x509Certs.txt") - 1))
   EXPIRED_CERTS=$(( TOTAL_CERTS - VALID_CERTS ))
   echo -e "\n\nTotal Certificates  : ${TOTAL_CERTS}\nValid Certificates  : ${VALID_CERTS}\nExpired Certificates: ${EXPIRED_CERTS}" >> "$CERT_PATH/x509/x509Certs.txt"
+}
+
+function ca_download_intermediate() {
+  step certificate inspect --bundle --format pem "${CA_URL}" > "$CERT_PATH/intermediate_ca.crt"
 }
 
 #function ssh_badger_list() {
