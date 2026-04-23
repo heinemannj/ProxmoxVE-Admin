@@ -303,9 +303,9 @@ function install() {
   msg_info "Installing dependencies"
   detect_os
   # shellcheck disable=SC2086
-  STD $PKG_UPDATE
+  $STD $PKG_UPDATE
   # shellcheck disable=SC2086
-  STD $PKG_INSTALL curl whiptail dnsutils jq
+  $STD $PKG_INSTALL curl whiptail dnsutils jq
   msg_ok "Installed dependencies"
 
   msg_info "Installing $APP"
