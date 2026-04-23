@@ -610,7 +610,7 @@ function ca_download_intermediate() {
   [ -f "$CERT_PATH/cert-1.pem" ] && rm "$CERT_PATH/cert-1.pem"
   [ -f "$CERT_PATH/cert-2.pem" ] && mv "$CERT_PATH/cert-2.pem" "$CERT_PATH/intermediate_ca.crt"
   [ -f "$CERT_PATH/cert-3.pem" ] && cat "$CERT_PATH/cert-3.pem" >> "$CERT_PATH/intermediate_ca.crt"; rm "$CERT_PATH/cert-3.pem"
-  local SYS_CA_CRT="$SYS_CA_PATH/MyHomePKI_Intermediate_CA_xxx.crt"
+  local SYS_CA_CRT="${SYS_CA_PATH}/${CA_CN_CRT// /_}_${CA_SERIAL_CRT}.crt"
   cp -f "$CA_CRT" "$SYS_CA_CRT" || die "Installation of step-ca Intermediate Certificate failed!"
   $STD update-ca-certificates || die "Update of System CA Certificates failed!"
 }
