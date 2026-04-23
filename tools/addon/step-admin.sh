@@ -712,6 +712,9 @@ function x509_view(){
 }
 
 function ca_download_intermediate() {
+  #step certificate inspect --bundle --format pem "${CA_URL}" > "$CERT_PATH/intermediate_ca.crt"
+  #step certificate inspect --bundle --format pem "${CA_URL}" > "$CERT_PATH/intermediate_ca.crt"
+  #step certificate inspect --bundle --format pem "${CA_URL}" > "$CERT_PATH/intermediate_ca.crt"
   step certificate inspect --bundle --format pem "${CA_URL}" > "$CERT_PATH/intermediate_ca.crt"
   awk '/BEGIN CERTIFICATE/{n++} {print >(${CERT_PATH}"/cert-" n ".pem")}' "$CERT_PATH/intermediate_ca.crt"
   [ -f "$CERT_PATH/cert-1.pem" ] && rm "$CERT_PATH/cert-1.pem"
