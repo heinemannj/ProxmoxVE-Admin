@@ -535,16 +535,6 @@ function ca_renew_intermediate() {
     --set issuingCertificateURL="$CA_URL_ROOT"
     --set crlDistributionPoints="$CA_URL_CRL")
 
-    #--ca-password-file="/etc/step-ca/encryption/ca.pwd"
-    #--password-file="/etc/step-ca/encryption/ca.pwd"
-    #--bundle
-    #--set country="DE"
-    #--set organization="$CA_ORG"
-    #--set organizationalUnit="MyHomeLab"
-    #--set issuingCertificateURL="$CA_URL_ROOT"
-    #--set crlDistributionPoints="$CA_URL_CRL")
-
-
   $STD echo
   $STD step certificate create "${CA_CN_CRT//\"/}" \
     "${CA_CRT}" \
@@ -630,6 +620,13 @@ function ca_inspect_intermediate_url() {
   local BACK_TO_MENU="${1:-}"
   #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
   x509_inspect_uri "$CA_URL_CRT" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
+  [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
+}
+
+function ca_inspect_ca_url() {
+  local BACK_TO_MENU="${1:-}"
+  #x509_inspect_uri CERT_URI CERT_SERIAL ISSUING_CA CRL_ENDPOINT ROOTS"
+  x509_inspect_uri "$CA_URL" "" "$CA_CRT" "$CA_URL_CRL" "$CA_ROOT"
   [[ "$BACK_TO_MENU" ]] && "$BACK_TO_MENU" || true
 }
 
@@ -915,6 +912,7 @@ function ca_maintenance_menu() {
     "inspect-root") ca_inspect_root "ca_maintenance_menu" ;;
     "inspect-intermediate") ca_inspect_intermediate "ca_maintenance_menu" ;;
     "inspect-intermediate-url") ca_inspect_intermediate_url "ca_maintenance_menu" ;;
+    "inspect-ca-url") ca_inspect_ca_url "ca_maintenance_menu" ;;
     *) exit 0 ;;
   esac
 }
