@@ -302,12 +302,15 @@ esac
 function install() {
   msg_info "Installing dependencies"
   detect_os
-  $STD "$PKG_UPDATE"
-  $STD "$PKG_INSTALL" curl whiptail dnsutils jq
+  # shellcheck disable=SC2086
+  STD $PKG_UPDATE
+  # shellcheck disable=SC2086
+  STD $PKG_INSTALL curl whiptail dnsutils jq
   msg_ok "Installed dependencies"
 
   msg_info "Installing $APP"
-  $STD "$PKG_INSTALL" $APP
+  # shellcheck disable=SC2086
+  $STD $PKG_INSTALL $APP
   rm -f "${BINARY_PATH}"
   cp -f /usr/bin/step-cli "${BINARY_PATH}"
   mkdir -p "$CONFIG_PATH"/certs
