@@ -394,10 +394,6 @@ function uninstall() {
     die "Uninstalling $APP on a CA server is not supported!"
   else
     detect_os
-    echo "rm -f ${SYS_CA_PATH}/${CA_ORG}*.crt"
-    #echo "rm -f ${SYS_CA_PATH}/${CA_ORG}*.crt"
-    #echo "rm -f ${SYS_CA_PATH}/${CA_ORG}*.crt"
-    #echo "rm -f ${SYS_CA_PATH}/${CA_ORG}*.crt"
     rm -f "${SYS_CA_PATH}"/"${CA_ORG}"*.crt
     $STD update-ca-certificates || die "Update of System CA Certificates failed!"
     [ -f /etc/systemd/system/cert-renewer@.timer ] && $STD systemctl -f disable cert-renewer@.timer
