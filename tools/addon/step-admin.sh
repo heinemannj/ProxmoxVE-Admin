@@ -797,6 +797,7 @@ function bootstrap_menu() {
   case "$CHOICE" in
     "step-ca FQDN")
       CA_FQDN=$(whiptail_inputbox "$TITLE" "step-ca FQDN (e.g. $CA_FQDN)" "$CA_FQDN")
+      CA_URL="https://$CA_FQDN"
       bootstrap_menu
       ;;
     "step-ca Fingerprint")
