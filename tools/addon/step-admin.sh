@@ -905,6 +905,7 @@ function ca_maintenance_menu() {
     "inspect-root" "Inspect CA Root Certificate ($CA_ROOT)"
     "inspect-intermediate" "Inspect CA Intermediate Certificate ($CA_CRT)"
     "inspect-intermediate-url" "Inspect CA Intermediate Certificate ($CA_URL_CRT)")
+    "inspect-ca-url" "Inspect CA Server Certificate ($CA_URL)")
 
   CHOICE=$(whiptail_menu "$APP_TITLE")
   case "$CHOICE" in
