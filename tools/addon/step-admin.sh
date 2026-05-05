@@ -456,7 +456,7 @@ function x509_request() {
     --set organizationalUnit="MyHomeLab"
     --set issuingCertificateURL="$CA_URL_CRT"
     --set crlDistributionPoints="$CA_URL_CRL"
-    --http-listen=":5002")
+    --http-listen=5002)
   [ "$CA_PROVISIONER_TYPE" = "JWK" ] && [ -f "$CA_PROVISIONER_PWD_FILE" ] && FLAGS+=(--provisioner-password-file="$CA_PROVISIONER_PWD_FILE")
   local SAN_ITEMS=("$FQDN" "$HOST" "$IP" "$SAN")
   for item in "${SAN_ITEMS[@]}"; do
